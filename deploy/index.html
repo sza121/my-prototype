@@ -1,0 +1,4451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>我的 - 交互原型</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --pink-light: #fde8ee;
+      --brand: #e85d6f;
+      --orange: #f5a623;
+      --text: #1a1a1a;
+      --text-secondary: #888;
+      --card-radius: 12px;
+      --tab-h: 56px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    html {
+      width: 100%;
+      height: 100%;
+    }
+    body {
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+      background: #d8d8d8;
+      color: var(--text);
+      overflow-x: hidden;
+    }
+    .app-shell {
+      width: 390px;
+      max-width: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      margin: 0 auto;
+      position: relative;
+    }
+    .phone {
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: #f5f5f5;
+      position: relative;
+      overflow: hidden;
+      contain: layout style paint;
+      isolation: isolate;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Views */
+    .view {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: #f5f5f5;
+      transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.32s, visibility 0.32s;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+      transform: none;
+    }
+    .view.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      z-index: 2;
+      transform: none;
+    }
+    .view.slide-out-left {
+      transform: translateX(-30%);
+      opacity: 0;
+      visibility: visible;
+      z-index: 3;
+    }
+    .view.slide-in-right {
+      transform: translateX(100%);
+      visibility: hidden;
+    }
+    .view.slide-in-right.active {
+      transform: none;
+      visibility: visible;
+    }
+
+    .scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px);
+      transition: padding-bottom 0.35s ease;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .scroll::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      display: none;
+    }
+    .view-message .scroll { padding-bottom: calc(var(--safe-bottom) + 24px); }
+
+    /* Header - profile */
+    .header {
+      background: linear-gradient(180deg, var(--pink-light) 0%, #f5f5f5 100%);
+      padding: 48px 16px 12px;
+    }
+    .user-row { display: flex; align-items: center; gap: 12px; }
+    .avatar {
+      width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0; border: 2px solid #fff;
+      background: #ddd center/cover;
+    }
+    .user-info { flex: 1; }
+    .user-name { font-size: 20px; font-weight: 600; }
+    .user-phone { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+    .header-actions { display: flex; gap: 16px; color: #666; align-items: center; }
+    .icon-btn {
+      position: relative; background: none; border: none; padding: 4px;
+      cursor: pointer; color: #666; line-height: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .icon-btn:active { opacity: 0.6; }
+    .icon-btn svg { width: 22px; height: 22px; }
+
+    /* Message center nav */
+    .msg-nav {
+      background: #fff;
+      padding: 48px 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+      flex-shrink: 0;
+    }
+    .msg-nav-top {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 44px; margin-bottom: 4px;
+    }
+    .msg-back {
+      width: 36px; height: 36px; border: none; background: none;
+      font-size: 22px; color: #333; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+    }
+    .msg-back:active { opacity: 0.5; }
+    .msg-title { font-size: 17px; font-weight: 600; flex: 1; text-align: center; margin-right: 36px; }
+    .msg-tabs {
+      display: flex; border-bottom: 1px solid #f0f0f0;
+    }
+    .msg-tab {
+      flex: 1; text-align: center; padding: 12px 0; font-size: 15px;
+      color: var(--text-secondary); background: none; border: none;
+      cursor: pointer; position: relative; font-family: inherit;
+    }
+    .msg-tab.active { color: var(--text); font-weight: 600; }
+    .msg-tab.active::after {
+      content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 48px; height: 3px; background: var(--orange); border-radius: 2px;
+    }
+    .msg-tab .tab-badge {
+      position: absolute; top: 6px; margin-left: 4px;
+      min-width: 16px; height: 16px; background: var(--brand); color: #fff;
+      font-size: 10px; font-weight: 600; border-radius: 8px;
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0 4px; line-height: 1;
+    }
+
+    /* Notification cards */
+    .notify-list { padding: 12px; }
+    .notify-card {
+      background: #fff; border-radius: var(--card-radius); padding: 14px 16px;
+      margin-bottom: 12px; cursor: pointer; position: relative;
+      transition: background 0.2s;
+    }
+    .notify-card:active { background: #fafafa; }
+    .notify-card.read { opacity: 0.72; }
+    .notify-card.read .notify-dot { display: none; }
+    .notify-head {
+      display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px;
+    }
+    .notify-icon {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: #fff;
+    }
+    .notify-icon.red { background: #e53935; }
+    .notify-icon.green { background: #43a047; }
+    .notify-icon.blue { background: #1e88e5; }
+    .notify-icon.orange { background: #fb8c00; }
+    .notify-meta { flex: 1; min-width: 0; }
+    .notify-title-row {
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    }
+    .notify-title { font-size: 15px; font-weight: 600; }
+    .notify-time { font-size: 12px; color: #bbb; flex-shrink: 0; }
+    .notify-body { font-size: 13px; color: #666; line-height: 1.55; margin-left: 46px; }
+    .notify-action {
+      text-align: right; font-size: 13px; color: var(--orange);
+      margin-top: 10px; margin-left: 46px;
+    }
+    .notify-dot {
+      position: absolute; top: 14px; right: 14px;
+      width: 8px; height: 8px; background: var(--brand); border-radius: 50%;
+    }
+
+    .empty-hint {
+      text-align: center; padding: 60px 24px; color: var(--text-secondary); font-size: 14px;
+    }
+
+    /* Shared */
+    .assets {
+      display: flex; background: #fff; margin: 0 12px;
+      border-radius: var(--card-radius); padding: 16px 0;
+    }
+    .asset-item { flex: 1; text-align: center; cursor: pointer; }
+    .asset-item:active { opacity: 0.7; }
+    .asset-num { font-size: 18px; font-weight: 700; }
+    .asset-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+    .banner {
+      margin: 12px; padding: 10px 14px; background: #fff8e6;
+      border-radius: 8px; font-size: 13px; color: #b8860b;
+    }
+
+    .card {
+      background: #fff; margin: 0 12px 12px;
+      border-radius: var(--card-radius); padding: 14px 16px;
+      overflow: hidden;
+      min-width: 0;
+    }
+    .card-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
+    }
+    .card-title { font-size: 15px; font-weight: 600; }
+    .card-link {
+      font-size: 13px; color: var(--text-secondary); cursor: pointer;
+      border: none; background: none; font-family: inherit; padding: 4px 0;
+    }
+    .card-link.more-btn { display: flex; align-items: center; gap: 2px; transition: color 0.2s; }
+    .card-link.more-btn.open { color: var(--brand); }
+    .card-link.more-btn .chevron { display: inline-block; transition: transform 0.3s; }
+    .card-link.more-btn.open .chevron { transform: rotate(90deg); }
+
+    .section-label { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
+
+    .icon-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 12px 8px; width: 100%; min-width: 0;
+    }
+    .icon-cell {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+    }
+    .icon-cell:active .icon-circle { transform: scale(0.92); }
+    .icon-circle {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; transition: transform 0.15s; position: relative;
+    }
+    .icon-label { font-size: 11px; text-align: center; line-height: 1.3; max-width: 72px; }
+
+    .badge {
+      position: absolute; top: -4px; right: -4px;
+      min-width: 16px; height: 16px; background: var(--brand); color: #fff;
+      font-size: 10px; font-weight: 600; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; padding: 0 4px;
+    }
+    .badge.hidden { display: none; }
+
+    .more-panel {
+      max-height: 0; overflow: hidden; opacity: 0;
+      transition: max-height 0.35s ease, opacity 0.3s, margin 0.35s;
+      margin-top: 0; width: 100%;
+    }
+    .more-panel.open {
+      max-height: 120px; opacity: 1; margin-top: 16px;
+      padding-top: 16px; border-top: 1px solid #f0f0f0;
+    }
+
+    .tabbar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: calc(var(--tab-h) + var(--safe-bottom));
+      padding-bottom: var(--safe-bottom);
+      background: #fff;
+      border-top: 1px solid #eee;
+      display: flex;
+      z-index: 100;
+      transition: transform 0.3s ease;
+    }
+    .tabbar.hidden { transform: translateY(100%); }
+    .tab {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2px;
+      font-size: 10px; color: #999; cursor: pointer; position: relative;
+    }
+    .tab.active { color: var(--brand); }
+    .tab-icon { font-size: 20px; position: relative; }
+    .tab .badge { top: -6px; right: -10px; }
+
+    .toast {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      background: rgba(0,0,0,0.75); color: #fff;
+      padding: 12px 24px; border-radius: 8px; font-size: 14px;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s, transform 0.25s; z-index: 300;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+    .bg-orange { background: #ffe4cc; }
+    .bg-blue { background: #dceefb; }
+    .bg-pink { background: #fce4ec; }
+    .bg-purple { background: #ede7f6; }
+    .bg-red { background: #ffebee; }
+    .order-icon { font-size: 22px; }
+
+    /* 百货豆 — 与「我的」页统一粉白风格 */
+    .view-beans,
+    .view-beans-detail {
+      background: #f5f5f5;
+    }
+    .beans-hero {
+      background: linear-gradient(180deg, var(--pink-light) 0%, #f5f5f5 100%);
+      padding: 48px 16px 16px;
+      flex-shrink: 0;
+    }
+    .beans-nav-top {
+      display: flex; align-items: center; height: 44px; margin-bottom: 8px;
+    }
+    .beans-nav-top .msg-back { color: #333; }
+    .beans-nav-title {
+      flex: 1; text-align: center; font-size: 17px; font-weight: 600;
+      color: var(--text); margin-right: 36px;
+    }
+    .beans-balance-card {
+      background: #fff; border-radius: var(--card-radius);
+      padding: 16px 18px; margin: 0;
+    }
+    .beans-balance-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px;
+    }
+    .beans-balance-label { font-size: 14px; color: #666; }
+    .beans-help {
+      border: none; background: none; font-size: 13px; color: var(--text-secondary);
+      cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 4px;
+    }
+    .beans-help:active { opacity: 0.6; }
+    .beans-balance-num {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      font-size: 36px; font-weight: 700; color: #333; padding: 8px 0 4px;
+    }
+    .beans-bean-icon {
+      width: 36px; height: 42px; flex-shrink: 0;
+    }
+
+    .beans-tabs {
+      display: flex; background: #fff; border-bottom: 1px solid #f0f0f0; flex-shrink: 0;
+    }
+    .beans-tab {
+      flex: 1; text-align: center; padding: 14px 0; font-size: 15px;
+      color: var(--text-secondary); background: none; border: none; cursor: pointer;
+      font-family: inherit; position: relative;
+    }
+    .beans-tab.active { color: var(--brand); font-weight: 600; }
+    .beans-tab.active::after {
+      content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 64px; height: 3px; background: var(--brand); border-radius: 2px;
+    }
+
+    .view-beans .scroll { background: #f5f5f5; padding-bottom: calc(var(--safe-bottom) + 24px); }
+    .beans-list-wrap {
+      margin: 12px; background: #fff; border-radius: var(--card-radius); overflow: hidden;
+    }
+    .beans-list { background: #fff; min-height: 120px; }
+    .beans-tx {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px; border-bottom: 1px solid #f5f5f5; cursor: pointer;
+    }
+    .beans-tx:last-child { border-bottom: none; }
+    .beans-tx:active { background: #fafafa; }
+    .beans-tx-icon {
+      width: 40px; height: 40px; border-radius: 50%; background: #5b9fd4;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; flex-shrink: 0;
+    }
+    .beans-tx-icon.income { background: #7cb87c; }
+    .beans-tx-icon svg { width: 22px; height: 22px; }
+    .beans-tx-body { flex: 1; min-width: 0; }
+    .beans-tx-name { font-size: 15px; font-weight: 600; }
+    .beans-tx-sub { font-size: 12px; color: #999; margin-top: 4px; }
+    .beans-tx-right { text-align: right; flex-shrink: 0; }
+    .beans-tx-amt { font-size: 16px; font-weight: 600; }
+    .beans-tx-amt.out { color: var(--brand); }
+    .beans-tx-amt.in { color: #43a047; }
+    .beans-tx-time { font-size: 11px; color: #bbb; margin-top: 4px; }
+
+    .beans-footer-link {
+      display: block; text-align: center; padding: 16px 20px 20px;
+      font-size: 14px; color: var(--text-secondary); background: transparent;
+      border: none; width: 100%; cursor: pointer; font-family: inherit;
+    }
+    .beans-footer-link:active { color: #666; }
+
+    .view-beans-detail .scroll { background: #f5f5f5; padding-bottom: calc(var(--safe-bottom) + 24px); }
+
+    /* 明细页 */
+    .detail-nav {
+      background: linear-gradient(180deg, var(--pink-light) 0%, #fff 100%);
+      padding: 48px 12px 12px; flex-shrink: 0;
+    }
+    .detail-filters {
+      background: #fff; margin: 0 12px; border-radius: var(--card-radius);
+      padding: 0 16px; overflow: hidden;
+    }
+    .detail-filter-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 0; border-bottom: 1px solid #f5f5f5; cursor: pointer;
+    }
+    .detail-filter-row:last-child { border-bottom: none; }
+    .detail-filter-row:active { background: #fafafa; }
+    .detail-filter-label { font-size: 14px; color: #666; }
+    .detail-filter-value {
+      font-size: 14px; color: #333; display: flex; align-items: center; gap: 6px;
+    }
+    .detail-filter-value .arrow { color: #ccc; font-size: 12px; }
+
+    .detail-seg {
+      display: flex; margin: 12px 16px; border: 1px solid var(--brand);
+      border-radius: 8px; overflow: hidden; background: #fff;
+    }
+    .detail-seg-btn {
+      flex: 1; padding: 10px 0; text-align: center; font-size: 14px;
+      border: none; background: #fff; color: var(--brand); cursor: pointer; font-family: inherit;
+    }
+    .detail-seg-btn.active { background: var(--brand); color: #fff; font-weight: 600; }
+
+    /* Picker overlay */
+    .picker-mask {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      z-index: 400; opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    }
+    .picker-mask.show { opacity: 1; pointer-events: auto; }
+    .picker-sheet {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      width: 100%;
+      max-width: 390px;
+      background: #fff;
+      border-radius: 12px 12px 0 0;
+      z-index: 401;
+      transform: translate(-50%, 100%);
+      transition: transform 0.3s ease;
+      padding-bottom: var(--safe-bottom);
+    }
+    .picker-mask.show .picker-sheet { transform: translate(-50%, 0); }
+    .picker-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 16px; border-bottom: 1px solid #f0f0f0;
+    }
+    .picker-header button {
+      border: none; background: none; font-size: 15px; cursor: pointer; font-family: inherit;
+    }
+    .picker-cancel { color: #999; }
+    .picker-confirm { color: var(--brand); font-weight: 600; }
+    .picker-title { font-size: 16px; font-weight: 600; }
+    .picker-options { max-height: 280px; overflow-y: auto; }
+    .picker-option {
+      padding: 14px 16px; font-size: 15px; border-bottom: 1px solid #f5f5f5;
+      cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+    }
+    .picker-option:active { background: #f5f5f5; }
+    .picker-option.selected { color: var(--brand); font-weight: 600; }
+    .picker-option .check { display: none; }
+    .picker-option.selected .check { display: inline; }
+
+    /* 平台余额 — 与「我的」/百货豆统一 */
+    .balance-page {
+      display: flex; flex-direction: column; height: 100%; background: #f5f5f5;
+    }
+    .balance-hero {
+      background: linear-gradient(180deg, var(--pink-light) 0%, #f5f5f5 100%);
+      padding: 48px 16px 16px; flex-shrink: 0;
+    }
+    .balance-hero .beans-nav-top .msg-back { color: #333; }
+    .balance-hero .beans-nav-title { color: var(--text); }
+    .balance-card {
+      background: #fff; border-radius: var(--card-radius); padding: 16px 18px;
+    }
+    .balance-card-head {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
+    }
+    .balance-card-label { font-size: 14px; color: #666; }
+    .balance-security {
+      border: none; background: none; font-size: 13px; color: var(--text-secondary);
+      cursor: pointer; font-family: inherit;
+    }
+    .balance-amount {
+      font-size: 32px; font-weight: 700; color: #333; text-align: center; padding: 12px 0;
+    }
+    .balance-warn {
+      margin: 0 12px 12px; padding: 10px 14px; background: #fff8e6;
+      border-radius: 8px; font-size: 13px; color: #b8860b;
+      display: none;
+    }
+    .balance-warn.show { display: block; }
+    .view-balance .scroll { flex: 1; background: #f5f5f5; }
+    .balance-footer {
+      padding: 16px; background: #fff; border-top: 1px solid #f0f0f0; flex-shrink: 0;
+    }
+    .btn-recharge {
+      width: 100%; padding: 14px; background: var(--brand); color: #fff;
+      border: none; border-radius: 24px; font-size: 16px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+    }
+    .btn-recharge:active { opacity: 0.85; }
+    .link-refund {
+      display: block; text-align: center; margin-top: 12px;
+      color: var(--brand); font-size: 14px; background: none; border: none;
+      cursor: pointer; font-family: inherit; width: 100%;
+    }
+
+    /* 餐厅会员卡 — 统一粉白背景 */
+    .restaurant-page { background: #f5f5f5; }
+    .restaurant-nav {
+      padding: 48px 16px 12px;
+      background: linear-gradient(180deg, var(--pink-light) 0%, #f5f5f5 100%);
+    }
+    .restaurant-card {
+      margin: 0 16px 12px;
+      background: linear-gradient(135deg, #f4a4b0 0%, var(--brand) 100%);
+      border-radius: var(--card-radius); padding: 20px; color: #fff; position: relative;
+    }
+    .restaurant-card-top {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+    }
+    .restaurant-logo {
+      width: 48px; height: 48px; border-radius: 50%; background: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 24px;
+    }
+    .restaurant-name { font-size: 18px; font-weight: 700; }
+    .restaurant-sub { font-size: 12px; opacity: 0.9; margin-top: 2px; }
+    .restaurant-qr {
+      margin-left: auto; font-size: 22px; opacity: 0.9; cursor: pointer;
+    }
+    .restaurant-id { text-align: right; font-size: 12px; opacity: 0.9; }
+    .restaurant-grid {
+      display: flex; background: #fff; margin: 0 16px; border-radius: var(--card-radius); padding: 16px 0;
+    }
+    .restaurant-grid-item {
+      flex: 1; text-align: center; border-right: 1px solid #f0f0f0;
+    }
+    .restaurant-grid-item:last-child { border-right: none; }
+    .restaurant-grid-label { font-size: 13px; color: #666; }
+    .restaurant-grid-value { font-size: 13px; color: #999; margin: 6px 0; }
+    .restaurant-grid-value.low { color: var(--brand); font-weight: 600; }
+    .restaurant-grid-action {
+      font-size: 14px; font-weight: 600; color: #333; background: none;
+      border: none; cursor: pointer; font-family: inherit; margin-top: 4px;
+    }
+    .restaurant-grid-action:active { opacity: 0.6; }
+    .restaurant-actions {
+      display: flex; gap: 10px; padding: 16px; flex-wrap: wrap;
+    }
+    .restaurant-btn-outline {
+      flex: 1; min-width: calc(33% - 8px); padding: 10px 8px;
+      border: 1px solid #eee; border-radius: 8px; background: #fff;
+      font-size: 13px; cursor: pointer; font-family: inherit; color: #333;
+    }
+    .restaurant-btn-outline:active { background: #f5f5f5; }
+    .restaurant-tip {
+      margin: 0 16px 24px; padding: 12px; font-size: 12px; color: #b8860b;
+      line-height: 1.6; background: #fff8e6; border-radius: 8px;
+    }
+
+    /* 充值页 */
+    .recharge-page { background: #f5f5f5; }
+    .recharge-nav-wrap {
+      background: linear-gradient(180deg, var(--pink-light) 0%, #fff 100%);
+    }
+    .recharge-body { padding: 20px 16px; flex: 1; background: #fff; margin: 12px; border-radius: var(--card-radius); }
+    .recharge-type-label {
+      font-size: 14px; color: #666; margin-bottom: 8px;
+    }
+    .recharge-current {
+      font-size: 28px; font-weight: 700; color: #333; margin-bottom: 24px;
+    }
+    .recharge-presets {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px;
+    }
+    .recharge-preset {
+      padding: 14px 8px; border: 1px solid #eee; border-radius: 8px;
+      text-align: center; font-size: 16px; cursor: pointer; background: #fff;
+      font-family: inherit;
+    }
+    .recharge-preset.active { border-color: var(--brand); color: var(--brand); background: var(--pink-light); }
+    .recharge-preset:active { opacity: 0.8; }
+    .recharge-threshold {
+      font-size: 12px; color: #999; margin-bottom: 16px; padding: 10px;
+      background: #f9f9f9; border-radius: 8px;
+    }
+    .recharge-success-mask {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500;
+      display: none; align-items: center; justify-content: center;
+    }
+    .recharge-success-mask.show { display: flex; }
+    .recharge-success-box {
+      background: #fff; border-radius: 12px; padding: 32px 40px; text-align: center;
+      max-width: 280px; margin: 16px;
+    }
+    .recharge-success-icon { font-size: 48px; color: #43a047; margin-bottom: 12px; }
+    .recharge-success-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+    .recharge-success-amt { font-size: 14px; color: #666; margin-bottom: 20px; }
+    .recharge-success-btn {
+      padding: 10px 32px; background: var(--brand); color: #fff; border: none;
+      border-radius: 20px; font-size: 15px; cursor: pointer; font-family: inherit;
+    }
+
+    .view-balance .scroll,
+    .view-restaurant .scroll,
+    .view-recharge .scroll { padding-bottom: calc(var(--safe-bottom) + 16px); }
+    .view-balance { display: flex; flex-direction: column; background: #f5f5f5; }
+
+    /* 我的订单 */
+    .view-orders { background: #f5f5f5; }
+    .orders-nav {
+      background: linear-gradient(180deg, var(--pink-light) 0%, #fff 100%);
+      padding: 48px 0 0; flex-shrink: 0;
+    }
+    .orders-tabs {
+      display: flex; background: #fff; border-bottom: 1px solid #f0f0f0;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+    .orders-tabs::-webkit-scrollbar { display: none; }
+    .orders-tab {
+      flex: 1; min-width: 64px; text-align: center; padding: 12px 4px;
+      font-size: 14px; color: var(--text-secondary); background: none; border: none;
+      cursor: pointer; font-family: inherit; position: relative; white-space: nowrap;
+    }
+    .orders-tab.active { color: var(--brand); font-weight: 600; }
+    .orders-tab.active::after {
+      content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 28px; height: 3px; background: var(--brand); border-radius: 2px;
+    }
+    .orders-list { padding: 12px; }
+    .order-card {
+      background: #fff; border-radius: var(--card-radius); padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    .order-card-head {
+      display: flex; align-items: center; gap: 6px; margin-bottom: 10px;
+    }
+    .order-store-icon { font-size: 14px; color: #666; }
+    .order-store-name { font-size: 15px; font-weight: 600; flex: 1; }
+    .order-tag {
+      font-size: 11px; color: var(--brand); border: 1px solid var(--brand);
+      border-radius: 10px; padding: 1px 8px;
+    }
+    .order-meta-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px; font-size: 12px; color: #999;
+    }
+    .order-no { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 8px; }
+    .order-status { flex-shrink: 0; color: #bbb; }
+    .order-imgs {
+      display: flex; gap: 8px; margin-bottom: 12px;
+    }
+    .order-img-item { width: 64px; text-align: center; }
+    .order-img-placeholder {
+      width: 64px; height: 64px; background: #f5f5f5; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      color: #ccc; font-size: 20px;
+    }
+    .order-img-label { font-size: 10px; color: #ccc; margin-top: 4px; }
+    .order-card-foot {
+      border-top: 1px solid #f5f5f5; padding-top: 12px;
+      display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+    }
+    .order-summary-row {
+      width: 100%; display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; color: #999;
+    }
+    .order-summary { color: #333; font-size: 13px; }
+    .order-btn-outline {
+      padding: 6px 16px; border: 1px solid var(--brand); border-radius: 16px;
+      background: #fff; color: var(--brand); font-size: 13px; cursor: pointer; font-family: inherit;
+    }
+    .order-btn-outline:active { background: var(--pink-light); }
+    .order-img-single { margin-bottom: 12px; }
+    .order-img-black {
+      width: 64px; height: 64px; background: #222; border-radius: 6px;
+    }
+    .order-pickup-row {
+      width: 100%; display: flex; justify-content: space-between; align-items: center;
+      gap: 8px; flex-wrap: wrap;
+    }
+    .order-pickup-code {
+      font-size: 13px; color: var(--brand); font-weight: 500;
+    }
+    .order-copy {
+      border: none; background: none; color: var(--brand); font-size: 13px;
+      cursor: pointer; font-family: inherit; padding: 0; margin-left: 2px;
+    }
+    .order-copy:active { opacity: 0.6; }
+    .orders-tab .tab-count {
+      position: absolute; top: 4px; margin-left: 2px;
+      min-width: 14px; height: 14px; background: var(--brand); color: #fff;
+      font-size: 9px; font-weight: 600; border-radius: 7px;
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0 3px; line-height: 1;
+    }
+    .orders-tab .tab-count.hidden { display: none; }
+    .view-orders .scroll { padding-bottom: calc(var(--safe-bottom) + 24px); background: #f5f5f5; }
+
+    /* 优惠券 */
+    .view-coupon { background: #f5f5f5; display: flex; flex-direction: column; }
+    .coupon-nav {
+      background: linear-gradient(180deg, var(--pink-light) 0%, #fff 100%);
+      padding: 48px 12px 0; flex-shrink: 0;
+    }
+    .coupon-main-tabs {
+      display: flex; justify-content: center; gap: 32px;
+      padding: 8px 0 12px; border-bottom: 1px solid #f0f0f0;
+    }
+    .coupon-main-tab {
+      font-size: 16px; color: var(--text-secondary); background: none; border: none;
+      cursor: pointer; font-family: inherit; position: relative; padding: 4px 0;
+    }
+    .coupon-main-tab.active { color: var(--brand); font-weight: 600; }
+    .coupon-main-tab.active::after {
+      content: ''; position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%);
+      width: 24px; height: 3px; background: var(--brand); border-radius: 2px;
+    }
+    .coupon-status-tabs {
+      display: flex; background: #fff; border-bottom: 1px solid #f0f0f0;
+    }
+    .coupon-status-tab {
+      flex: 1; text-align: center; padding: 12px 0; font-size: 14px;
+      color: var(--text-secondary); background: none; border: none;
+      cursor: pointer; font-family: inherit;
+    }
+    .coupon-status-tab.active { color: var(--brand); font-weight: 600; }
+    .coupon-list { padding: 12px; flex: 1; }
+    .coupon-card {
+      display: flex; background: #fff; border-radius: var(--card-radius);
+      margin-bottom: 12px; overflow: hidden; min-height: 88px;
+      position: relative;
+    }
+    .coupon-card.expiring-soon { box-shadow: 0 0 0 1px rgba(232, 93, 111, 0.25); }
+    .coupon-card-left {
+      width: 108px; flex-shrink: 0;
+      background: linear-gradient(180deg, #f8b4c4 0%, var(--brand) 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: #fff; padding: 12px 8px; position: relative;
+    }
+    .coupon-card-left::after {
+      content: ''; position: absolute; right: -6px; top: 50%; transform: translateY(-50%);
+      width: 12px; height: 12px; background: #f5f5f5; border-radius: 50%;
+    }
+    .coupon-amt { font-size: 28px; font-weight: 700; line-height: 1; }
+    .coupon-amt small { font-size: 14px; font-weight: 600; }
+    .coupon-condition { font-size: 10px; margin-top: 6px; opacity: 0.95; text-align: center; line-height: 1.3; }
+    .coupon-card-right {
+      flex: 1; padding: 12px 14px; display: flex; flex-direction: column;
+      justify-content: center; position: relative; min-width: 0;
+    }
+    .coupon-expire-tag {
+      position: absolute; top: 8px; right: 8px;
+      font-size: 10px; color: #fff; background: #ff9800;
+      padding: 2px 6px; border-radius: 8px; font-weight: 600;
+    }
+    .coupon-expire-tag.today { background: var(--brand); }
+    .coupon-type-tag {
+      display: inline-block; font-size: 10px; color: var(--brand);
+      border: 1px solid var(--brand); border-radius: 8px;
+      padding: 1px 6px; margin-bottom: 6px; width: fit-content;
+    }
+    .coupon-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .coupon-date { font-size: 11px; color: #999; margin-bottom: 8px; }
+    .coupon-use-btn {
+      align-self: flex-end; padding: 4px 14px; border: none;
+      background: linear-gradient(90deg, #f8b4c4, var(--brand));
+      color: #fff; font-size: 12px; border-radius: 14px;
+      cursor: pointer; font-family: inherit;
+    }
+    .coupon-use-btn:active { opacity: 0.85; }
+    .coupon-card.used .coupon-card-left,
+    .coupon-card.expired .coupon-card-left {
+      background: linear-gradient(180deg, #ddd 0%, #bbb 100%);
+    }
+    .coupon-card.used .coupon-use-btn,
+    .coupon-card.expired .coupon-use-btn { display: none; }
+    .coupon-footer {
+      flex-shrink: 0; padding: 16px 16px calc(16px + var(--safe-bottom));
+      background: linear-gradient(180deg, #f5f5f5 0%, var(--pink-light) 40%, var(--pink-light) 100%);
+    }
+    .btn-get-coupon {
+      width: 100%; padding: 14px; border: none; border-radius: 24px;
+      background: var(--brand); color: #fff;
+      font-size: 16px; font-weight: 600; cursor: pointer; font-family: inherit;
+      box-shadow: 0 4px 12px rgba(232, 93, 111, 0.25);
+    }
+    .btn-get-coupon:active { opacity: 0.9; }
+    .view-coupon .scroll { flex: 1; padding-bottom: 8px; background: #f5f5f5; }
+
+    /* 购物车 */
+    .view-cart { background: #f5f5f5; display: flex; flex-direction: column; }
+    .cart-nav {
+      background: #fff; padding: 48px 16px 12px; text-align: center;
+      font-size: 17px; font-weight: 600; flex-shrink: 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .view-cart .scroll {
+      flex: 1; padding: 12px;
+      padding-bottom: calc(120px + var(--safe-bottom));
+    }
+    .cart-store-card {
+      background: #fff; border-radius: var(--card-radius); overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .cart-store-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 14px; border-bottom: 1px solid #f5f5f5;
+    }
+    .cart-store-name {
+      display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600;
+    }
+    .cart-store-logo {
+      width: 20px; height: 20px; border-radius: 50%; background: var(--pink-light);
+      display: flex; align-items: center; justify-content: center; font-size: 10px;
+    }
+    .cart-clear {
+      border: none; background: none; color: var(--brand); font-size: 13px;
+      cursor: pointer; font-family: inherit;
+    }
+    .cart-item {
+      display: flex; align-items: flex-start; gap: 10px; padding: 14px;
+    }
+    .cart-check {
+      width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #ddd;
+      flex-shrink: 0; margin-top: 28px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; background: #fff;
+    }
+    .cart-check.checked {
+      background: var(--brand); border-color: var(--brand); color: #fff; font-size: 12px;
+    }
+    .cart-product-img {
+      width: 80px; height: 80px; border-radius: 6px; background: #f9f9f9;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: #999; text-align: center; padding: 4px;
+      border: 1px solid #f0f0f0;
+    }
+    .cart-product-body { flex: 1; min-width: 0; }
+    .cart-product-name { font-size: 14px; font-weight: 500; line-height: 1.4; margin-bottom: 4px; }
+    .cart-product-spec { font-size: 12px; color: #999; margin-bottom: 8px; }
+    .cart-product-row {
+      display: flex; justify-content: space-between; align-items: flex-end;
+    }
+    .cart-product-price { font-size: 16px; font-weight: 600; color: var(--brand); }
+    .cart-qty-wrap { text-align: right; }
+    .cart-qty-hint { font-size: 10px; color: #bbb; margin-bottom: 4px; }
+    .cart-qty {
+      display: inline-flex; align-items: center; gap: 0;
+      border: 1px solid #eee; border-radius: 4px; overflow: hidden;
+    }
+    .cart-qty-btn {
+      width: 28px; height: 28px; border: none; background: #fff;
+      font-size: 16px; cursor: pointer; color: #666; font-family: inherit;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cart-qty-btn.plus { color: var(--brand); font-weight: 600; }
+    .cart-qty-btn.del { color: #999; font-size: 14px; border-right: 1px solid #eee; }
+    .cart-qty-btn:active { background: #f5f5f5; }
+    .cart-qty-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .cart-qty-num {
+      min-width: 32px; text-align: center; font-size: 14px;
+      border-left: 1px solid #eee; border-right: 1px solid #eee; line-height: 28px;
+    }
+    .cart-empty {
+      text-align: center; padding: 80px 24px; color: #999; font-size: 14px;
+    }
+    .cart-bar {
+      position: absolute;
+      bottom: calc(var(--tab-h) + var(--safe-bottom));
+      left: 0;
+      right: 0;
+      width: 100%;
+      background: #fff;
+      border-top: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      gap: 10px;
+      z-index: 90;
+    }
+    .cart-bar.hidden { display: none; }
+    .cart-bar-all {
+      display: flex; align-items: center; gap: 6px; font-size: 13px;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .cart-bar-total { flex: 1; text-align: right; font-size: 13px; }
+    .cart-bar-total strong { color: var(--brand); font-size: 16px; }
+    .cart-checkout {
+      padding: 10px 18px; background: var(--brand); color: #fff;
+      border: none; border-radius: 20px; font-size: 14px; font-weight: 600;
+      cursor: pointer; font-family: inherit; white-space: nowrap;
+    }
+    .cart-checkout:disabled { background: #fcc; cursor: not-allowed; }
+    .cart-checkout:active:not(:disabled) { opacity: 0.9; }
+    .confirm-mask {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 600;
+      display: none; align-items: center; justify-content: center;
+    }
+    .confirm-mask.show { display: flex; }
+    .confirm-box {
+      background: #fff; border-radius: 12px; width: 280px; overflow: hidden;
+    }
+    .confirm-msg { padding: 24px 20px; text-align: center; font-size: 15px; }
+    .confirm-actions { display: flex; border-top: 1px solid #f0f0f0; }
+    .confirm-actions button {
+      flex: 1; padding: 14px; border: none; background: #fff;
+      font-size: 15px; cursor: pointer; font-family: inherit;
+    }
+    .confirm-actions .confirm-no { color: #999; border-right: 1px solid #f0f0f0; }
+    .confirm-actions .confirm-yes { color: var(--brand); font-weight: 600; }
+
+    /* 首页 — 与「我的」统一粉白色调 */
+    .view-home { background: #f5f5f5; }
+    .home-header {
+      background: linear-gradient(180deg, var(--pink-light) 0%, #f5f5f5 100%);
+      padding: 48px 12px 12px;
+    }
+    .home-store-row {
+      display: flex; align-items: center; margin-bottom: 12px;
+    }
+    .home-store-left {
+      display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;
+    }
+    .home-store-current {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 16px; font-weight: 600; color: var(--text);
+      min-width: 0; flex-shrink: 1;
+    }
+    .home-store-current span:last-child,
+    #currentStoreName {
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .home-store-icon { font-size: 18px; flex-shrink: 0; }
+    .home-store-switch {
+      display: flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border: 1px solid var(--brand);
+      border-radius: 14px; background: rgba(255,255,255,0.75);
+      color: var(--brand); font-size: 11px; cursor: pointer;
+      font-family: inherit; flex-shrink: 0; margin-left: 2px;
+    }
+    .home-store-switch:active { opacity: 0.75; }
+    .home-switch-lines {
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .home-switch-lines i {
+      display: block; width: 12px; height: 1.5px;
+      background: var(--brand); border-radius: 1px;
+    }
+    .home-search-row {
+      display: flex; gap: 8px; align-items: center;
+    }
+    .home-search {
+      flex: 1; display: flex; align-items: center; gap: 8px;
+      background: #fff; border-radius: 20px; padding: 8px 14px;
+      font-size: 13px; color: #bbb; border: none; cursor: pointer;
+      font-family: inherit; text-align: left; width: 100%;
+    }
+    .home-search:active { background: #fafafa; }
+    .home-paycode {
+      flex-shrink: 0; display: flex; flex-direction: column;
+      align-items: center; gap: 2px; padding: 6px 10px;
+      background: #fff; border: 1px solid var(--brand);
+      border-radius: 10px; color: var(--brand); font-size: 10px;
+      cursor: pointer; font-family: inherit;
+    }
+    .home-paycode:active { background: var(--pink-light); }
+    .home-body { padding: 0 12px 12px; }
+    .home-categories-wrap {
+      background: #fff; border-radius: var(--card-radius);
+      margin-bottom: 12px; overflow: hidden;
+    }
+    .h-scroll-shell {
+      position: relative;
+      overflow: hidden;
+      min-width: 0;
+      width: 100%;
+    }
+    .h-scroll-fade {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 18px;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .h-scroll-fade.show { opacity: 1; }
+    .h-scroll-fade.left {
+      left: 0;
+      background: linear-gradient(90deg, #fff 0%, rgba(255, 255, 255, 0) 100%);
+    }
+    .h-scroll-fade.right {
+      right: 0;
+      background: linear-gradient(270deg, #fff 0%, rgba(255, 255, 255, 0) 100%);
+    }
+    .home-categories-scroll {
+      display: flex;
+      flex-wrap: nowrap;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      touch-action: pan-x;
+      overscroll-behavior-x: contain;
+      padding: 14px 0;
+    }
+    .home-categories-scroll::-webkit-scrollbar { display: none; }
+    .home-cat-item {
+      flex: 0 0 auto;
+      text-align: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      border: none;
+      background: none;
+      padding: 0;
+      font-family: inherit;
+      touch-action: pan-x;
+    }
+    .home-cat-icon {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: var(--pink-light); margin: 0 auto 6px;
+      display: flex; align-items: center; justify-content: center; font-size: 22px;
+    }
+    .home-cat-label { font-size: 11px; color: var(--text); }
+    .home-notice {
+      background: #fff; border-radius: var(--card-radius);
+      padding: 10px 14px; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 10px; font-size: 12px;
+      border: 1px solid #f0f0f0;
+    }
+    .home-notice-tag {
+      color: var(--brand); font-weight: 600; flex-shrink: 0;
+      padding-right: 10px; border-right: 1px solid #f0f0f0;
+    }
+    .home-notice-text { color: #666; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .home-banner {
+      background: linear-gradient(135deg, #fde8ee 0%, #f8b4c4 50%, var(--brand) 100%);
+      border-radius: var(--card-radius); padding: 20px 16px; margin-bottom: 12px;
+      color: #fff; position: relative; overflow: hidden; min-height: 100px;
+      cursor: pointer; border: none; width: 100%; text-align: left; font-family: inherit;
+    }
+    .home-banner:active { opacity: 0.92; }
+    .home-banner-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .home-banner-sub { font-size: 12px; opacity: 0.9; }
+    .home-banner-deco { position: absolute; right: 12px; bottom: 8px; font-size: 36px; opacity: 0.8; }
+    .home-products {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+      position: relative;
+    }
+    .home-product {
+      background: #fff; border-radius: var(--card-radius); overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .home-product-img {
+      width: 100%; aspect-ratio: 1; background: #f9f9f9;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 64px; min-height: 160px; overflow: hidden;
+    }
+    .home-product-img.photo { padding: 0; }
+    .home-product-img.photo svg { width: 100%; height: 100%; display: block; }
+    .home-product-img.placeholder {
+      flex-direction: column; gap: 10px; color: #ccc; font-size: 12px;
+    }
+    .home-product-img.placeholder .placeholder-bird {
+      width: 56px; height: 56px; opacity: 0.35;
+    }
+    .home-product-info { padding: 10px 12px 12px; }
+    .home-product-name {
+      font-size: 14px; line-height: 1.4; margin-bottom: 6px;
+      overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .home-product-foot {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .home-product-price { display: flex; align-items: baseline; gap: 1px; }
+    .home-product-price-num {
+      font-size: 16px; font-weight: 700; color: #e53935;
+    }
+    .home-product-price-unit { font-size: 11px; color: #999; font-weight: 400; }
+    .product-add-cart {
+      width: 32px; height: 32px; border-radius: 50%; border: none;
+      background: #e53935; color: #fff; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; padding: 0; font-family: inherit;
+    }
+    .product-add-cart:active { opacity: 0.85; }
+    .product-add-cart svg { width: 18px; height: 18px; }
+    .product-add-cart .cart-mini-plus {
+      position: absolute; top: 5px; right: 5px;
+      width: 10px; height: 10px; font-size: 10px; font-weight: 700;
+      line-height: 10px; text-align: center;
+    }
+    .product-qty-ctrl {
+      display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+    }
+    .product-qty-trash {
+      border: none; background: none; color: #bbb; cursor: pointer;
+      padding: 2px; display: flex; align-items: center; font-family: inherit;
+    }
+    .product-qty-trash:active { color: #999; }
+    .product-qty-trash svg { width: 18px; height: 18px; }
+    .product-qty-num {
+      font-size: 15px; font-weight: 500; min-width: 18px; text-align: center;
+      color: var(--text);
+    }
+    .product-qty-plus {
+      width: 24px; height: 24px; border-radius: 6px; border: none;
+      background: #e53935; color: #fff; font-size: 18px; line-height: 1;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-family: inherit; padding: 0;
+    }
+    .product-qty-plus:active { opacity: 0.85; }
+    .product-tag {
+      position: absolute; top: 8px; left: 8px; z-index: 1;
+      background: linear-gradient(135deg, #ff7043, #e53935);
+      color: #fff; font-size: 10px; font-weight: 700;
+      padding: 2px 6px; border-radius: 4px;
+    }
+    .home-product { position: relative; }
+    .home-share-fab {
+      position: absolute; right: 16px; bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px);
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, #ffd54f, var(--orange));
+      border: none; color: #fff; font-size: 18px; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12); z-index: 80;
+      display: none; align-items: center; justify-content: center;
+    }
+    .home-share-fab.show { display: flex; }
+    .view-home .scroll { padding-bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px); }
+
+    /* 搜索商品 */
+    .view-search { background: #fff; }
+    .search-nav {
+      padding: 48px 12px 10px; background: #fff;
+      border-bottom: 1px solid #f5f5f5; flex-shrink: 0;
+    }
+    .search-nav-top {
+      display: flex; align-items: center; height: 44px; margin-bottom: 10px;
+    }
+    .search-nav-title {
+      flex: 1; text-align: center; font-size: 17px; font-weight: 600;
+      margin-right: 36px;
+    }
+    .search-bar-row {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .search-input-wrap {
+      flex: 1; display: flex; align-items: center; gap: 8px;
+      background: #f5f5f5; border-radius: 20px; padding: 8px 14px;
+    }
+    .search-input-wrap svg { flex-shrink: 0; color: #bbb; }
+    .search-input {
+      flex: 1; border: none; background: none; font-size: 14px;
+      outline: none; font-family: inherit; color: var(--text);
+    }
+    .search-input::placeholder { color: #bbb; }
+    .search-submit {
+      border: none; background: none; font-size: 15px; color: var(--text);
+      cursor: pointer; font-family: inherit; flex-shrink: 0; padding: 4px;
+    }
+    .search-submit:active { opacity: 0.6; }
+    .search-body { padding: 16px 12px; }
+    .search-section-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .search-section-title {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 14px; font-weight: 600; color: var(--text);
+    }
+    .search-section-title .icon { color: #999; font-size: 15px; }
+    .search-clear-btn {
+      display: flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border: 1px solid #eee; border-radius: 14px;
+      background: #fff; font-size: 12px; color: #999; cursor: pointer; font-family: inherit;
+    }
+    .search-clear-btn:active { background: #f5f5f5; }
+    .search-tags {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px;
+    }
+    .search-tag {
+      padding: 6px 14px; background: #f5f5f5; border-radius: 16px;
+      font-size: 13px; color: var(--text); border: none; cursor: pointer;
+      font-family: inherit;
+    }
+    .search-tag:active { background: #eee; }
+    .search-tag.hot { background: #fff5f6; color: var(--brand); }
+    .search-hot-products {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+    }
+    .search-hot-products .home-product-img { font-size: 56px; min-height: 140px; }
+    .search-results { display: none; }
+    .search-results.show { display: block; }
+    .search-default { display: block; }
+    .search-default.hide { display: none; }
+    .search-results-title {
+      font-size: 14px; color: #999; margin-bottom: 12px;
+    }
+    .search-empty {
+      text-align: center; padding: 40px 20px; color: #999; font-size: 14px;
+    }
+    .view-search .scroll { padding-bottom: calc(var(--safe-bottom) + 24px); background: #fff; }
+
+    /* 店主推荐 */
+    .view-recommend { background: #f5f5f5; }
+    .recommend-hero {
+      background: linear-gradient(135deg, #ffb74d 0%, #ff7043 50%, #e53935 100%);
+      padding: 24px 20px; color: #fff; position: relative; overflow: hidden;
+      min-height: 120px; border-radius: 0 0 16px 16px; margin-bottom: 12px;
+    }
+    .recommend-hero-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    .recommend-hero-deco {
+      position: absolute; right: 16px; bottom: 12px; font-size: 48px; opacity: 0.9;
+    }
+    .recommend-body { padding: 0 12px 12px; }
+    .recommend-meta {
+      font-size: 13px; color: #999; margin-bottom: 10px; padding: 0 4px;
+    }
+    .view-recommend .scroll { padding-bottom: calc(var(--safe-bottom) + 24px); }
+
+    /* 分类页 — 与首页/我的统一粉白色调 */
+    .view-category {
+      background: #f5f5f5;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+    }
+    .cat-header {
+      padding: 48px 12px 12px;
+      background: linear-gradient(180deg, var(--pink-light) 0%, #f5f5f5 100%);
+      flex-shrink: 0;
+    }
+    .cat-header-title {
+      text-align: center;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .cat-search-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 9px 14px;
+      font-size: 13px;
+      color: #bbb;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: left;
+      box-shadow: 0 1px 3px rgba(232, 93, 111, 0.06);
+    }
+    .cat-search-btn:active { background: #fafafa; }
+    .cat-body {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      min-height: 0;
+      min-width: 0;
+      width: 100%;
+      overflow: hidden;
+      background: #f5f5f5;
+    }
+    .cat-primary {
+      flex: 0 0 88px;
+      width: 88px;
+      min-width: 88px;
+      max-width: 88px;
+      align-self: stretch;
+      background: linear-gradient(180deg, #faf0f3 0%, #f5f5f5 100%);
+      overflow-y: auto;
+      overflow-x: hidden;
+      border-right: 1px solid #f0e4e8;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: calc(var(--tab-h) + var(--safe-bottom));
+    }
+    .cat-primary-item {
+      padding: 12px 6px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 11px;
+      color: var(--text-secondary);
+      border-left: 3px solid transparent;
+      transition: background 0.2s, color 0.2s;
+    }
+    .cat-primary-item:active { opacity: 0.85; }
+    .cat-primary-item.active {
+      background: #fff;
+      color: var(--brand);
+      font-weight: 600;
+      border-left-color: var(--brand);
+    }
+    .cat-primary-icon-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--pink-light);
+      margin: 0 auto 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .cat-primary-item.active .cat-primary-icon-wrap {
+      background: rgba(232, 93, 111, 0.12);
+    }
+    .cat-primary-icon {
+      font-size: 22px;
+      line-height: 1;
+    }
+    .cat-primary-label { line-height: 1.3; }
+    .cat-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      background: #f5f5f5;
+      overflow: hidden;
+    }
+    .cat-sub-block {
+      flex-shrink: 0;
+      background: #fff;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .cat-sub-wrap {
+      flex-shrink: 0;
+      display: flex;
+      align-items: stretch;
+      min-width: 0;
+      width: 100%;
+      background: #fff;
+      overflow: hidden;
+    }
+    .cat-sub-wrap .h-scroll-shell {
+      flex: 1;
+      min-width: 0;
+    }
+    .cat-sub-tabs {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 10px 12px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x;
+      overscroll-behavior-x: contain;
+      user-select: none;
+    }
+    .cat-sub-tabs::-webkit-scrollbar { display: none; }
+    .cat-sub-tab {
+      flex: 0 0 auto;
+      padding: 6px 8px;
+      border-radius: 16px;
+      font-size: 13px;
+      background: var(--pink-light);
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      color: var(--text);
+      transition: background 0.2s, color 0.2s, transform 0.15s;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: center;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: pan-x;
+    }
+    .cat-sub-tab:active { opacity: 0.85; }
+    .cat-sub-tab.active {
+      background: var(--brand);
+      color: #fff;
+    }
+    .cat-sub-tab.jump {
+      animation: catTabJump 0.35s ease;
+    }
+    @keyframes catTabJump {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    .cat-sub-all {
+      flex-shrink: 0;
+      writing-mode: vertical-rl;
+      font-size: 11px;
+      color: var(--text-secondary);
+      padding: 8px 10px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-family: inherit;
+      border-left: 1px solid #f0f0f0;
+      letter-spacing: 2px;
+    }
+    .cat-sub-all:active { color: var(--brand); }
+    .cat-sub-all.open { color: var(--brand); font-weight: 600; }
+    .cat-sort {
+      flex-shrink: 0;
+      display: flex;
+      flex-wrap: nowrap;
+      padding: 10px 12px;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid #f0f0f0;
+      background: #fff;
+      overflow-x: auto;
+      min-width: 0;
+    }
+    .cat-sort-item {
+      border: none;
+      background: none;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .cat-sort-item.active { color: var(--brand); font-weight: 600; }
+    .cat-sort-arrows { font-size: 10px; line-height: 1; color: var(--brand); }
+    .cat-product-scroll {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      min-height: 0;
+      padding: 8px 8px calc(var(--tab-h) + var(--safe-bottom) + 8px);
+      background: #f5f5f5;
+    }
+    .cat-section { background: transparent; }
+    .cat-section-head {
+      padding: 8px 4px 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: transparent;
+    }
+    .cat-product-row {
+      display: flex;
+      padding: 12px;
+      gap: 12px;
+      align-items: stretch;
+      background: #fff;
+      border-radius: var(--card-radius);
+      margin-bottom: 8px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    }
+    .cat-product-thumb {
+      width: 80px;
+      height: 80px;
+      flex-shrink: 0;
+      background: #fafafa;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      overflow: hidden;
+    }
+    .cat-product-thumb.photo svg { width: 100%; height: 100%; display: block; }
+    .cat-product-thumb.placeholder {
+      flex-direction: column;
+      gap: 4px;
+      font-size: 10px;
+      color: #ccc;
+    }
+    .cat-product-thumb.placeholder svg { width: 32px; height: 32px; opacity: 0.35; }
+    .cat-product-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      justify-content: space-between;
+    }
+    .cat-product-name {
+      font-size: 14px;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+    .cat-product-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .view-category .home-product-price-num { color: var(--brand); }
+    .view-category .product-add-cart,
+    .view-category .product-qty-plus { background: var(--brand); }
+
+    /* 二级分类弹窗（无「全部」项） */
+    .cat-sub-panel-mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 550;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .cat-sub-panel-mask.show { display: flex; }
+    .cat-sub-panel {
+      width: 100%;
+      max-width: 390px;
+      background: #fff;
+      border-radius: 16px 16px 0 0;
+      max-height: 70vh;
+      display: flex;
+      flex-direction: column;
+      animation: catPanelUp 0.28s ease;
+    }
+    @keyframes catPanelUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .cat-sub-panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-bottom: 1px solid #f0f0f0;
+      flex-shrink: 0;
+    }
+    .cat-sub-panel-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .cat-sub-panel-close {
+      border: none;
+      background: var(--pink-light);
+      color: var(--brand);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      font-family: inherit;
+      line-height: 1;
+    }
+    .cat-sub-panel-body {
+      overflow-y: auto;
+      padding: 12px 16px calc(16px + var(--safe-bottom));
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .cat-sub-panel-body::-webkit-scrollbar { display: none; }
+    .cat-sub-panel-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .cat-sub-panel-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 14px 8px;
+      border-radius: var(--card-radius);
+      border: 1px solid #f0f0f0;
+      background: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color 0.2s, background 0.2s;
+      min-height: 72px;
+    }
+    .cat-sub-panel-item:active { opacity: 0.9; }
+    .cat-sub-panel-item.active {
+      border-color: var(--brand);
+      background: var(--pink-light);
+    }
+    .cat-sub-panel-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .cat-sub-panel-item.active .cat-sub-panel-label { color: var(--brand); }
+    .cat-sub-panel-count {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+  <div class="phone" id="phone">
+    <!-- 我的页面 -->
+    <div class="view slide-in-right" id="viewProfile">
+      <div class="scroll" id="scroll">
+        <header class="header">
+          <div class="user-row">
+            <div class="avatar"></div>
+            <div class="user-info">
+              <div class="user-name">商</div>
+              <div class="user-phone">175******96</div>
+            </div>
+            <div class="header-actions">
+              <button type="button" class="icon-btn" id="msgBtn" aria-label="消息中心">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span class="badge" id="msgIconBadge">6</span>
+              </button>
+              <button type="button" class="icon-btn" data-action="设置" aria-label="设置">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <div class="assets">
+          <div class="asset-item" id="walletEntry" data-action="钱包">
+            <div class="asset-num" id="profileWalletAmt">510.26</div><div class="asset-label">钱包 ›</div>
+          </div>
+          <div class="asset-item" id="beansEntry" data-action="百货豆">
+            <div class="asset-num">155</div><div class="asset-label">百货豆 ›</div>
+          </div>
+          <div class="asset-item" id="couponEntry">
+            <div class="asset-num" id="profileCouponAmt">31</div><div class="asset-label">优惠券 ›</div>
+          </div>
+        </div>
+
+        <div class="banner" id="pendingBanner">⚠ 您有 2 笔订单待处理</div>
+
+        <section class="card">
+          <div class="card-header">
+            <span class="card-title">我的订单</span>
+            <button type="button" class="card-link" id="allOrdersBtn">全部订单 ›</button>
+          </div>
+          <div class="icon-grid">
+            <div class="icon-cell" id="orderUnpaidEntry" data-order-entry="unpaid">
+              <div class="icon-circle bg-purple"><span class="order-icon">💳</span><span class="badge hidden" id="badgeUnpaid">0</span></div>
+              <span class="icon-label">待付款</span>
+            </div>
+            <div class="icon-cell" id="orderPickupEntry" data-order-entry="pickup">
+              <div class="icon-circle bg-blue"><span class="order-icon">🛍</span><span class="badge hidden" id="badgePickup">0</span></div>
+              <span class="icon-label">待自提</span>
+            </div>
+            <div class="icon-cell" id="orderReceiveEntry" data-order-entry="receive">
+              <div class="icon-circle bg-purple"><span class="order-icon">🕐</span><span class="badge hidden" id="badgeReceive">0</span></div>
+              <span class="icon-label">待收货</span>
+            </div>
+            <div class="icon-cell" id="orderReviewEntry" data-order-entry="review">
+              <div class="icon-circle bg-orange">
+                <span class="order-icon">💬</span><span class="badge hidden" id="badgeReview">0</span>
+              </div>
+              <span class="icon-label">待评价</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="section-label">常用服务</div>
+          <div class="icon-grid">
+            <div class="icon-cell" id="restaurantEntry" data-action="餐厅充值"><div class="icon-circle bg-orange">💰</div><span class="icon-label">餐厅充值</span></div>
+            <div class="icon-cell" data-action="地址管理"><div class="icon-circle bg-orange">📍</div><span class="icon-label">地址管理</span></div>
+            <div class="icon-cell" data-action="联系客服"><div class="icon-circle bg-pink">🎧</div><span class="icon-label">联系客服</span></div>
+            <div class="icon-cell" data-action="意见反馈"><div class="icon-circle bg-orange">✉</div><span class="icon-label">意见反馈</span></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header" style="margin-bottom:0">
+            <span class="card-title">推广与经营</span>
+            <button type="button" class="card-link more-btn" id="moreBtn" aria-expanded="false">
+              更多 <span class="chevron">›</span>
+            </button>
+          </div>
+          <div class="icon-grid" style="margin-top:14px">
+            <div class="icon-cell" data-action="我的推荐"><div class="icon-circle bg-orange">👍</div><span class="icon-label">我的推荐</span></div>
+            <div class="icon-cell" data-action="推客中心"><div class="icon-circle bg-blue">👤</div><span class="icon-label">推客中心</span></div>
+            <div class="icon-cell" data-action="设置名片"><div class="icon-circle bg-red">📇</div><span class="icon-label">设置名片</span></div>
+            <div class="icon-cell" data-action="名片夹"><div class="icon-circle bg-orange">📁</div><span class="icon-label">名片夹</span></div>
+          </div>
+          <div class="more-panel" id="morePanel">
+            <div class="icon-grid">
+              <div class="icon-cell" data-action="免密支付"><div class="icon-circle bg-blue">🔓</div><span class="icon-label">免密支付</span></div>
+              <div class="icon-cell" data-action="全球精选"><div class="icon-circle bg-red">🌐</div><span class="icon-label">全球精选</span></div>
+              <div class="icon-cell" data-action="信息收集"><div class="icon-circle bg-blue">📋</div><span class="icon-label">信息收集</span></div>
+              <div class="icon-cell" data-action="商户管理"><div class="icon-circle bg-blue">🏪</div><span class="icon-label">商户管理</span></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- 消息中心 -->
+    <div class="view slide-in-right" id="viewMessage">
+      <div class="msg-nav">
+        <div class="msg-nav-top">
+          <button type="button" class="msg-back" id="msgBack" aria-label="返回">‹</button>
+          <span class="msg-title">消息中心</span>
+        </div>
+        <div class="msg-tabs">
+          <button type="button" class="msg-tab" id="tabChat" data-tab="chat">消息中心</button>
+          <button type="button" class="msg-tab active" id="tabNotify" data-tab="notify">
+            通知列表
+            <span class="tab-badge" id="notifyTabBadge">6</span>
+          </button>
+        </div>
+      </div>
+      <div class="scroll">
+        <div id="panelChat" class="empty-hint" style="display:none">
+          暂无会话消息<br><span style="font-size:12px;margin-top:8px;display:block">系统通知请查看「通知列表」</span>
+        </div>
+        <div id="panelNotify" class="notify-list">
+          <div class="notify-card" data-id="1" data-nav="recharge-platform">
+            <span class="notify-dot"></span>
+            <div class="notify-head">
+              <div class="notify-icon red">!</div>
+              <div class="notify-meta">
+                <div class="notify-title-row">
+                  <span class="notify-title">平台余额不足</span>
+                  <span class="notify-time">2026-05-26 14:30</span>
+                </div>
+              </div>
+            </div>
+            <div class="notify-body">您的平台余额仅剩 25.30 元，低于 50 元阈值，建议充值以保障正常消费</div>
+            <div class="notify-action">平台余额充值 ›</div>
+          </div>
+          <div class="notify-card" data-id="2" data-nav="recharge-restaurant">
+            <span class="notify-dot"></span>
+            <div class="notify-head">
+              <div class="notify-icon red">!</div>
+              <div class="notify-meta">
+                <div class="notify-title-row">
+                  <span class="notify-title">餐厅余额不足</span>
+                  <span class="notify-time">2026-05-26 14:28</span>
+                </div>
+              </div>
+            </div>
+            <div class="notify-body">您的餐厅余额仅剩 12.50 元，低于 20 元阈值，建议充值以保障餐厅消费</div>
+            <div class="notify-action">餐厅余额充值 ›</div>
+          </div>
+          <div class="notify-card" data-id="3" data-nav="balance-platform">
+            <span class="notify-dot"></span>
+            <div class="notify-head">
+              <div class="notify-icon green">✓</div>
+              <div class="notify-meta">
+                <div class="notify-title-row">
+                  <span class="notify-title">平台余额充值成功</span>
+                  <span class="notify-time">2026-05-26 13:20</span>
+                </div>
+              </div>
+            </div>
+            <div class="notify-body">平台余额已成功充值 100.00 元，当前平台余额 210.26 元</div>
+            <div class="notify-action">查看平台余额 ›</div>
+          </div>
+          <div class="notify-card" data-id="4" data-nav="balance-restaurant">
+            <span class="notify-dot"></span>
+            <div class="notify-head">
+              <div class="notify-icon green">✓</div>
+              <div class="notify-meta">
+                <div class="notify-title-row">
+                  <span class="notify-title">餐厅余额充值成功</span>
+                  <span class="notify-time">2026-05-26 13:15</span>
+                </div>
+              </div>
+            </div>
+            <div class="notify-body">餐厅余额已成功充值 50.00 元，当前餐厅余额 62.50 元</div>
+            <div class="notify-action">查看餐厅余额 ›</div>
+          </div>
+          <div class="notify-card" data-id="5" data-nav="order-pickup">
+            <span class="notify-dot"></span>
+            <div class="notify-head">
+              <div class="notify-icon blue">📦</div>
+              <div class="notify-meta">
+                <div class="notify-title-row">
+                  <span class="notify-title">订单待自提</span>
+                  <span class="notify-time">2026-05-25 17:00</span>
+                </div>
+              </div>
+            </div>
+            <div class="notify-body">您的订单已备好，取货码：757597</div>
+            <div class="notify-action">查看订单 ›</div>
+          </div>
+          <div class="notify-card" data-id="6" data-nav="coupon">
+            <span class="notify-dot"></span>
+            <div class="notify-head">
+              <div class="notify-icon orange">🎫</div>
+              <div class="notify-meta">
+                <div class="notify-title-row">
+                  <span class="notify-title">优惠券即将过期</span>
+                  <span class="notify-time">2026-05-26 09:00</span>
+                </div>
+              </div>
+            </div>
+            <div class="notify-body">您的「满 50 减 10 元」优惠券将于今天 23:59 过期，请尽快使用</div>
+            <div class="notify-action">立即使用 ›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 百货豆 -->
+    <div class="view slide-in-right view-beans" id="viewBeans">
+      <div class="beans-hero">
+        <div class="beans-nav-top">
+          <button type="button" class="msg-back" id="beansBack" aria-label="返回">‹</button>
+          <span class="beans-nav-title">百货豆</span>
+        </div>
+        <div class="beans-balance-card">
+          <div class="beans-balance-head">
+            <span class="beans-balance-label">当前百货豆</span>
+            <button type="button" class="beans-help" id="beansHelp">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              使用帮助
+            </button>
+          </div>
+          <div class="beans-balance-num">
+            <svg class="beans-bean-icon" viewBox="0 0 48 56" aria-hidden="true">
+              <defs>
+                <linearGradient id="beanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#ffb74d"/>
+                  <stop offset="45%" stop-color="#ff9800"/>
+                  <stop offset="100%" stop-color="#e65100"/>
+                </linearGradient>
+                <linearGradient id="beanShine" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#fff" stop-opacity="0.45"/>
+                  <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M24 4 C10 4 4 18 4 28 C4 42 12 52 24 52 C36 52 44 42 44 28 C44 18 38 4 24 4 Z" fill="url(#beanGrad)"/>
+              <ellipse cx="18" cy="20" rx="6" ry="10" fill="url(#beanShine)" transform="rotate(-15 18 20)"/>
+              <path d="M24 14 Q26 28 24 42" stroke="#d84315" stroke-width="1.2" fill="none" opacity="0.35"/>
+            </svg>
+            <span>155</span>
+          </div>
+        </div>
+      </div>
+      <div class="beans-tabs">
+        <button type="button" class="beans-tab active" id="beansTabOut" data-beans-tab="out">百货豆出账</button>
+        <button type="button" class="beans-tab" id="beansTabIn" data-beans-tab="in">百货豆入账</button>
+      </div>
+      <div class="scroll">
+        <div class="beans-list-wrap">
+          <div class="beans-list" id="beansTxList"></div>
+        </div>
+        <button type="button" class="beans-footer-link" id="beansAllDetail">查看全部明细 ›</button>
+      </div>
+    </div>
+
+    <!-- 明细 -->
+    <div class="view slide-in-right view-beans-detail" id="viewBeansDetail">
+      <div class="detail-nav">
+        <div class="msg-nav-top">
+          <button type="button" class="msg-back" id="detailBack" aria-label="返回">‹</button>
+          <span class="msg-title">明细</span>
+        </div>
+      </div>
+      <div class="detail-filters">
+        <div class="detail-filter-row" id="filterMerchant" data-filter="merchant">
+          <span class="detail-filter-label">选择商家</span>
+          <span class="detail-filter-value"><span id="valMerchant">全部</span> <span class="arrow">›</span></span>
+        </div>
+        <div class="detail-filter-row" id="filterDate" data-filter="date">
+          <span class="detail-filter-label">选择日期</span>
+          <span class="detail-filter-value"><span id="valDate">2026-05-01 至 2026-05-29</span> <span class="arrow">📅</span></span>
+        </div>
+        <div class="detail-filter-row" id="filterType" data-filter="type">
+          <span class="detail-filter-label">选择类型</span>
+          <span class="detail-filter-value"><span id="valType">出账</span> <span class="arrow">›</span></span>
+        </div>
+      </div>
+      <div class="detail-seg">
+        <button type="button" class="detail-seg-btn" id="segBalance" data-seg="balance">余额</button>
+        <button type="button" class="detail-seg-btn active" id="segBeans" data-seg="beans">百货豆</button>
+      </div>
+      <div class="scroll">
+        <div class="beans-list-wrap">
+          <div class="beans-list" id="detailTxList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 平台余额 -->
+    <div class="view slide-in-right view-balance" id="viewPlatformBalance">
+      <div class="balance-page">
+        <div class="balance-hero">
+          <div class="beans-nav-top">
+            <button type="button" class="msg-back" id="platformBack" aria-label="返回">‹</button>
+            <span class="beans-nav-title">我的余额</span>
+          </div>
+          <div class="balance-card">
+            <div class="balance-card-head">
+              <span class="balance-card-label">当前余额</span>
+              <button type="button" class="balance-security" id="platformSecurity">🛡 安全提示</button>
+            </div>
+            <div class="balance-amount" id="platformBalanceAmt">¥510.26</div>
+          </div>
+        </div>
+        <div class="balance-warn" id="platformWarn">⚠ 余额低于 50 元阈值，建议及时充值</div>
+        <div class="beans-tabs">
+          <button type="button" class="beans-tab active" id="platformTabOut">余额出账</button>
+          <button type="button" class="beans-tab" id="platformTabIn">余额入账</button>
+        </div>
+        <div class="scroll" style="flex:1">
+          <div class="beans-list-wrap">
+            <div class="beans-list" id="platformTxList"></div>
+          </div>
+          <button type="button" class="beans-footer-link" id="platformAllDetail">查看全部明细 ›</button>
+        </div>
+        <div class="balance-footer">
+          <button type="button" class="btn-recharge" id="platformRechargeBtn">立即充值</button>
+          <button type="button" class="link-refund" id="platformRefundBtn">申请退款</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 餐厅会员卡 -->
+    <div class="view slide-in-right view-restaurant" id="viewRestaurant">
+      <div class="scroll restaurant-page">
+        <div class="restaurant-nav">
+          <div class="beans-nav-top" style="margin-bottom:0">
+            <button type="button" class="msg-back" id="restaurantBack" aria-label="返回">‹</button>
+            <span class="beans-nav-title">远见餐厅</span>
+          </div>
+        </div>
+        <div class="restaurant-card">
+          <div class="restaurant-card-top">
+            <div class="restaurant-logo">🐦</div>
+            <div>
+              <div class="restaurant-name">远见餐厅</div>
+              <div class="restaurant-sub">会员卡</div>
+            </div>
+            <span class="restaurant-qr" id="restaurantQr">⊞</span>
+          </div>
+          <div class="restaurant-id">会员编号：178793</div>
+        </div>
+        <div class="balance-warn" id="restaurantWarn">⚠ 餐厅余额低于 20 元阈值，建议及时充值</div>
+        <div class="restaurant-grid">
+          <div class="restaurant-grid-item">
+            <div class="restaurant-grid-label">信息认证</div>
+            <div class="restaurant-grid-value">已认证</div>
+            <button type="button" class="restaurant-grid-action" id="restaurantAuthBtn">查看</button>
+          </div>
+          <div class="restaurant-grid-item">
+            <div class="restaurant-grid-label">我的余额</div>
+            <div class="restaurant-grid-value low" id="restaurantBalanceAmt">¥ 12.50</div>
+            <button type="button" class="restaurant-grid-action" id="restaurantRechargeBtn">充值</button>
+          </div>
+          <div class="restaurant-grid-item">
+            <div class="restaurant-grid-label">我的订单</div>
+            <div class="restaurant-grid-value">&nbsp;</div>
+            <button type="button" class="restaurant-grid-action" id="restaurantOrderBtn">查看</button>
+          </div>
+        </div>
+        <div class="restaurant-actions">
+          <button type="button" class="restaurant-btn-outline" id="restaurantRefundBtn">申请退款</button>
+          <button type="button" class="restaurant-btn-outline" id="restaurantRefundRecordBtn">退款记录</button>
+          <button type="button" class="restaurant-btn-outline" id="restaurantServiceBtn">联系客服</button>
+        </div>
+        <div class="restaurant-tip">温馨提示：远见餐厅充值退款问题请点击上方联系客服直接与餐厅人员沟通处理。</div>
+      </div>
+    </div>
+
+    <!-- 充值页（平台/餐厅共用） -->
+    <div class="view slide-in-right view-recharge" id="viewRecharge">
+      <div class="recharge-nav-wrap">
+        <div class="msg-nav" style="border-bottom:none;background:transparent">
+          <div class="msg-nav-top">
+            <button type="button" class="msg-back" id="rechargeBack" aria-label="返回">‹</button>
+            <span class="msg-title" id="rechargeTitle">平台余额充值</span>
+          </div>
+        </div>
+      </div>
+      <div class="scroll recharge-page">
+        <div class="recharge-body">
+        <div class="recharge-type-label" id="rechargeTypeLabel">当前平台余额</div>
+        <div class="recharge-current" id="rechargeCurrentAmt">¥510.26</div>
+        <div class="recharge-threshold" id="rechargeThreshold">充值后余额可用于平台消费，低于 50 元时将收到余额不足提醒</div>
+        <div style="font-size:14px;color:#666;margin-bottom:12px">选择充值金额</div>
+        <div class="recharge-presets" id="rechargePresets">
+          <button type="button" class="recharge-preset" data-amt="50">¥50</button>
+          <button type="button" class="recharge-preset active" data-amt="100">¥100</button>
+          <button type="button" class="recharge-preset" data-amt="200">¥200</button>
+          <button type="button" class="recharge-preset" data-amt="500">¥500</button>
+          <button type="button" class="recharge-preset" data-amt="1000">¥1000</button>
+          <button type="button" class="recharge-preset" data-amt="custom">其他</button>
+        </div>
+        <button type="button" class="btn-recharge" id="rechargeConfirmBtn">确认充值 ¥100</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 我的订单 -->
+    <div class="view slide-in-right view-orders" id="viewOrders">
+      <div class="orders-nav">
+        <div class="msg-nav-top" style="padding:0 12px">
+          <button type="button" class="msg-back" id="ordersBack" aria-label="返回">‹</button>
+          <span class="msg-title">我的订单</span>
+        </div>
+        <div class="orders-tabs" id="ordersTabs">
+          <button type="button" class="orders-tab active" data-order-tab="all">全部</button>
+          <button type="button" class="orders-tab" data-order-tab="unpaid">待付款</button>
+          <button type="button" class="orders-tab" data-order-tab="pickup">
+            待自提<span class="tab-count hidden" id="ordersTabPickupBadge">0</span>
+          </button>
+          <button type="button" class="orders-tab" data-order-tab="receive">待收货</button>
+          <button type="button" class="orders-tab" data-order-tab="review">待评价</button>
+        </div>
+      </div>
+      <div class="scroll">
+        <div class="orders-list" id="ordersList"></div>
+      </div>
+    </div>
+
+    <!-- 优惠券 -->
+    <div class="view slide-in-right view-coupon" id="viewCoupon">
+      <div class="coupon-nav">
+        <div class="msg-nav-top" style="padding:0 4px;margin-bottom:0">
+          <button type="button" class="msg-back" id="couponBack" aria-label="返回">‹</button>
+        </div>
+        <div class="coupon-main-tabs">
+          <button type="button" class="coupon-main-tab active" id="couponMainTab" data-coupon-main="coupon">优惠券</button>
+          <button type="button" class="coupon-main-tab" id="voucherMainTab" data-coupon-main="voucher">消费券</button>
+        </div>
+      </div>
+      <div class="coupon-status-tabs" id="couponStatusTabs">
+        <button type="button" class="coupon-status-tab active" data-coupon-status="available">可用(<span id="couponCountAvailable">0</span>)</button>
+        <button type="button" class="coupon-status-tab" data-coupon-status="used">已用(<span id="couponCountUsed">0</span>)</button>
+        <button type="button" class="coupon-status-tab" data-coupon-status="expired">失效(<span id="couponCountExpired">0</span>)</button>
+      </div>
+      <div class="scroll">
+        <div class="coupon-list" id="couponList"></div>
+      </div>
+      <div class="coupon-footer">
+        <button type="button" class="btn-get-coupon" id="getCouponBtn">去领券</button>
+      </div>
+    </div>
+
+    <!-- 首页 -->
+    <div class="view active view-home" id="viewHome">
+      <div class="home-header">
+        <div class="home-store-row">
+          <div class="home-store-left">
+            <div class="home-store-current">
+              <span class="home-store-icon">🏪</span>
+              <span id="currentStoreName">解放路商圈</span>
+            </div>
+            <button type="button" class="home-store-switch" id="storeSwitchBtn">
+              切换门店
+              <span class="home-switch-lines"><i></i><i></i></span>
+            </button>
+          </div>
+        </div>
+        <div class="home-search-row">
+          <button type="button" class="home-search" id="homeSearchBtn">🔍 搜索商品名称/关键词</button>
+          <button type="button" class="home-paycode" id="payCodeBtn">
+            <span style="font-size:16px">▥</span>
+            付款码
+          </button>
+        </div>
+      </div>
+      <div class="scroll">
+        <div class="home-body">
+          <div class="home-categories-wrap">
+            <div class="h-scroll-shell">
+              <div class="h-scroll-fade left" id="homeCatFadeLeft"></div>
+              <div class="h-scroll-fade right" id="homeCatFadeRight"></div>
+              <div class="home-categories-scroll" id="homeCategoriesScroll"></div>
+            </div>
+          </div>
+          <div class="home-notice">
+            <span class="home-notice-tag">店铺公告</span>
+            <span class="home-notice-text">本超市已启用"一刻钟到家"服务，欢迎大家注册会员享受一刻钟服务。</span>
+          </div>
+          <button type="button" class="home-banner" id="homeBannerBtn">
+            <div class="home-banner-title">店主推荐 选好货 Go</div>
+            <div class="home-banner-sub">精选好物 · 品质保障</div>
+            <span class="home-banner-deco">🧧</span>
+          </button>
+          <div class="home-products" id="homeProducts"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 搜索商品 -->
+    <div class="view slide-in-right view-search" id="viewSearch">
+      <div class="search-nav">
+        <div class="search-nav-top">
+          <button type="button" class="msg-back" id="searchBack" aria-label="返回">‹</button>
+          <span class="search-nav-title">搜索商品</span>
+        </div>
+        <div class="search-bar-row">
+          <div class="search-input-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="search" class="search-input" id="searchInput" placeholder="搜索商品名称/关键词" enterkeyhint="search" />
+          </div>
+          <button type="button" class="search-submit" id="searchSubmit">搜索</button>
+        </div>
+      </div>
+      <div class="scroll">
+        <div class="search-body">
+          <div class="search-default" id="searchDefault">
+            <div class="search-section-head">
+              <span class="search-section-title"><span class="icon">🕐</span>搜索历史</span>
+              <button type="button" class="search-clear-btn" id="searchHistoryClear">🗑 清空</button>
+            </div>
+            <div class="search-tags" id="searchHistoryTags"></div>
+            <div class="search-section-head">
+              <span class="search-section-title"><span class="icon">🔥</span>热门搜索</span>
+            </div>
+            <div class="search-tags" id="searchHotTags"></div>
+            <div class="search-section-head" style="margin-top:8px">
+              <span class="search-section-title"><span class="icon">📦</span>热门商品</span>
+            </div>
+            <div class="search-hot-products" id="searchHotProducts"></div>
+          </div>
+          <div class="search-results" id="searchResults">
+            <div class="search-results-title" id="searchResultsTitle"></div>
+            <div class="search-hot-products" id="searchResultsList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 店主推荐 -->
+    <div class="view slide-in-right view-recommend" id="viewRecommend">
+      <div class="search-nav" style="background:#fff">
+        <div class="search-nav-top">
+          <button type="button" class="msg-back" id="recommendBack" aria-label="返回">‹</button>
+          <span class="search-nav-title">店主推荐</span>
+        </div>
+      </div>
+      <div class="scroll">
+        <div class="recommend-hero">
+          <div class="recommend-hero-title">店主推荐选好货</div>
+          <span class="recommend-hero-deco">🧧💰</span>
+        </div>
+        <div class="recommend-body">
+          <div class="recommend-meta" id="recommendMeta"></div>
+          <div class="search-hot-products" id="recommendProductList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 分类 -->
+    <div class="view slide-in-right view-category" id="viewCategory">
+      <div class="cat-header">
+        <div class="cat-header-title">分类</div>
+        <button type="button" class="cat-search-btn" id="categorySearchBtn">🔍 商品名称/条形码</button>
+      </div>
+      <div class="cat-body">
+        <div class="cat-primary" id="categoryPrimary"></div>
+        <div class="cat-right">
+          <div class="cat-sub-block">
+            <div class="cat-sub-wrap">
+              <div class="h-scroll-shell">
+                <div class="h-scroll-fade left" id="catSubFadeLeft"></div>
+                <div class="h-scroll-fade right" id="catSubFadeRight"></div>
+                <div class="cat-sub-tabs" id="categorySubTabs"></div>
+              </div>
+              <button type="button" class="cat-sub-all" id="categorySubAll">全部 ↓</button>
+            </div>
+          </div>
+          <div class="cat-sort" id="categorySort">
+            <button type="button" class="cat-sort-item active" data-sort="default">综合排序 <span class="cat-sort-arrows">⇅</span></button>
+            <button type="button" class="cat-sort-item" data-sort="sales">销量排序</button>
+            <button type="button" class="cat-sort-item" data-sort="price">价格排序</button>
+          </div>
+          <div class="cat-product-scroll" id="categoryProductScroll"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 购物车 -->
+    <div class="view slide-in-right view-cart" id="viewCart">
+      <div class="cart-nav">购物车</div>
+      <div class="scroll" id="cartScroll">
+        <div id="cartContent"></div>
+      </div>
+      <div class="cart-bar" id="cartBar">
+        <div class="cart-bar-all" id="cartSelectAll">
+          <span class="cart-check checked" id="cartCheckAll">✓</span>
+          <span>全选</span>
+        </div>
+        <div class="cart-bar-total">总计: <strong id="cartTotal">¥0.00</strong></div>
+        <button type="button" class="cart-checkout" id="cartCheckout">去结算(0)</button>
+      </div>
+    </div>
+
+    <nav class="tabbar" id="tabbar" aria-label="底部导航">
+      <div class="tab active" data-tab="首页"><span class="tab-icon">🏠</span>首页</div>
+      <div class="tab" data-tab="分类"><span class="tab-icon">▦</span>分类</div>
+      <div class="tab" data-tab="购物车"><span class="tab-icon">🛒<span class="badge" id="tabCartBadge">1</span></span>购物车</div>
+      <div class="tab" data-tab="我的"><span class="tab-icon">👤</span>我的</div>
+    </nav>
+
+    <button type="button" class="home-share-fab" id="homeShareFab" aria-label="分享">↗</button>
+  </div>
+  </div>
+
+  <div class="recharge-success-mask" id="rechargeSuccessMask">
+    <div class="recharge-success-box">
+      <div class="recharge-success-icon">✓</div>
+      <div class="recharge-success-title" id="rechargeSuccessTitle">充值成功</div>
+      <div class="recharge-success-amt" id="rechargeSuccessAmt">已成功充值 100.00 元</div>
+      <button type="button" class="recharge-success-btn" id="rechargeSuccessBtn">查看余额</button>
+    </div>
+  </div>
+
+  <div class="confirm-mask" id="confirmMask">
+    <div class="confirm-box">
+      <div class="confirm-msg" id="confirmMsg">确定清空购物车？</div>
+      <div class="confirm-actions">
+        <button type="button" class="confirm-no" id="confirmNo">取消</button>
+        <button type="button" class="confirm-yes" id="confirmYes">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="picker-mask" id="pickerMask">
+    <div class="picker-sheet">
+      <div class="picker-header">
+        <button type="button" class="picker-cancel" id="pickerCancel">取消</button>
+        <span class="picker-title" id="pickerTitle">选择</span>
+        <button type="button" class="picker-confirm" id="pickerConfirm">确定</button>
+      </div>
+      <div class="picker-options" id="pickerOptions"></div>
+    </div>
+  </div>
+
+  <div class="cat-sub-panel-mask" id="catSubPanelMask">
+    <div class="cat-sub-panel">
+      <div class="cat-sub-panel-head">
+        <span class="cat-sub-panel-title" id="catSubPanelTitle">二级分类</span>
+        <button type="button" class="cat-sub-panel-close" id="catSubPanelClose" aria-label="关闭">×</button>
+      </div>
+      <div class="cat-sub-panel-body">
+        <div class="cat-sub-panel-grid" id="catSubPanelGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const phone = document.getElementById('phone');
+    const viewProfile = document.getElementById('viewProfile');
+    const viewMessage = document.getElementById('viewMessage');
+    const viewBeans = document.getElementById('viewBeans');
+    const viewBeansDetail = document.getElementById('viewBeansDetail');
+    const viewPlatformBalance = document.getElementById('viewPlatformBalance');
+    const viewRestaurant = document.getElementById('viewRestaurant');
+    const viewRecharge = document.getElementById('viewRecharge');
+    const viewOrders = document.getElementById('viewOrders');
+    const viewCoupon = document.getElementById('viewCoupon');
+    const viewCart = document.getElementById('viewCart');
+    const viewHome = document.getElementById('viewHome');
+    const viewSearch = document.getElementById('viewSearch');
+    const viewRecommend = document.getElementById('viewRecommend');
+    const viewCategory = document.getElementById('viewCategory');
+    const tabbar = document.getElementById('tabbar');
+    const msgBtn = document.getElementById('msgBtn');
+    const msgBack = document.getElementById('msgBack');
+    const walletEntry = document.getElementById('walletEntry');
+    const profileWalletAmt = document.getElementById('profileWalletAmt');
+    const restaurantEntry = document.getElementById('restaurantEntry');
+    const beansEntry = document.getElementById('beansEntry');
+    const beansBack = document.getElementById('beansBack');
+    const beansHelp = document.getElementById('beansHelp');
+    const beansTabOut = document.getElementById('beansTabOut');
+    const beansTabIn = document.getElementById('beansTabIn');
+    const beansTxList = document.getElementById('beansTxList');
+    const beansAllDetail = document.getElementById('beansAllDetail');
+    const detailBack = document.getElementById('detailBack');
+    const detailTxList = document.getElementById('detailTxList');
+    const segBalance = document.getElementById('segBalance');
+    const segBeans = document.getElementById('segBeans');
+    const valMerchant = document.getElementById('valMerchant');
+    const valDate = document.getElementById('valDate');
+    const valType = document.getElementById('valType');
+    const filterMerchant = document.getElementById('filterMerchant');
+    const filterDate = document.getElementById('filterDate');
+    const filterType = document.getElementById('filterType');
+    const pickerMask = document.getElementById('pickerMask');
+    const pickerTitle = document.getElementById('pickerTitle');
+    const pickerOptions = document.getElementById('pickerOptions');
+    const pickerCancel = document.getElementById('pickerCancel');
+    const pickerConfirm = document.getElementById('pickerConfirm');
+    const msgIconBadge = document.getElementById('msgIconBadge');
+    const notifyTabBadge = document.getElementById('notifyTabBadge');
+    const tabChat = document.getElementById('tabChat');
+    const tabNotify = document.getElementById('tabNotify');
+    const panelChat = document.getElementById('panelChat');
+    const panelNotify = document.getElementById('panelNotify');
+    const moreBtn = document.getElementById('moreBtn');
+    const morePanel = document.getElementById('morePanel');
+    const toast = document.getElementById('toast');
+    const platformBack = document.getElementById('platformBack');
+    const platformBalanceAmt = document.getElementById('platformBalanceAmt');
+    const platformWarn = document.getElementById('platformWarn');
+    const platformTabOut = document.getElementById('platformTabOut');
+    const platformTabIn = document.getElementById('platformTabIn');
+    const platformTxList = document.getElementById('platformTxList');
+    const platformAllDetail = document.getElementById('platformAllDetail');
+    const platformRechargeBtn = document.getElementById('platformRechargeBtn');
+    const platformRefundBtn = document.getElementById('platformRefundBtn');
+    const platformSecurity = document.getElementById('platformSecurity');
+    const restaurantBack = document.getElementById('restaurantBack');
+    const restaurantBalanceAmt = document.getElementById('restaurantBalanceAmt');
+    const restaurantWarn = document.getElementById('restaurantWarn');
+    const restaurantRechargeBtn = document.getElementById('restaurantRechargeBtn');
+    const restaurantAuthBtn = document.getElementById('restaurantAuthBtn');
+    const restaurantOrderBtn = document.getElementById('restaurantOrderBtn');
+    const restaurantRefundBtn = document.getElementById('restaurantRefundBtn');
+    const restaurantRefundRecordBtn = document.getElementById('restaurantRefundRecordBtn');
+    const restaurantServiceBtn = document.getElementById('restaurantServiceBtn');
+    const restaurantQr = document.getElementById('restaurantQr');
+    const rechargeBack = document.getElementById('rechargeBack');
+    const rechargeTitle = document.getElementById('rechargeTitle');
+    const rechargeTypeLabel = document.getElementById('rechargeTypeLabel');
+    const rechargeCurrentAmt = document.getElementById('rechargeCurrentAmt');
+    const rechargeThreshold = document.getElementById('rechargeThreshold');
+    const rechargePresets = document.getElementById('rechargePresets');
+    const rechargeConfirmBtn = document.getElementById('rechargeConfirmBtn');
+    const rechargeSuccessMask = document.getElementById('rechargeSuccessMask');
+    const rechargeSuccessTitle = document.getElementById('rechargeSuccessTitle');
+    const rechargeSuccessAmt = document.getElementById('rechargeSuccessAmt');
+    const rechargeSuccessBtn = document.getElementById('rechargeSuccessBtn');
+    const allOrdersBtn = document.getElementById('allOrdersBtn');
+    const ordersBack = document.getElementById('ordersBack');
+    const ordersList = document.getElementById('ordersList');
+    const ordersTabs = document.getElementById('ordersTabs');
+    const badgeUnpaid = document.getElementById('badgeUnpaid');
+    const badgePickup = document.getElementById('badgePickup');
+    const badgeReceive = document.getElementById('badgeReceive');
+    const badgeReview = document.getElementById('badgeReview');
+    const orderUnpaidEntry = document.getElementById('orderUnpaidEntry');
+    const orderPickupEntry = document.getElementById('orderPickupEntry');
+    const orderReceiveEntry = document.getElementById('orderReceiveEntry');
+    const orderReviewEntry = document.getElementById('orderReviewEntry');
+    const pendingBanner = document.getElementById('pendingBanner');
+    const ordersTabPickupBadge = document.getElementById('ordersTabPickupBadge');
+    const couponEntry = document.getElementById('couponEntry');
+    const profileCouponAmt = document.getElementById('profileCouponAmt');
+    const couponBack = document.getElementById('couponBack');
+    const couponList = document.getElementById('couponList');
+    const couponStatusTabs = document.getElementById('couponStatusTabs');
+    const couponMainTab = document.getElementById('couponMainTab');
+    const voucherMainTab = document.getElementById('voucherMainTab');
+    const couponCountAvailable = document.getElementById('couponCountAvailable');
+    const couponCountUsed = document.getElementById('couponCountUsed');
+    const couponCountExpired = document.getElementById('couponCountExpired');
+    const getCouponBtn = document.getElementById('getCouponBtn');
+    const cartContent = document.getElementById('cartContent');
+    const cartBar = document.getElementById('cartBar');
+    const cartSelectAll = document.getElementById('cartSelectAll');
+    const cartCheckAll = document.getElementById('cartCheckAll');
+    const cartTotal = document.getElementById('cartTotal');
+    const cartCheckout = document.getElementById('cartCheckout');
+    const tabCartBadge = document.getElementById('tabCartBadge');
+    const confirmMask = document.getElementById('confirmMask');
+    const confirmMsg = document.getElementById('confirmMsg');
+    const confirmNo = document.getElementById('confirmNo');
+    const confirmYes = document.getElementById('confirmYes');
+    const currentStoreName = document.getElementById('currentStoreName');
+    const storeSwitchBtn = document.getElementById('storeSwitchBtn');
+    const payCodeBtn = document.getElementById('payCodeBtn');
+    const homeShareFab = document.getElementById('homeShareFab');
+    const homeSearchBtn = document.getElementById('homeSearchBtn');
+    const searchBack = document.getElementById('searchBack');
+    const searchInput = document.getElementById('searchInput');
+    const searchSubmit = document.getElementById('searchSubmit');
+    const searchHistoryTags = document.getElementById('searchHistoryTags');
+    const searchHotTags = document.getElementById('searchHotTags');
+    const searchHotProducts = document.getElementById('searchHotProducts');
+    const searchHistoryClear = document.getElementById('searchHistoryClear');
+    const searchDefault = document.getElementById('searchDefault');
+    const searchResults = document.getElementById('searchResults');
+    const searchResultsTitle = document.getElementById('searchResultsTitle');
+    const searchResultsList = document.getElementById('searchResultsList');
+    const homeBannerBtn = document.getElementById('homeBannerBtn');
+    const homeCategoriesScroll = document.getElementById('homeCategoriesScroll');
+    const homeCatFadeLeft = document.getElementById('homeCatFadeLeft');
+    const homeCatFadeRight = document.getElementById('homeCatFadeRight');
+    const homeProducts = document.getElementById('homeProducts');
+    const categorySearchBtn = document.getElementById('categorySearchBtn');
+    const categoryPrimary = document.getElementById('categoryPrimary');
+    const categorySubTabs = document.getElementById('categorySubTabs');
+    const catSubFadeLeft = document.getElementById('catSubFadeLeft');
+    const catSubFadeRight = document.getElementById('catSubFadeRight');
+    const categorySubAll = document.getElementById('categorySubAll');
+    const categorySort = document.getElementById('categorySort');
+    const categoryProductScroll = document.getElementById('categoryProductScroll');
+    const catSubPanelMask = document.getElementById('catSubPanelMask');
+    const catSubPanelTitle = document.getElementById('catSubPanelTitle');
+    const catSubPanelClose = document.getElementById('catSubPanelClose');
+    const catSubPanelGrid = document.getElementById('catSubPanelGrid');
+    const recommendBack = document.getElementById('recommendBack');
+    const recommendMeta = document.getElementById('recommendMeta');
+    const recommendProductList = document.getElementById('recommendProductList');
+    let toastTimer;
+    let confirmCallback = null;
+    let currentStore = '解放路商圈';
+
+    let searchHistory = ['饮料', '奶茶', '酱油', '大众粮心粮油'];
+    const HOT_SEARCH = ['牛奶', '地瓜干', '零食大礼包', '酱油', '饮料', '伊利纯牛奶'];
+    const PRODUCT_CATALOG = [
+      { name: '地瓜干', price: '12/个', emoji: '🍠', keywords: ['地瓜', '地瓜干', '零食'] },
+      { name: '脉动水蜜桃味', price: '6/瓶', emoji: '🥤', keywords: ['脉动', '饮料', '水蜜桃'] },
+      { name: '伊利纯牛奶(箱装)', price: '52/箱', emoji: '🥛', keywords: ['牛奶', '伊利', '纯牛奶', '饮料'] },
+      { name: '每日坚果', price: '28/袋', emoji: '🥜', keywords: ['坚果', '零食', '每日坚果'] },
+      { name: '有机鸡蛋', price: '19.9/盒', emoji: '🥚', keywords: ['鸡蛋', '有机', '生鲜'] },
+      { name: '酱油', price: '8.5/瓶', emoji: '🫙', keywords: ['酱油', '调料', '粮油'] },
+      { name: '奶茶', price: '15/杯', emoji: '🧋', keywords: ['奶茶', '饮料'] },
+      { name: '大众粮心粮油', price: '45/袋', emoji: '🌾', keywords: ['粮油', '大众粮心', '大米'] },
+      { name: '零食大礼包', price: '68/份', emoji: '🍿', keywords: ['零食', '礼包'] },
+    ];
+    const HOT_PRODUCT_IDS = [1, 0, 2, 4];
+
+    const CATEGORY_TREE = [
+      {
+        id: 'home', label: '家居产品', icon: '🏠',
+        subs: [
+          {
+            id: 'hot', label: '热销',
+            products: [
+              { name: '地瓜干', price: 12, unit: '/个', imageType: 'photo-digua' },
+              { name: '每日坚果', price: 28, unit: '/袋', emoji: '🥜' },
+            ],
+          },
+          {
+            id: 'new', label: '新品',
+            products: [
+              { name: '有机鸡蛋', price: 19.9, unit: '/盒', emoji: '🥚' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'tangmen', label: '唐门', icon: '🚪',
+        subs: [
+          {
+            id: 'door', label: '门类',
+            products: [
+              { name: '防盗门', price: 1280, unit: '/扇', emoji: '🚪' },
+              { name: '室内木门', price: 680, unit: '/扇', emoji: '🪵' },
+            ],
+          },
+          {
+            id: 'hardware', label: '五金',
+            products: [
+              { name: '维修扳手', price: 90, unit: '/把', emoji: '🪴' },
+              { name: '门锁套装', price: 45, unit: '/套', emoji: '🔐' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'office', label: '办公用品', icon: '📎',
+        subs: [
+          {
+            id: 'notebook', label: '日记本',
+            products: [
+              { name: 'A5皮质日记本', price: 25, unit: '/本', emoji: '📔' },
+              { name: '线圈笔记本', price: 8, unit: '/本', emoji: '📓' },
+              { name: '便签本', price: 5, unit: '/本', emoji: '📝' },
+            ],
+          },
+          {
+            id: 'pen', label: '圆珠笔',
+            products: [
+              { name: '0.5mm中性笔', price: 3, unit: '/支', emoji: '🖊' },
+              { name: '荧光笔套装', price: 12, unit: '/套', emoji: '🖍' },
+              { name: '自动铅笔', price: 6, unit: '/支', emoji: '✏️' },
+            ],
+          },
+          {
+            id: 'print', label: '打印耗材',
+            products: [
+              { name: 'A4打印纸(500张)', price: 28, unit: '/包', emoji: '📄' },
+              { name: '黑色墨盒', price: 89, unit: '/个', emoji: '🖨' },
+              { name: '硒鼓', price: 168, unit: '/个', emoji: '📠' },
+            ],
+          },
+          {
+            id: 'daily', label: '日用杂品',
+            products: [
+              { name: '订书机', price: 15, unit: '/个', emoji: '📎' },
+              { name: '办公剪刀', price: 12, unit: '/把', emoji: '✂️' },
+              { name: '透明胶带', price: 5, unit: '/卷', emoji: '📦' },
+            ],
+          },
+          {
+            id: 'clean', label: '清洁用品',
+            products: [
+              { name: '洁厕灵', price: 9.9, unit: '/瓶', emoji: '🧴' },
+              { name: '超细纤维抹布', price: 8, unit: '/条', emoji: '🧽' },
+              { name: '垃圾袋(100只)', price: 12, unit: '/卷', emoji: '🗑' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'level1', label: '一级分类', icon: '▦',
+        subs: [
+          {
+            id: 'misc', label: '综合',
+            products: [
+              { name: '脉动水蜜桃味', price: 6, unit: '/瓶', imageType: 'placeholder' },
+              { name: '零食大礼包', price: 68, unit: '/份', emoji: '🍿' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'drink', label: '饮料', icon: '🥤',
+        subs: [
+          {
+            id: 'drink-all', label: '全部饮料',
+            products: [
+              { name: '伊利纯牛奶(箱装)', price: 52, unit: '/箱', emoji: '🥛' },
+              { name: '脉动水蜜桃味', price: 6, unit: '/瓶', imageType: 'placeholder' },
+              { name: '奶茶', price: 15, unit: '/杯', emoji: '🧋' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'fresh', label: '生鲜', icon: '🥬',
+        subs: [
+          {
+            id: 'fresh-all', label: '全部生鲜',
+            products: [
+              { name: '有机鸡蛋', price: 19.9, unit: '/盒', emoji: '🥚' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'snack', label: '零食', icon: '🍿',
+        subs: [
+          {
+            id: 'snack-all', label: '全部零食',
+            products: [
+              { name: '地瓜干', price: 12, unit: '/个', imageType: 'photo-digua' },
+              { name: '每日坚果', price: 28, unit: '/袋', emoji: '🥜' },
+              { name: '零食大礼包', price: 68, unit: '/份', emoji: '🍿' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'grain', label: '粮油', icon: '🌾',
+        subs: [
+          {
+            id: 'grain-all', label: '全部粮油',
+            products: [
+              { name: '酱油', price: 8.5, unit: '/瓶', emoji: '🫙' },
+              { name: '大众粮心粮油', price: 45, unit: '/袋', emoji: '🌾' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'beauty', label: '美妆', icon: '💄',
+        subs: [
+          {
+            id: 'beauty-all', label: '全部美妆',
+            products: [
+              { name: '保湿面膜', price: 39, unit: '/盒', emoji: '💄' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'baby', label: '母婴', icon: '🍼',
+        subs: [
+          {
+            id: 'baby-all', label: '全部母婴',
+            products: [
+              { name: '婴儿湿巾', price: 19.9, unit: '/包', emoji: '🍼' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'import', label: '进口食品', icon: '🌍',
+        subs: [
+          {
+            id: 'import-all', label: '全部进口',
+            products: [
+              { name: '进口曲奇', price: 48, unit: '/盒', emoji: '🌍' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'daily-goods', label: '日用百货', icon: '🧴',
+        subs: [
+          {
+            id: 'daily-all', label: '全部日用',
+            products: [
+              { name: '抽纸(24包)', price: 29.9, unit: '/提', emoji: '🧴' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'cleaning', label: '清洁用品', icon: '🧹',
+        subs: [
+          {
+            id: 'cleaning-all', label: '全部清洁',
+            products: [
+              { name: '洗衣液', price: 35, unit: '/瓶', emoji: '🧹' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'pet', label: '宠物用品', icon: '🐾',
+        subs: [
+          {
+            id: 'pet-all', label: '全部宠物',
+            products: [
+              { name: '猫粮', price: 58, unit: '/袋', emoji: '🐾' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'digital', label: '数码家电', icon: '📱',
+        subs: [
+          {
+            id: 'digital-all', label: '全部数码',
+            products: [
+              { name: '数据线', price: 15, unit: '/条', emoji: '📱' },
+            ],
+          },
+        ],
+      },
+    ];
+
+    const HOME_DISPLAY_PRODUCTS = [
+      { name: '地瓜干', price: 12, unit: '/个', imageType: 'photo-digua' },
+      { name: '脉动水蜜桃味', price: 6, unit: '/瓶', imageType: 'placeholder' },
+      { name: '伊利纯牛奶(箱装)', price: 52, unit: '/箱', imageType: 'emoji', emoji: '🥛' },
+      { name: '每日坚果', price: 28, unit: '/袋', imageType: 'emoji', emoji: '🥜' },
+    ];
+
+    const SVG_CART = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>';
+    const SVG_TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+    const SVG_DIGUA = '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="200" fill="#f7f3ec"/><ellipse cx="100" cy="168" rx="72" ry="14" fill="#d9cbb8"/><path d="M35 155 Q100 125 165 155 L155 175 Q100 190 45 175 Z" fill="#c9a86c"/><path d="M40 158 Q100 132 160 158" stroke="#a08050" stroke-width="2" fill="none"/><rect x="52" y="88" width="28" height="62" rx="8" fill="#c4782a" transform="rotate(-12 66 119)"/><rect x="88" y="78" width="30" height="68" rx="8" fill="#d48932" transform="rotate(6 103 112)"/><rect x="118" y="92" width="26" height="58" rx="8" fill="#b86a22" transform="rotate(18 131 121)"/><rect x="72" y="102" width="24" height="52" rx="7" fill="#a85f1e" transform="rotate(-6 84 126)"/></svg>';
+    const SVG_BIRD = '<svg class="placeholder-bird" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path fill="#ccc" d="M32 14c-10 0-18 8-18 18 0 5 2 10 6 13l-4 11 12-5c3 1 6 2 9 2 10 0 18-8 18-18S42 14 32 14zm-6 20c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm12 0c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>';
+
+    let categoryProductMap = {};
+    let activeCategoryId = 'office';
+    let activeSubId = 'notebook';
+    let categorySortMode = 'default';
+    let categoryScrollSpy = null;
+    let categoryScrollLock = false;
+    let categorySubPanelOpen = false;
+    let homeCatScroller = null;
+    let categorySubScroller = null;
+
+    const unread = new Set(['1', '2', '3', '4', '5', '6']);
+    const navStack = ['viewHome'];
+    let beansMainTab = 'out';
+    let platformTab = 'out';
+    let detailSeg = 'beans';
+    let pickerKind = null;
+    let pickerTemp = null;
+    let rechargeType = 'platform';
+    let rechargeAmount = 100;
+    let rechargeReturnView = 'viewPlatformBalance';
+    let orderTab = 'all';
+    let couponMain = 'coupon';
+    let couponStatus = 'available';
+    let highlightExpiring = false;
+
+    const TODAY = new Date('2026-05-29T12:00:00');
+    const EXPIRING_DAYS = 7;
+
+    let cartItems = [
+      {
+        id: 'cart1',
+        store: '泓沃严选 · 万达超市',
+        name: '伊利纯牛奶(箱装)',
+        spec: '250ml*1',
+        price: 52.0,
+        qty: 1,
+        minQty: 1,
+        selected: true,
+      },
+    ];
+
+    let platformBalance = 510.26;
+    let restaurantBalance = 12.50;
+    const PLATFORM_THRESHOLD = 50;
+    const RESTAURANT_THRESHOLD = 20;
+
+    const filters = {
+      merchant: '全部',
+      date: '2026-05-01 至 2026-05-29',
+      type: '出账',
+    };
+
+    const BEANS_TX = [
+      { id: 'b1', type: 'out', merchant: '金川超市', sub: '百货豆兑换', amt: -211, time: '2026-05-14 17:47:30' },
+      { id: 'b2', type: 'out', merchant: '金川超市', sub: '百货豆兑换', amt: -30, time: '2026-05-14 17:14:43' },
+      { id: 'b3', type: 'out', merchant: '金川超市', sub: '百货豆兑换', amt: -28, time: '2026-05-14 16:52:10' },
+      { id: 'b4', type: 'out', merchant: '美食广场', sub: '百货豆兑换', amt: -15, time: '2026-05-13 12:20:00' },
+      { id: 'b5', type: 'in', merchant: '系统', sub: '签到奖励', amt: 10, time: '2026-05-13 09:00:00' },
+      { id: 'b6', type: 'in', merchant: '金川超市', sub: '消费返豆', amt: 50, time: '2026-05-12 18:30:00' },
+      { id: 'b7', type: 'in', merchant: '系统', sub: '活动赠送', amt: 100, time: '2026-05-10 12:00:00' },
+    ];
+
+    const BALANCE_TX = [
+      { id: 'w1', type: 'out', merchant: '金川超市', sub: '消费支出', amt: -88.5, time: '2026-05-14 17:47:30', isMoney: true },
+      { id: 'w2', type: 'in', merchant: '系统', sub: '平台余额充值', amt: 100, time: '2026-05-13 10:00:00', isMoney: true },
+      { id: 'w3', type: 'out', merchant: '餐厅', sub: '餐厅余额消费', amt: -32, time: '2026-05-12 12:30:00', isMoney: true },
+    ];
+
+    const PLATFORM_TX = [
+      { id: 'p1', type: 'out', merchant: '金川超市', sub: '消费支出', amt: -77.39, time: '2026-05-14 17:47:30' },
+      { id: 'p2', type: 'out', merchant: '金川超市', sub: '消费支出', amt: -45.20, time: '2026-05-14 15:30:12' },
+      { id: 'p3', type: 'out', merchant: '金川超市', sub: '消费支出', amt: -32.80, time: '2026-05-13 11:20:00' },
+      { id: 'p4', type: 'in', merchant: '系统', sub: '平台余额充值', amt: 100, time: '2026-05-13 10:00:00' },
+      { id: 'p5', type: 'in', merchant: '系统', sub: '退款入账', amt: 28.5, time: '2026-05-11 09:15:00' },
+    ];
+
+    const MERCHANTS = ['全部', '金川超市', '美食广场', '系统', '餐厅'];
+    const STORES = ['解放路商圈', '优选超市', '万达超市', '金川超市', '泓沃严选 · 万达超市'];
+    const DATE_RANGES = ['2026-05-01 至 2026-05-29', '2026-05-01 至 2026-05-14', '2026-05-15 至 2026-05-29'];
+    const TYPES = ['出账', '入账', '全部'];
+
+    const ORDER_DATA = [
+      {
+        id: 'o1', tab: 'review', store: '金川超市', tag: '自提', orderNo: '17787520387366',
+        status: '待评论', time: '2026-05-14 17:47:30', count: 5, amount: 77.39, imgs: 4,
+      },
+      {
+        id: 'o2', tab: 'pickup', store: '解放路商圈', tag: '自提', orderNo: '1780025041394',
+        status: '待自提', time: '2026-05-29 11:24:01', count: 1, amount: 0.01, imgs: 1,
+        pickupCode: '757597',
+      },
+      {
+        id: 'o4', tab: 'unpaid', store: '美食广场', tag: '配送', orderNo: '17787520387369',
+        status: '待付款', time: '2026-05-26 14:00:00', count: 4, amount: 128.00, imgs: 4,
+      },
+      {
+        id: 'o5', tab: 'receive', store: '金川超市', tag: '配送', orderNo: '17787520387370',
+        status: '待收货', time: '2026-05-24 09:15:00', count: 6, amount: 156.20, imgs: 4,
+      },
+    ];
+
+    const ORDER_TAB_LABELS = {
+      all: '全部', unpaid: '待付款', pickup: '待自提', receive: '待收货', review: '待评价',
+    };
+
+    const COUPON_DATA = [
+      {
+        id: 'cp1', kind: 'coupon', status: 'available', amount: 10,
+        condition: '满50元可用', tag: '通用券', title: '满50减10元',
+        start: '2026-05-01', end: '2026-05-29',
+      },
+      {
+        id: 'cp2', kind: 'coupon', status: 'available', amount: 20,
+        condition: '满200元可用', tag: '品类券', title: '超市专用券',
+        start: '2026-05-20', end: '2026-06-02',
+      },
+      {
+        id: 'cp3', kind: 'coupon', status: 'available', amount: 55,
+        condition: '满10000元可用', tag: '通用券', title: '全品类可用',
+        start: '2023-01-13', end: '2030-12-31',
+      },
+      {
+        id: 'cp4', kind: 'coupon', status: 'available', amount: 5,
+        condition: '满30元可用', tag: '通用券', title: '新人专享',
+        start: '2026-05-25', end: '2026-05-30',
+      },
+      {
+        id: 'cp5', kind: 'coupon', status: 'used', amount: 15,
+        condition: '满100元可用', tag: '通用券', title: '满100减15',
+        start: '2026-04-01', end: '2026-05-20',
+      },
+      {
+        id: 'cp6', kind: 'coupon', status: 'expired', amount: 30,
+        condition: '满300元可用', tag: '品类券', title: '服饰专用',
+        start: '2026-01-01', end: '2026-05-15',
+      },
+      {
+        id: 'cv1', kind: 'voucher', status: 'available', amount: 50,
+        condition: '无门槛', tag: '消费券', title: '政府消费券',
+        start: '2026-05-01', end: '2026-06-15',
+      },
+    ];
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 1200);
+    }
+
+    function getViewEl(id) {
+      return document.getElementById(id);
+    }
+
+    function updateTabbarVisibility() {
+      const top = navStack[navStack.length - 1];
+      const mainViews = ['viewProfile', 'viewCart', 'viewHome', 'viewCategory'];
+      const show = navStack.length === 1 && mainViews.includes(top);
+      tabbar.classList.toggle('hidden', !show);
+      cartBar.classList.toggle('hidden', top !== 'viewCart' || cartItems.length === 0);
+      homeShareFab.classList.toggle('show', top === 'viewHome');
+    }
+
+    function setMainTabActive(tabName) {
+      document.querySelectorAll('.tab').forEach((t) => {
+        t.classList.toggle('active', t.dataset.tab === tabName);
+      });
+    }
+
+    function openStorePicker() {
+      pickerKind = 'store';
+      pickerTitle.textContent = '切换门店';
+      pickerTemp = currentStore;
+      pickerOptions.innerHTML = STORES.map((s) =>
+        `<div class="picker-option ${s === currentStore ? 'selected' : ''}" data-value="${s}">${s}<span class="check">✓</span></div>`
+      ).join('');
+      pickerOptions.querySelectorAll('.picker-option').forEach((el) => {
+        el.addEventListener('click', () => {
+          pickerOptions.querySelectorAll('.picker-option').forEach((o) => o.classList.remove('selected'));
+          el.classList.add('selected');
+          pickerTemp = el.dataset.value;
+        });
+      });
+      pickerMask.classList.add('show');
+    }
+
+    function switchMainTab(tabName) {
+      const viewMap = { '首页': 'viewHome', '我的': 'viewProfile', '购物车': 'viewCart', '分类': 'viewCategory' };
+      const targetView = viewMap[tabName];
+      if (!targetView) {
+        showToast('进入：' + tabName);
+        return;
+      }
+      document.querySelectorAll('.phone > .view').forEach((v) => {
+        v.classList.remove('active', 'slide-out-left', 'slide-in-right');
+      });
+      const el = getViewEl(targetView);
+      el.classList.add('active');
+      el.classList.remove('slide-in-right');
+      navStack.length = 0;
+      navStack.push(targetView);
+      setMainTabActive(tabName);
+      updateTabbarVisibility();
+      if (targetView === 'viewCart') renderCart();
+      if (targetView === 'viewCategory') renderCategoryPage();
+      if (targetView === 'viewHome') {
+        requestAnimationFrame(() => {
+          updateHomeCatItemWidth();
+          homeCatScroller?.updateUI();
+        });
+      }
+    }
+
+    function navigateToCategory(catId) {
+      const cat = CATEGORY_TREE.find((c) => c.id === catId);
+      if (!cat) {
+        showToast('分类暂未开放');
+        return;
+      }
+      closeCategorySubPanel();
+      activeCategoryId = catId;
+      activeSubId = cat.subs[0].id;
+      switchMainTab('分类');
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          scrollPrimaryCategoryIntoView(catId);
+        });
+      });
+    }
+
+    function scrollPrimaryCategoryIntoView(catId) {
+      const el = categoryPrimary.querySelector(`[data-cat="${catId}"]`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function getCartQtyForProduct(name) {
+      const item = cartItems.find((i) => i.name === name);
+      return item ? item.qty : 0;
+    }
+
+    function formatPriceDisplay(price, unit) {
+      const num = typeof price === 'number' ? price.toFixed(2) : parseProductPrice(price).toFixed(2);
+      return `<span class="home-product-price-num">¥${num}</span><span class="home-product-price-unit">${unit || ''}</span>`;
+    }
+
+    function renderAddCartBtn(productName) {
+      return `<button type="button" class="product-add-cart" data-add-cart="${productName}" aria-label="加入购物车">${SVG_CART}<span class="cart-mini-plus">+</span></button>`;
+    }
+
+    function renderQtyStepper(productName, qty) {
+      return `
+        <div class="product-qty-ctrl" data-qty-product="${productName}">
+          <button type="button" class="product-qty-trash" data-qty-minus="${productName}" aria-label="减少">${SVG_TRASH}</button>
+          <span class="product-qty-num">${qty}</span>
+          <button type="button" class="product-qty-plus" data-qty-plus="${productName}" aria-label="增加">+</button>
+        </div>`;
+    }
+
+    function renderProductAction(name) {
+      const qty = getCartQtyForProduct(name);
+      return qty > 0 ? renderQtyStepper(name, qty) : renderAddCartBtn(name);
+    }
+
+    function renderHomeProductImage(p) {
+      if (p.imageType === 'photo-digua') {
+        return `<div class="home-product-img photo">${SVG_DIGUA}</div>`;
+      }
+      if (p.imageType === 'placeholder') {
+        return `<div class="home-product-img placeholder">${SVG_BIRD}<span>暂无图片</span></div>`;
+      }
+      return `<div class="home-product-img">${p.emoji || '📦'}</div>`;
+    }
+
+    function renderHomeProductCard(p) {
+      return `
+        <div class="home-product" data-product="${p.name}">
+          ${renderHomeProductImage(p)}
+          <div class="home-product-info">
+            <div class="home-product-name">${p.name}</div>
+            <div class="home-product-foot">
+              <div class="home-product-price">${formatPriceDisplay(p.price, p.unit)}</div>
+              ${renderProductAction(p.name)}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderHomeProducts() {
+      homeProducts.innerHTML = HOME_DISPLAY_PRODUCTS.map(renderHomeProductCard).join('');
+    }
+
+    function setupHorizontalScroll({ scrollEl, fadeLeft, fadeRight }) {
+      let drag = null;
+      let wasDragged = false;
+
+      function updateUI() {
+        const maxScroll = scrollEl.scrollWidth - scrollEl.clientWidth;
+        if (fadeLeft) fadeLeft.classList.toggle('show', scrollEl.scrollLeft > 4);
+        if (fadeRight) {
+          fadeRight.classList.toggle('show', maxScroll > 4 && scrollEl.scrollLeft < maxScroll - 4);
+        }
+      }
+
+      scrollEl.addEventListener('scroll', updateUI, { passive: true });
+
+      scrollEl.addEventListener('pointerdown', (e) => {
+        if (e.pointerType !== 'mouse' || e.button !== 0) return;
+        wasDragged = false;
+        drag = {
+          x: e.clientX,
+          y: e.clientY,
+          left: scrollEl.scrollLeft,
+          moved: false,
+          id: e.pointerId,
+          captured: false,
+        };
+      });
+
+      scrollEl.addEventListener('pointermove', (e) => {
+        if (!drag || drag.id !== e.pointerId) return;
+        const dx = e.clientX - drag.x;
+        const dy = e.clientY - drag.y;
+        if (!drag.moved) {
+          if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+          if (Math.abs(dy) > Math.abs(dx)) {
+            drag = null;
+            return;
+          }
+          drag.moved = true;
+        }
+        if (!drag.captured) {
+          scrollEl.setPointerCapture(e.pointerId);
+          drag.captured = true;
+        }
+        wasDragged = true;
+        scrollEl.scrollLeft = drag.left - dx;
+      });
+
+      function endDrag(e) {
+        if (!drag || drag.id !== e.pointerId) return;
+        if (drag.captured) scrollEl.releasePointerCapture(e.pointerId);
+        drag = null;
+      }
+
+      scrollEl.addEventListener('pointerup', endDrag);
+      scrollEl.addEventListener('pointercancel', endDrag);
+
+      updateUI();
+      return {
+        updateUI,
+        consumeDrag: () => {
+          const dragged = wasDragged;
+          wasDragged = false;
+          return dragged;
+        },
+      };
+    }
+
+    function updateHomeCatItemWidth() {
+      const containerW = homeCategoriesScroll.clientWidth;
+      if (containerW <= 0) return;
+      const itemW = Math.floor(containerW / 5);
+      homeCategoriesScroll.querySelectorAll('.home-cat-item').forEach((el) => {
+        el.style.width = itemW + 'px';
+        el.style.flexBasis = itemW + 'px';
+      });
+      homeCatScroller?.updateUI();
+    }
+
+    function renderHomeCategories() {
+      homeCategoriesScroll.innerHTML = CATEGORY_TREE.map((cat) => `
+        <button type="button" class="home-cat-item" data-cat-id="${cat.id}">
+          <div class="home-cat-icon">${cat.icon}</div>
+          <div class="home-cat-label">${cat.label}</div>
+        </button>
+      `).join('');
+      homeCategoriesScroll.querySelectorAll('.home-cat-item').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (homeCatScroller?.consumeDrag()) return;
+          navigateToCategory(btn.dataset.catId);
+        });
+      });
+      homeCatScroller = setupHorizontalScroll({
+        scrollEl: homeCategoriesScroll,
+        fadeLeft: homeCatFadeLeft,
+        fadeRight: homeCatFadeRight,
+      });
+      updateHomeCatItemWidth();
+    }
+
+    function getHomeProductInfo(name) {
+      if (categoryProductMap[name]) return categoryProductMap[name];
+      const home = HOME_DISPLAY_PRODUCTS.find((p) => p.name === name);
+      if (home) return home;
+      return findProductByName(name);
+    }
+
+    function renderCategoryThumb(p) {
+      if (p.imageType === 'photo-digua') {
+        return `<div class="cat-product-thumb photo">${SVG_DIGUA}</div>`;
+      }
+      if (p.imageType === 'placeholder') {
+        return `<div class="cat-product-thumb placeholder">${SVG_BIRD}<span>暂无图片</span></div>`;
+      }
+      return `<div class="cat-product-thumb">${p.emoji || '📦'}</div>`;
+    }
+
+    function renderCategoryProductRow(p) {
+      categoryProductMap[p.name] = p;
+      return `
+        <div class="cat-product-row" data-product="${p.name}">
+          ${renderCategoryThumb(p)}
+          <div class="cat-product-body">
+            <div class="cat-product-name">${p.name}</div>
+            <div class="cat-product-foot">
+              <div class="home-product-price">${formatPriceDisplay(p.price, p.unit)}</div>
+              ${renderProductAction(p.name)}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function getActiveCategory() {
+      return CATEGORY_TREE.find((c) => c.id === activeCategoryId) || CATEGORY_TREE[0];
+    }
+
+    function sortCategoryProducts(products) {
+      const list = products.slice();
+      if (categorySortMode === 'price') {
+        list.sort((a, b) => a.price - b.price);
+      } else if (categorySortMode === 'sales') {
+        list.sort((a, b) => (b.sales || 0) - (a.sales || 0));
+      }
+      return list;
+    }
+
+    function scrollSubTabIntoView(subId) {
+      const btn = categorySubTabs.querySelector(`[data-sub="${subId}"]`);
+      if (btn) {
+        btn.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+      }
+    }
+
+    function updateCategorySubTabWidth() {
+      const containerW = categorySubTabs.clientWidth;
+      if (containerW <= 0) return;
+      const tabW = Math.max(72, Math.floor((containerW - 24 - 16) / 3));
+      categorySubTabs.querySelectorAll('.cat-sub-tab').forEach((tab) => {
+        tab.style.width = tabW + 'px';
+      });
+    }
+
+    function renderCategorySubTabs(cat, jumpSubId) {
+      categorySubTabs.innerHTML = cat.subs.map((sub) =>
+        `<button type="button" class="cat-sub-tab ${sub.id === activeSubId ? 'active' : ''}${jumpSubId === sub.id ? ' jump' : ''}" data-sub="${sub.id}">${sub.label}</button>`
+      ).join('');
+      categorySubTabs.querySelectorAll('.cat-sub-tab').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (categorySubScroller?.consumeDrag()) return;
+          scrollToCategorySub(btn.dataset.sub, true);
+        });
+      });
+      updateCategorySubTabWidth();
+      if (!categorySubScroller) {
+        categorySubScroller = setupHorizontalScroll({
+          scrollEl: categorySubTabs,
+          fadeLeft: catSubFadeLeft,
+          fadeRight: catSubFadeRight,
+        });
+      } else {
+        categorySubScroller.updateUI();
+      }
+      if (jumpSubId) {
+        const activeBtn = categorySubTabs.querySelector(`[data-sub="${jumpSubId}"]`);
+        if (activeBtn) {
+          setTimeout(() => activeBtn.classList.remove('jump'), 400);
+        }
+      }
+      scrollSubTabIntoView(activeSubId);
+    }
+
+    function openCategorySubPanel() {
+      const cat = getActiveCategory();
+      categorySubPanelOpen = true;
+      categorySubAll.classList.add('open');
+      catSubPanelTitle.textContent = cat.label + ' · 全部分类';
+      catSubPanelGrid.innerHTML = cat.subs.map((sub) => `
+        <button type="button" class="cat-sub-panel-item ${sub.id === activeSubId ? 'active' : ''}" data-sub="${sub.id}">
+          <span class="cat-sub-panel-label">${sub.label}</span>
+          <span class="cat-sub-panel-count">${sub.products.length} 件</span>
+        </button>
+      `).join('');
+      catSubPanelGrid.querySelectorAll('.cat-sub-panel-item').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          closeCategorySubPanel();
+          scrollToCategorySub(btn.dataset.sub, true);
+        });
+      });
+      catSubPanelMask.classList.add('show');
+    }
+
+    function closeCategorySubPanel() {
+      categorySubPanelOpen = false;
+      categorySubAll.classList.remove('open');
+      catSubPanelMask.classList.remove('show');
+    }
+
+    function renderCategorySubPanelActive() {
+      if (!categorySubPanelOpen) return;
+      catSubPanelGrid.querySelectorAll('.cat-sub-panel-item').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.sub === activeSubId);
+      });
+    }
+
+    function renderCategoryProductSections(cat) {
+      categoryProductMap = {};
+      categoryProductScroll.innerHTML = cat.subs.map((sub) => {
+        const products = sortCategoryProducts(sub.products);
+        return `
+          <section class="cat-section" data-sub="${sub.id}" id="catSection-${sub.id}">
+            <div class="cat-section-head">${sub.label}</div>
+            ${products.map(renderCategoryProductRow).join('')}
+          </section>`;
+      }).join('');
+      setupCategoryScrollSpy();
+    }
+
+    function renderCategoryPrimary() {
+      categoryPrimary.innerHTML = CATEGORY_TREE.map((cat) => `
+        <div class="cat-primary-item ${cat.id === activeCategoryId ? 'active' : ''}" data-cat="${cat.id}">
+          <div class="cat-primary-icon-wrap"><span class="cat-primary-icon">${cat.icon}</span></div>
+          <div class="cat-primary-label">${cat.label}</div>
+        </div>
+      `).join('');
+      categoryPrimary.querySelectorAll('.cat-primary-item').forEach((el) => {
+        el.addEventListener('click', () => switchPrimaryCategory(el.dataset.cat));
+      });
+    }
+
+    function switchPrimaryCategory(catId) {
+      if (activeCategoryId === catId) return;
+      closeCategorySubPanel();
+      activeCategoryId = catId;
+      const cat = getActiveCategory();
+      activeSubId = cat.subs[0].id;
+      renderCategoryPrimary();
+      renderCategorySubTabs(cat);
+      renderCategoryProductSections(cat);
+      categoryProductScroll.scrollTop = 0;
+    }
+
+    function scrollToCategorySub(subId, fromClick) {
+      activeSubId = subId;
+      categoryScrollLock = true;
+      renderCategorySubTabs(getActiveCategory(), fromClick ? subId : null);
+      const section = document.getElementById('catSection-' + subId);
+      if (section) {
+        const top = section.offsetTop;
+        categoryProductScroll.scrollTo({ top, behavior: 'smooth' });
+      }
+      setTimeout(() => { categoryScrollLock = false; }, 500);
+    }
+
+    function setActiveSubFromScroll(subId) {
+      if (categoryScrollLock || activeSubId === subId) return;
+      activeSubId = subId;
+      renderCategorySubTabs(getActiveCategory(), subId);
+      renderCategorySubPanelActive();
+    }
+
+    function setupCategoryScrollSpy() {
+      if (categoryScrollSpy) categoryScrollSpy.disconnect();
+      const sections = categoryProductScroll.querySelectorAll('.cat-section');
+      if (!sections.length) return;
+      categoryScrollSpy = new IntersectionObserver((entries) => {
+        if (categoryScrollLock) return;
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible.length) {
+          setActiveSubFromScroll(visible[0].target.dataset.sub);
+        }
+      }, {
+        root: categoryProductScroll,
+        rootMargin: '-40% 0px -45% 0px',
+        threshold: [0, 0.25, 0.5, 0.75, 1],
+      });
+      sections.forEach((sec) => categoryScrollSpy.observe(sec));
+    }
+
+    function renderCategoryPage() {
+      const cat = getActiveCategory();
+      renderCategoryPrimary();
+      renderCategorySubTabs(cat);
+      renderCategoryProductSections(cat);
+      categoryProductScroll.scrollTop = 0;
+      requestAnimationFrame(() => {
+        updateCategorySubTabWidth();
+        categorySubScroller?.updateUI();
+      });
+    }
+
+    function refreshCategoryProductsIfVisible() {
+      if (navStack[navStack.length - 1] !== 'viewCategory') return;
+      const scrollTop = categoryProductScroll.scrollTop;
+      renderCategoryProductSections(getActiveCategory());
+      categoryProductScroll.scrollTop = scrollTop;
+    }
+
+    function bindCategoryProductActions() {
+      categoryProductScroll.onscroll = () => {
+        renderCategorySubPanelActive();
+      };
+      categoryProductScroll.onclick = (e) => {
+        const addBtn = e.target.closest('[data-add-cart]');
+        if (addBtn) {
+          e.stopPropagation();
+          adjustProductCart(addBtn.dataset.addCart, 1);
+          return;
+        }
+        const plusBtn = e.target.closest('[data-qty-plus]');
+        if (plusBtn) {
+          e.stopPropagation();
+          adjustProductCart(plusBtn.dataset.qtyPlus, 1);
+          return;
+        }
+        const minusBtn = e.target.closest('[data-qty-minus]');
+        if (minusBtn) {
+          e.stopPropagation();
+          adjustProductCart(minusBtn.dataset.qtyMinus, -1);
+          return;
+        }
+        const row = e.target.closest('.cat-product-row');
+        if (row) showToast('商品：' + row.dataset.product);
+      };
+    }
+
+    function adjustProductCart(name, delta) {
+      const info = getHomeProductInfo(name) || findProductByName(name);
+      if (!info) return;
+      const existing = cartItems.find((i) => i.name === name);
+      if (delta > 0) {
+        if (existing) {
+          existing.qty += delta;
+        } else {
+          const price = typeof info.price === 'number' ? info.price : parseProductPrice(info.price);
+          cartItems.push({
+            id: 'cart_' + Date.now(),
+            store: '泓沃严选 · 万达超市',
+            name: info.name,
+            spec: '',
+            price,
+            qty: delta,
+            minQty: 1,
+            selected: true,
+          });
+          showToast('已加入购物车');
+        }
+      } else if (existing) {
+        existing.qty += delta;
+        if (existing.qty <= 0) cartItems = cartItems.filter((i) => i.id !== existing.id);
+      }
+      updateCartBadge();
+      renderHomeProducts();
+      refreshCategoryProductsIfVisible();
+      if (navStack[navStack.length - 1] === 'viewCart') renderCart();
+    }
+
+    function bindHomeProductActions() {
+      homeProducts.onclick = (e) => {
+        const addBtn = e.target.closest('[data-add-cart]');
+        if (addBtn) {
+          e.stopPropagation();
+          adjustProductCart(addBtn.dataset.addCart, 1);
+          return;
+        }
+        const plusBtn = e.target.closest('[data-qty-plus]');
+        if (plusBtn) {
+          e.stopPropagation();
+          adjustProductCart(plusBtn.dataset.qtyPlus, 1);
+          return;
+        }
+        const minusBtn = e.target.closest('[data-qty-minus]');
+        if (minusBtn) {
+          e.stopPropagation();
+          adjustProductCart(minusBtn.dataset.qtyMinus, -1);
+          return;
+        }
+        const card = e.target.closest('.home-product');
+        if (card) showToast('商品：' + card.dataset.product);
+      };
+    }
+
+    function parseProductPrice(priceStr) {
+      const match = String(priceStr).match(/[\d.]+/);
+      return match ? parseFloat(match[0]) : 0;
+    }
+
+    function findProductByName(name) {
+      return PRODUCT_CATALOG.find((p) => p.name === name);
+    }
+
+    function formatCatalogPrice(priceStr) {
+      const unit = String(priceStr).replace(/^[\d.]+/, '');
+      return formatPriceDisplay(parseProductPrice(priceStr), unit);
+    }
+
+    function addProductToCart(product, silent) {
+      const existing = cartItems.find((i) => i.name === product.name);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        cartItems.push({
+          id: 'cart_' + Date.now(),
+          store: '泓沃严选 · 万达超市',
+          name: product.name,
+          spec: '',
+          price: parseProductPrice(product.price),
+          qty: 1,
+          minQty: 1,
+          selected: true,
+        });
+        if (!silent) showToast('已加入购物车');
+      }
+      updateCartBadge();
+      renderHomeProducts();
+      refreshCategoryProductsIfVisible();
+    }
+
+    function renderProductCard(p, opts) {
+      const options = opts || {};
+      const interactive = options.interactive !== false;
+      const tag = options.tag ? `<span class="product-tag">${options.tag}</span>` : '';
+      const cartBtn = interactive ? renderAddCartBtn(p.name) : '';
+      return `
+        <div class="home-product" data-product="${p.name}">
+          ${tag}
+          <div class="home-product-img">${p.emoji}</div>
+          <div class="home-product-info">
+            <div class="home-product-name">${p.name}</div>
+            <div class="home-product-foot">
+              <div class="home-product-price">${formatCatalogPrice(p.price)}</div>
+              ${cartBtn}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function bindProductClicks(container) {
+      container.onclick = (e) => {
+        const addBtn = e.target.closest('[data-add-cart]');
+        if (addBtn) {
+          e.stopPropagation();
+          const product = findProductByName(addBtn.dataset.addCart);
+          if (product) addProductToCart(product);
+          return;
+        }
+        const card = e.target.closest('.home-product');
+        if (card) showToast('商品：' + card.dataset.product);
+      };
+    }
+
+    function renderHotProductGrid(container, opts) {
+      const list = getHotProducts();
+      const tags = (opts && opts.tags) || [];
+      container.innerHTML = list.map((p, i) =>
+        renderProductCard(p, { tag: tags[i] || '' })
+      ).join('');
+      bindProductClicks(container);
+      return list;
+    }
+
+    function renderSearchTags(container, items, opts) {
+      const isHot = opts && opts.hot;
+      container.innerHTML = items.map((text) =>
+        `<button type="button" class="search-tag ${isHot ? 'hot' : ''}" data-keyword="${text}">${text}</button>`
+      ).join('');
+      container.querySelectorAll('[data-keyword]').forEach((btn) => {
+        btn.addEventListener('click', () => doSearch(btn.dataset.keyword));
+      });
+    }
+
+    function addSearchHistory(keyword) {
+      const kw = keyword.trim();
+      if (!kw) return;
+      searchHistory = searchHistory.filter((h) => h !== kw);
+      searchHistory.unshift(kw);
+      if (searchHistory.length > 10) searchHistory = searchHistory.slice(0, 10);
+      renderSearchHistory();
+    }
+
+    function renderSearchHistory() {
+      if (searchHistory.length === 0) {
+        searchHistoryTags.innerHTML = '<span style="font-size:13px;color:#ccc">暂无搜索历史</span>';
+        return;
+      }
+      renderSearchTags(searchHistoryTags, searchHistory, { hot: false });
+    }
+
+    function renderSearchPage() {
+      renderSearchHistory();
+      renderSearchTags(searchHotTags, HOT_SEARCH, { hot: true });
+      renderHotProductGrid(searchHotProducts);
+      searchDefault.classList.remove('hide');
+      searchResults.classList.remove('show');
+    }
+
+    function doSearch(keyword) {
+      const kw = (keyword || searchInput.value).trim();
+      if (!kw) {
+        showToast('请输入搜索关键词');
+        return;
+      }
+      searchInput.value = kw;
+      addSearchHistory(kw);
+      const results = PRODUCT_CATALOG.filter((p) =>
+        p.name.includes(kw) ||
+        p.keywords.some((k) => k.includes(kw) || kw.includes(k))
+      );
+      searchDefault.classList.add('hide');
+      searchResults.classList.add('show');
+      searchResultsTitle.textContent = results.length
+        ? `找到 ${results.length} 个相关商品`
+        : '';
+      if (results.length === 0) {
+        searchResultsList.innerHTML = `<div class="search-empty">未找到「${kw}」相关商品</div>`;
+        return;
+      }
+      searchResultsList.innerHTML = results.map((p) => renderProductCard(p)).join('');
+      bindProductClicks(searchResultsList);
+    }
+
+    function openSearch(prefill) {
+      renderSearchPage();
+      if (prefill) searchInput.value = prefill;
+      else searchInput.value = '';
+      pushView('viewSearch');
+      setTimeout(() => searchInput.focus(), 320);
+    }
+
+    function getHotProducts() {
+      return HOT_PRODUCT_IDS.map((i) => PRODUCT_CATALOG[i]);
+    }
+
+    function openRecommend() {
+      const tags = ['TOP1', '热销', '精选', '推荐'];
+      const list = renderHotProductGrid(recommendProductList, { tags });
+      recommendMeta.textContent = `共 ${list.length} 件店主精选，与搜索页热门商品同步`;
+      pushView('viewRecommend');
+    }
+
+    function showConfirm(msg, onYes) {
+      confirmMsg.textContent = msg;
+      confirmCallback = onYes;
+      confirmMask.classList.add('show');
+    }
+
+    function hideConfirm() {
+      confirmMask.classList.remove('show');
+      confirmCallback = null;
+    }
+
+    function getCartStats() {
+      const totalQty = cartItems.reduce((s, i) => s + i.qty, 0);
+      const selected = cartItems.filter((i) => i.selected);
+      const selectedQty = selected.reduce((s, i) => s + i.qty, 0);
+      const totalPrice = selected.reduce((s, i) => s + i.price * i.qty, 0);
+      const allSelected = cartItems.length > 0 && cartItems.every((i) => i.selected);
+      return { totalQty, selectedQty, totalPrice, allSelected, selectedCount: selected.length };
+    }
+
+    function updateCartBadge() {
+      const { totalQty } = getCartStats();
+      if (totalQty > 0) {
+        tabCartBadge.textContent = totalQty > 99 ? '99+' : String(totalQty);
+        tabCartBadge.classList.remove('hidden');
+      } else {
+        tabCartBadge.classList.add('hidden');
+      }
+    }
+
+    function renderCart() {
+      if (cartItems.length === 0) {
+        cartContent.innerHTML = '<div class="cart-empty">购物车空空如也<br><span style="font-size:12px;margin-top:8px;display:block">快去挑选心仪商品吧</span></div>';
+        cartBar.classList.add('hidden');
+        updateCartBadge();
+        return;
+      }
+      cartBar.classList.remove('hidden');
+      const store = cartItems[0].store;
+      const itemsHtml = cartItems.map((item) => `
+        <div class="cart-item" data-cart-id="${item.id}">
+          <span class="cart-check ${item.selected ? 'checked' : ''}" data-check="${item.id}">${item.selected ? '✓' : ''}</span>
+          <div class="cart-product-img">伊利<br>纯牛奶</div>
+          <div class="cart-product-body">
+            <div class="cart-product-name">${item.name}</div>
+            <div class="cart-product-spec">${item.spec}</div>
+            <div class="cart-product-row">
+              <div class="cart-product-price">¥${item.price.toFixed(2)}</div>
+              <div class="cart-qty-wrap">
+                <div class="cart-qty-hint">起购数量${item.minQty}</div>
+                <div class="cart-qty">
+                  <button type="button" class="cart-qty-btn del" data-del="${item.id}" title="删除">🗑</button>
+                  <span class="cart-qty-num">${item.qty}</span>
+                  <button type="button" class="cart-qty-btn plus" data-plus="${item.id}">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`).join('');
+      cartContent.innerHTML = `
+        <div class="cart-store-card">
+          <div class="cart-store-head">
+            <div class="cart-store-name">
+              <span class="cart-store-logo">店</span>${store}
+            </div>
+            <button type="button" class="cart-clear" id="cartClearBtn">清空</button>
+          </div>
+          ${itemsHtml}
+        </div>`;
+      bindCartEvents();
+      updateCartSummary();
+      updateCartBadge();
+      renderHomeProducts();
+      refreshCategoryProductsIfVisible();
+    }
+
+    function updateCartSummary() {
+      const stats = getCartStats();
+      cartCheckAll.classList.toggle('checked', stats.allSelected);
+      cartCheckAll.textContent = stats.allSelected ? '✓' : '';
+      cartTotal.innerHTML = '<strong>¥' + stats.totalPrice.toFixed(2) + '</strong>';
+      cartCheckout.textContent = '去结算(' + stats.selectedQty + ')';
+      cartCheckout.disabled = stats.selectedQty === 0;
+    }
+
+    function bindCartEvents() {
+      document.getElementById('cartClearBtn').addEventListener('click', () => {
+        showConfirm('确定清空购物车？', () => {
+          cartItems = [];
+          renderCart();
+          showToast('已清空');
+        });
+      });
+      cartContent.querySelectorAll('[data-check]').forEach((el) => {
+        el.addEventListener('click', () => {
+          const item = cartItems.find((i) => i.id === el.dataset.check);
+          if (item) item.selected = !item.selected;
+          renderCart();
+        });
+      });
+      cartContent.querySelectorAll('[data-plus]').forEach((el) => {
+        el.addEventListener('click', () => {
+          const item = cartItems.find((i) => i.id === el.dataset.plus);
+          if (item) { item.qty++; renderCart(); }
+        });
+      });
+      cartContent.querySelectorAll('[data-del]').forEach((el) => {
+        el.addEventListener('click', () => {
+          const item = cartItems.find((i) => i.id === el.dataset.del);
+          if (!item) return;
+          if (item.qty > item.minQty) {
+            item.qty--;
+            renderCart();
+          } else {
+            showConfirm('确定删除该商品？', () => {
+              cartItems = cartItems.filter((i) => i.id !== item.id);
+              renderCart();
+            });
+          }
+        });
+      });
+    }
+
+    function pushView(viewId) {
+      const currentId = navStack[navStack.length - 1];
+      if (currentId === viewId) return;
+      const current = getViewEl(currentId);
+      const next = getViewEl(viewId);
+      next.classList.add('slide-in-right');
+      next.classList.remove('active');
+      requestAnimationFrame(() => {
+        current.classList.remove('active');
+        current.classList.add('slide-out-left');
+        next.classList.remove('slide-in-right');
+        next.classList.add('active');
+        setTimeout(() => current.classList.remove('slide-out-left'), 350);
+      });
+      navStack.push(viewId);
+      updateTabbarVisibility();
+    }
+
+    function popView() {
+      if (navStack.length <= 1) return;
+      const currentId = navStack.pop();
+      const prevId = navStack[navStack.length - 1];
+      const current = getViewEl(currentId);
+      const prev = getViewEl(prevId);
+      current.classList.remove('active', 'slide-out-left');
+      current.classList.add('slide-in-right');
+      prev.classList.remove('slide-out-left', 'slide-in-right');
+      prev.classList.add('active');
+      setTimeout(() => current.classList.remove('slide-in-right'), 350);
+      updateTabbarVisibility();
+    }
+
+    function popToProfile() {
+      while (navStack.length > 1) popView();
+    }
+
+    function formatMoney(n) {
+      return '¥' + n.toFixed(2);
+    }
+
+    function updateBalanceUI() {
+      profileWalletAmt.textContent = platformBalance.toFixed(2);
+      platformBalanceAmt.textContent = formatMoney(platformBalance);
+      restaurantBalanceAmt.textContent = '¥ ' + restaurantBalance.toFixed(1);
+      platformWarn.classList.toggle('show', platformBalance < PLATFORM_THRESHOLD);
+      restaurantWarn.classList.toggle('show', restaurantBalance < RESTAURANT_THRESHOLD);
+      restaurantBalanceAmt.classList.toggle('low', restaurantBalance < RESTAURANT_THRESHOLD);
+    }
+
+    function renderPlatformTxList() {
+      const list = PLATFORM_TX.filter((t) => t.type === platformTab).slice(0, 3);
+      platformTxList.innerHTML = list.map((t) => renderTxItem(t, true)).join('');
+      bindTxClicks(platformTxList);
+    }
+
+    function openPlatformBalance() {
+      platformTab = 'out';
+      platformTabOut.classList.add('active');
+      platformTabIn.classList.remove('active');
+      updateBalanceUI();
+      renderPlatformTxList();
+      pushView('viewPlatformBalance');
+    }
+
+    function openRestaurant() {
+      updateBalanceUI();
+      pushView('viewRestaurant');
+    }
+
+    function openRecharge(type) {
+      rechargeType = type;
+      const isPlatform = type === 'platform';
+      rechargeTitle.textContent = isPlatform ? '平台余额充值' : '餐厅余额充值';
+      rechargeTypeLabel.textContent = isPlatform ? '当前平台余额' : '当前餐厅余额';
+      rechargeCurrentAmt.textContent = isPlatform ? formatMoney(platformBalance) : formatMoney(restaurantBalance);
+      rechargeThreshold.textContent = isPlatform
+        ? '充值后余额可用于平台消费，低于 50 元时将收到余额不足提醒'
+        : '充值后余额可用于远见餐厅消费，低于 20 元时将收到余额不足提醒';
+      rechargeReturnView = isPlatform ? 'viewPlatformBalance' : 'viewRestaurant';
+      rechargeAmount = 100;
+      rechargePresets.querySelectorAll('.recharge-preset').forEach((el) => {
+        el.classList.toggle('active', el.dataset.amt === '100');
+      });
+      rechargeConfirmBtn.textContent = '确认充值 ¥100';
+      pushView('viewRecharge');
+    }
+
+    function completeRecharge() {
+      const amt = rechargeAmount;
+      if (rechargeType === 'platform') {
+        platformBalance += amt;
+        rechargeSuccessTitle.textContent = '平台余额充值成功';
+        rechargeSuccessAmt.textContent = `已成功充值 ${amt.toFixed(2)} 元，当前平台余额 ${platformBalance.toFixed(2)} 元`;
+      } else {
+        restaurantBalance += amt;
+        rechargeSuccessTitle.textContent = '餐厅余额充值成功';
+        rechargeSuccessAmt.textContent = `已成功充值 ${amt.toFixed(2)} 元，当前餐厅余额 ${restaurantBalance.toFixed(2)} 元`;
+      }
+      updateBalanceUI();
+      rechargeSuccessMask.classList.add('show');
+    }
+
+    function goToBalanceAfterRecharge() {
+      rechargeSuccessMask.classList.remove('show');
+      if (navStack[navStack.length - 1] === 'viewRecharge') popView();
+      const target = rechargeReturnView;
+      if (navStack[navStack.length - 1] !== target) {
+        if (target === 'viewPlatformBalance') openPlatformBalance();
+        else openRestaurant();
+      } else {
+        updateBalanceUI();
+        if (target === 'viewPlatformBalance') renderPlatformTxList();
+      }
+    }
+
+    function openPlatformDetail() {
+      filters.merchant = '全部';
+      filters.date = '2026-05-01 至 2026-05-29';
+      filters.type = platformTab === 'out' ? '出账' : '入账';
+      valMerchant.textContent = filters.merchant;
+      valDate.textContent = filters.date;
+      valType.textContent = filters.type;
+      detailSeg = 'balance';
+      segBalance.classList.add('active');
+      segBeans.classList.remove('active');
+      pushView('viewBeansDetail');
+      renderDetailList();
+    }
+
+    function renderOrderCard(order) {
+      const isPickup = order.tab === 'pickup';
+      let imgsHtml;
+      if (isPickup && order.imgs === 1) {
+        imgsHtml = '<div class="order-img-single"><div class="order-img-black"></div></div>';
+      } else {
+        imgsHtml = '<div class="order-imgs">' + Array.from({ length: order.imgs }, () => `
+          <div class="order-img-item">
+            <div class="order-img-placeholder">🖼</div>
+            <div class="order-img-label">暂无图片</div>
+          </div>`).join('') + '</div>';
+      }
+      let footHtml;
+      if (isPickup) {
+        footHtml = `
+          <div class="order-summary-row">
+            <span>${order.time}</span>
+            <span class="order-summary">共${order.count}类 ¥${order.amount.toFixed(2)}</span>
+          </div>
+          <div class="order-pickup-row">
+            <span class="order-pickup-code">提货码: ${order.pickupCode}<button type="button" class="order-copy" data-copy="${order.pickupCode}">[复制]</button></span>
+            <button type="button" class="order-btn-outline" data-location="${order.id}">查看位置</button>
+          </div>`;
+      } else {
+        footHtml = `
+          <div class="order-summary-row">
+            <span>${order.time}</span>
+            <span class="order-summary">共${order.count}类 ¥${order.amount.toFixed(2)}</span>
+          </div>
+          <button type="button" class="order-btn-outline" data-rebuy="${order.id}">再次购买</button>`;
+      }
+      return `
+        <div class="order-card" data-order-id="${order.id}">
+          <div class="order-card-head">
+            <span class="order-store-icon">🏪</span>
+            <span class="order-store-name">${order.store}</span>
+            <span class="order-tag">${order.tag}</span>
+          </div>
+          <div class="order-meta-row">
+            <span class="order-no">${order.orderNo}</span>
+            <span class="order-status">${order.status}</span>
+          </div>
+          ${imgsHtml}
+          <div class="order-card-foot">${footHtml}</div>
+        </div>`;
+    }
+
+    function renderOrdersList() {
+      const list = orderTab === 'all'
+        ? ORDER_DATA
+        : ORDER_DATA.filter((o) => o.tab === orderTab);
+      if (list.length === 0) {
+        ordersList.innerHTML = `<div class="empty-hint">暂无${ORDER_TAB_LABELS[orderTab]}订单</div>`;
+        return;
+      }
+      ordersList.innerHTML = list.map(renderOrderCard).join('');
+      ordersList.querySelectorAll('[data-rebuy]').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showToast('再次购买');
+        });
+      });
+      ordersList.querySelectorAll('[data-copy]').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const code = btn.dataset.copy;
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(code).then(() => showToast('提货码已复制'));
+          } else {
+            showToast('提货码: ' + code);
+          }
+        });
+      });
+      ordersList.querySelectorAll('[data-location]').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showToast('查看取货位置');
+        });
+      });
+      ordersList.querySelectorAll('.order-card').forEach((card) => {
+        card.addEventListener('click', () => showToast('查看订单详情'));
+      });
+    }
+
+    function switchOrderTab(tab) {
+      orderTab = tab;
+      ordersTabs.querySelectorAll('.orders-tab').forEach((el) => {
+        el.classList.toggle('active', el.dataset.orderTab === tab);
+      });
+      renderOrdersList();
+    }
+
+    function openOrders(tab) {
+      orderTab = tab || 'all';
+      ordersTabs.querySelectorAll('.orders-tab').forEach((el) => {
+        el.classList.toggle('active', el.dataset.orderTab === orderTab);
+      });
+      renderOrdersList();
+      pushView('viewOrders');
+    }
+
+    function parseDate(str) {
+      return new Date(str + 'T23:59:59');
+    }
+
+    function daysUntilExpiry(endStr) {
+      const end = parseDate(endStr);
+      return Math.ceil((end - TODAY) / (1000 * 60 * 60 * 24));
+    }
+
+    function getExpireLabel(endStr) {
+      const days = daysUntilExpiry(endStr);
+      if (days < 0) return null;
+      if (days === 0) return { text: '今天过期', today: true };
+      if (days <= EXPIRING_DAYS) return { text: `剩${days}天`, today: false };
+      return null;
+    }
+
+    function sortCoupons(list) {
+      return list.slice().sort((a, b) => {
+        const da = daysUntilExpiry(a.end);
+        const db = daysUntilExpiry(b.end);
+        const aSoon = da >= 0 && da <= EXPIRING_DAYS;
+        const bSoon = db >= 0 && db <= EXPIRING_DAYS;
+        if (aSoon && !bSoon) return -1;
+        if (!aSoon && bSoon) return 1;
+        if (aSoon && bSoon) return da - db;
+        return da - db;
+      });
+    }
+
+    function filterCoupons() {
+      return COUPON_DATA.filter((c) => c.kind === couponMain && c.status === couponStatus);
+    }
+
+    function updateCouponCounts() {
+      const forMain = (kind) => COUPON_DATA.filter((c) => c.kind === kind);
+      const counts = {
+        available: forMain(couponMain).filter((c) => c.status === 'available').length,
+        used: forMain(couponMain).filter((c) => c.status === 'used').length,
+        expired: forMain(couponMain).filter((c) => c.status === 'expired').length,
+      };
+      couponCountAvailable.textContent = counts.available;
+      couponCountUsed.textContent = counts.used;
+      couponCountExpired.textContent = counts.expired;
+      if (couponMain === 'coupon' && profileCouponAmt) {
+        profileCouponAmt.textContent = counts.available;
+      }
+    }
+
+    function renderCouponCard(c) {
+      const expire = c.status === 'available' ? getExpireLabel(c.end) : null;
+      const soon = expire !== null;
+      const cardClass = ['coupon-card', c.status, soon ? 'expiring-soon' : ''].filter(Boolean).join(' ');
+      const expireTag = expire
+        ? `<span class="coupon-expire-tag ${expire.today ? 'today' : ''}">${expire.today ? '今天过期' : '即将过期'}</span>`
+        : '';
+      const btnHtml = c.status === 'available'
+        ? `<button type="button" class="coupon-use-btn" data-use-coupon="${c.id}">去使用</button>`
+        : '';
+      return `
+        <div class="${cardClass}" data-coupon-id="${c.id}" id="coupon-${c.id}">
+          <div class="coupon-card-left">
+            <div class="coupon-amt"><small>¥</small>${c.amount}</div>
+            <div class="coupon-condition">${c.condition}</div>
+          </div>
+          <div class="coupon-card-right">
+            ${expireTag}
+            <span class="coupon-type-tag">${c.tag}</span>
+            <div class="coupon-title">${c.title}</div>
+            <div class="coupon-date">${c.start}~${c.end}</div>
+            ${btnHtml}
+          </div>
+        </div>`;
+    }
+
+    function renderCouponList() {
+      let list = filterCoupons();
+      if (couponStatus === 'available') list = sortCoupons(list);
+      updateCouponCounts();
+      if (list.length === 0) {
+        const labels = { available: '可用', used: '已用', expired: '失效' };
+        couponList.innerHTML = `<div class="empty-hint">暂无${labels[couponStatus]}${couponMain === 'coupon' ? '优惠券' : '消费券'}</div>`;
+        return;
+      }
+      couponList.innerHTML = list.map(renderCouponCard).join('');
+      couponList.querySelectorAll('[data-use-coupon]').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showToast('去使用优惠券');
+        });
+      });
+      if (highlightExpiring) {
+        const firstExpiring = list.find((c) => getExpireLabel(c.end));
+        if (firstExpiring) {
+          const el = document.getElementById('coupon-' + firstExpiring.id);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        highlightExpiring = false;
+      }
+    }
+
+    function switchCouponStatus(status) {
+      couponStatus = status;
+      couponStatusTabs.querySelectorAll('.coupon-status-tab').forEach((el) => {
+        el.classList.toggle('active', el.dataset.couponStatus === status);
+      });
+      renderCouponList();
+    }
+
+    function switchCouponMain(main) {
+      couponMain = main;
+      couponMainTab.classList.toggle('active', main === 'coupon');
+      voucherMainTab.classList.toggle('active', main === 'voucher');
+      couponStatus = 'available';
+      couponStatusTabs.querySelectorAll('.coupon-status-tab').forEach((el) => {
+        el.classList.toggle('active', el.dataset.couponStatus === 'available');
+      });
+      renderCouponList();
+    }
+
+    function openCoupons(options) {
+      highlightExpiring = options && options.highlightExpiring;
+      if (options && options.status) couponStatus = options.status;
+      couponMain = 'coupon';
+      couponMainTab.classList.add('active');
+      voucherMainTab.classList.remove('active');
+      couponStatusTabs.querySelectorAll('.coupon-status-tab').forEach((el) => {
+        el.classList.toggle('active', el.dataset.couponStatus === couponStatus);
+      });
+      renderCouponList();
+      pushView('viewCoupon');
+    }
+
+    function handleNotifyNav(nav, id) {
+      markRead(id);
+      popToProfile();
+      switch (nav) {
+        case 'recharge-platform':
+          openRecharge('platform');
+          break;
+        case 'recharge-restaurant':
+          openRecharge('restaurant');
+          break;
+        case 'balance-platform':
+          openPlatformBalance();
+          break;
+        case 'balance-restaurant':
+          openRestaurant();
+          break;
+        case 'order-pickup':
+          openOrders('pickup');
+          break;
+        case 'coupon':
+          openCoupons({ highlightExpiring: true, status: 'available' });
+          break;
+        default:
+          showToast(nav);
+      }
+    }
+
+    const SHOP_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><text x="12" y="17" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" stroke="none">¥</text></svg>`;
+    const INCOME_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>`;
+
+    function renderTxItem(tx, isMoney) {
+      const isOut = tx.amt < 0;
+      const amtClass = isOut ? 'out' : 'in';
+      let displayAmt;
+      if (isMoney) {
+        displayAmt = isOut ? tx.amt.toFixed(2) : '+' + Math.abs(tx.amt).toFixed(2);
+      } else {
+        displayAmt = isOut ? '-' + Math.abs(tx.amt) : '+' + Math.abs(tx.amt);
+      }
+      const iconInner = isMoney
+        ? '¥'
+        : (isOut ? SHOP_ICON : INCOME_ICON);
+      const iconClass = isMoney ? '' : (isOut ? '' : ' income');
+      return `
+        <div class="beans-tx" data-tx-id="${tx.id}">
+          <div class="beans-tx-icon${iconClass}">${iconInner}</div>
+          <div class="beans-tx-body">
+            <div class="beans-tx-name">${tx.merchant}</div>
+            <div class="beans-tx-sub">${tx.sub}</div>
+          </div>
+          <div class="beans-tx-right">
+            <div class="beans-tx-amt ${amtClass}">${displayAmt}</div>
+            <div class="beans-tx-time">${tx.time}</div>
+          </div>
+        </div>`;
+    }
+
+    function renderBeansMainList() {
+      const list = BEANS_TX.filter((t) => t.type === beansMainTab).slice(0, 3);
+      beansTxList.innerHTML = list.map((t) => renderTxItem(t, false)).join('');
+      bindTxClicks(beansTxList);
+    }
+
+    function filterDetailList() {
+      const source = detailSeg === 'beans' ? BEANS_TX : BALANCE_TX;
+      return source.filter((t) => {
+        if (filters.merchant !== '全部' && t.merchant !== filters.merchant) return false;
+        if (filters.type === '出账' && t.type !== 'out') return false;
+        if (filters.type === '入账' && t.type !== 'in') return false;
+        return true;
+      });
+    }
+
+    function renderDetailList() {
+      const list = filterDetailList();
+      if (list.length === 0) {
+        detailTxList.innerHTML = '<div class="empty-hint">暂无符合条件的明细</div>';
+        return;
+      }
+      detailTxList.innerHTML = list.map((t) => renderTxItem(t, detailSeg === 'balance')).join('');
+      bindTxClicks(detailTxList);
+    }
+
+    function bindTxClicks(container) {
+      container.querySelectorAll('.beans-tx').forEach((el) => {
+        el.addEventListener('click', () => showToast('查看交易详情'));
+      });
+    }
+
+    function switchBeansTab(tab) {
+      beansMainTab = tab;
+      beansTabOut.classList.toggle('active', tab === 'out');
+      beansTabIn.classList.toggle('active', tab === 'in');
+      renderBeansMainList();
+    }
+
+    function switchDetailSeg(seg) {
+      detailSeg = seg;
+      segBalance.classList.toggle('active', seg === 'balance');
+      segBeans.classList.toggle('active', seg === 'beans');
+      renderDetailList();
+    }
+
+    function openPicker(kind) {
+      pickerKind = kind;
+      const configs = {
+        merchant: { title: '选择商家', options: MERCHANTS, current: filters.merchant },
+        date: { title: '选择日期', options: DATE_RANGES, current: filters.date },
+        type: { title: '选择类型', options: TYPES, current: filters.type },
+      };
+      const cfg = configs[kind];
+      pickerTitle.textContent = cfg.title;
+      pickerTemp = cfg.current;
+      pickerOptions.innerHTML = cfg.options.map((opt) =>
+        `<div class="picker-option ${opt === cfg.current ? 'selected' : ''}" data-value="${opt}">${opt}<span class="check">✓</span></div>`
+      ).join('');
+      pickerOptions.querySelectorAll('.picker-option').forEach((el) => {
+        el.addEventListener('click', () => {
+          pickerOptions.querySelectorAll('.picker-option').forEach((o) => o.classList.remove('selected'));
+          el.classList.add('selected');
+          pickerTemp = el.dataset.value;
+        });
+      });
+      pickerMask.classList.add('show');
+    }
+
+    function closePicker(apply) {
+      if (apply && pickerKind && pickerTemp !== null) {
+        if (pickerKind === 'store') {
+          currentStore = pickerTemp;
+          currentStoreName.textContent = currentStore;
+          showToast('已切换至：' + currentStore);
+        } else {
+          filters[pickerKind] = pickerTemp;
+          if (pickerKind === 'merchant') valMerchant.textContent = pickerTemp;
+          if (pickerKind === 'date') valDate.textContent = pickerTemp;
+          if (pickerKind === 'type') valType.textContent = pickerTemp;
+          renderDetailList();
+        }
+      }
+      pickerMask.classList.remove('show');
+      pickerKind = null;
+      pickerTemp = null;
+    }
+
+    function updateBadges() {
+      const count = unread.size;
+      if (count > 0) {
+        const text = count > 99 ? '99+' : String(count);
+        msgIconBadge.textContent = text;
+        msgIconBadge.classList.remove('hidden');
+        notifyTabBadge.textContent = text;
+        notifyTabBadge.style.display = 'inline-flex';
+      } else {
+        msgIconBadge.classList.add('hidden');
+        notifyTabBadge.style.display = 'none';
+      }
+    }
+
+    function setOrderBadge(el, count) {
+      if (!el) return;
+      if (count > 0) {
+        el.textContent = count > 99 ? '99+' : String(count);
+        el.classList.remove('hidden');
+      } else {
+        el.classList.add('hidden');
+      }
+    }
+
+    function countOrdersByTab(tab) {
+      return ORDER_DATA.filter((o) => o.tab === tab).length;
+    }
+
+    function updateOrderBadges() {
+      const unpaid = countOrdersByTab('unpaid');
+      const pickup = countOrdersByTab('pickup');
+      const receive = countOrdersByTab('receive');
+      const review = countOrdersByTab('review');
+      setOrderBadge(badgeUnpaid, unpaid);
+      setOrderBadge(badgePickup, pickup);
+      setOrderBadge(badgeReceive, receive);
+      setOrderBadge(badgeReview, review);
+      setOrderBadge(ordersTabPickupBadge, pickup);
+      const pending = unpaid + pickup;
+      if (pendingBanner) {
+        pendingBanner.textContent = pending > 0
+          ? `⚠ 您有 ${pending} 笔订单待处理`
+          : '';
+        pendingBanner.style.display = pending > 0 ? 'block' : 'none';
+      }
+    }
+
+    function openMessage() { pushView('viewMessage'); }
+
+    function closeMessage() { popView(); }
+
+    function openBeans() {
+      pushView('viewBeans');
+      renderBeansMainList();
+    }
+
+    function openBeansDetail() {
+      filters.merchant = '全部';
+      filters.date = '2026-05-01 至 2026-05-29';
+      filters.type = beansMainTab === 'out' ? '出账' : '入账';
+      valMerchant.textContent = filters.merchant;
+      valDate.textContent = filters.date;
+      valType.textContent = filters.type;
+      detailSeg = 'beans';
+      segBalance.classList.remove('active');
+      segBeans.classList.add('active');
+      pushView('viewBeansDetail');
+      renderDetailList();
+    }
+
+    function switchMsgTab(tab) {
+      const isNotify = tab === 'notify';
+      tabNotify.classList.toggle('active', isNotify);
+      tabChat.classList.toggle('active', !isNotify);
+      panelNotify.style.display = isNotify ? 'block' : 'none';
+      panelChat.style.display = isNotify ? 'none' : 'block';
+    }
+
+    function markRead(id) {
+      if (!unread.has(id)) return;
+      unread.delete(id);
+      const card = document.querySelector(`.notify-card[data-id="${id}"]`);
+      if (card) card.classList.add('read');
+      updateBadges();
+    }
+
+    msgBtn.addEventListener('click', openMessage);
+    msgBack.addEventListener('click', closeMessage);
+    allOrdersBtn.addEventListener('click', () => { popToProfile(); openOrders('all'); });
+    ordersBack.addEventListener('click', popView);
+    ordersTabs.querySelectorAll('.orders-tab').forEach((tab) => {
+      tab.addEventListener('click', () => switchOrderTab(tab.dataset.orderTab));
+    });
+    orderUnpaidEntry.addEventListener('click', () => openOrders('unpaid'));
+    orderPickupEntry.addEventListener('click', () => openOrders('pickup'));
+    orderReceiveEntry.addEventListener('click', () => openOrders('receive'));
+    orderReviewEntry.addEventListener('click', () => openOrders('review'));
+    couponEntry.addEventListener('click', () => openCoupons());
+    couponBack.addEventListener('click', popView);
+    couponStatusTabs.querySelectorAll('.coupon-status-tab').forEach((tab) => {
+      tab.addEventListener('click', () => switchCouponStatus(tab.dataset.couponStatus));
+    });
+    couponMainTab.addEventListener('click', () => switchCouponMain('coupon'));
+    voucherMainTab.addEventListener('click', () => switchCouponMain('voucher'));
+    getCouponBtn.addEventListener('click', () => showToast('领券中心'));
+    cartSelectAll.addEventListener('click', () => {
+      const stats = getCartStats();
+      const next = !stats.allSelected;
+      cartItems.forEach((i) => { i.selected = next; });
+      renderCart();
+    });
+    cartCheckout.addEventListener('click', () => {
+      const stats = getCartStats();
+      if (stats.selectedQty === 0) return;
+      showToast('去结算 ' + stats.selectedQty + ' 件商品');
+    });
+    confirmNo.addEventListener('click', hideConfirm);
+    confirmYes.addEventListener('click', () => {
+      if (confirmCallback) confirmCallback();
+      hideConfirm();
+    });
+    confirmMask.addEventListener('click', (e) => { if (e.target === confirmMask) hideConfirm(); });
+    document.querySelectorAll('.tab').forEach((tab) => {
+      tab.addEventListener('click', () => switchMainTab(tab.dataset.tab));
+    });
+    storeSwitchBtn.addEventListener('click', openStorePicker);
+    homeSearchBtn.addEventListener('click', () => openSearch());
+    homeBannerBtn.addEventListener('click', openRecommend);
+    recommendBack.addEventListener('click', popView);
+    payCodeBtn.addEventListener('click', () => showToast('付款码'));
+    searchBack.addEventListener('click', popView);
+    searchSubmit.addEventListener('click', () => doSearch());
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') doSearch();
+    });
+    searchHistoryClear.addEventListener('click', () => {
+      showConfirm('确定清空搜索历史？', () => {
+        searchHistory = [];
+        renderSearchHistory();
+      });
+    });
+    homeShareFab.addEventListener('click', () => showToast('分享'));
+    bindHomeProductActions();
+    renderHomeCategories();
+    renderHomeProducts();
+    renderCategoryPage();
+    updateTabbarVisibility();
+    updateHomeCatItemWidth();
+    window.addEventListener('resize', () => {
+      updateHomeCatItemWidth();
+      homeCatScroller?.updateUI();
+      if (navStack[navStack.length - 1] === 'viewCategory') {
+        updateCategorySubTabWidth();
+        categorySubScroller?.updateUI();
+      }
+    });
+    bindCategoryProductActions();
+    categorySearchBtn.addEventListener('click', () => openSearch());
+    categorySubAll.addEventListener('click', openCategorySubPanel);
+    catSubPanelClose.addEventListener('click', closeCategorySubPanel);
+    catSubPanelMask.addEventListener('click', (e) => {
+      if (e.target === catSubPanelMask) closeCategorySubPanel();
+    });
+    categorySort.querySelectorAll('.cat-sort-item').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        categorySortMode = btn.dataset.sort;
+        categorySort.querySelectorAll('.cat-sort-item').forEach((b) => {
+          b.classList.toggle('active', b === btn);
+        });
+        renderCategoryProductSections(getActiveCategory());
+      });
+    });
+    walletEntry.addEventListener('click', () => { popToProfile(); openPlatformBalance(); });
+    restaurantEntry.addEventListener('click', () => { popToProfile(); openRestaurant(); });
+    beansEntry.addEventListener('click', openBeans);
+    beansBack.addEventListener('click', popView);
+    beansHelp.addEventListener('click', () => showToast('百货豆使用帮助'));
+    beansTabOut.addEventListener('click', () => switchBeansTab('out'));
+    beansTabIn.addEventListener('click', () => switchBeansTab('in'));
+    beansAllDetail.addEventListener('click', openBeansDetail);
+    detailBack.addEventListener('click', popView);
+    segBalance.addEventListener('click', () => switchDetailSeg('balance'));
+    segBeans.addEventListener('click', () => switchDetailSeg('beans'));
+    filterMerchant.addEventListener('click', () => openPicker('merchant'));
+    filterDate.addEventListener('click', () => openPicker('date'));
+    filterType.addEventListener('click', () => openPicker('type'));
+    pickerCancel.addEventListener('click', () => closePicker(false));
+    pickerConfirm.addEventListener('click', () => closePicker(true));
+    pickerMask.addEventListener('click', (e) => { if (e.target === pickerMask) closePicker(false); });
+
+    platformBack.addEventListener('click', popView);
+    platformTabOut.addEventListener('click', () => {
+      platformTab = 'out';
+      platformTabOut.classList.add('active');
+      platformTabIn.classList.remove('active');
+      renderPlatformTxList();
+    });
+    platformTabIn.addEventListener('click', () => {
+      platformTab = 'in';
+      platformTabIn.classList.add('active');
+      platformTabOut.classList.remove('active');
+      renderPlatformTxList();
+    });
+    platformAllDetail.addEventListener('click', openPlatformDetail);
+    platformRechargeBtn.addEventListener('click', () => openRecharge('platform'));
+    platformRefundBtn.addEventListener('click', () => showToast('申请退款'));
+    platformSecurity.addEventListener('click', () => showToast('安全提示'));
+
+    restaurantBack.addEventListener('click', popView);
+    restaurantRechargeBtn.addEventListener('click', () => openRecharge('restaurant'));
+    restaurantAuthBtn.addEventListener('click', () => showToast('查看认证信息'));
+    restaurantOrderBtn.addEventListener('click', () => showToast('查看餐厅订单'));
+    restaurantRefundBtn.addEventListener('click', () => showToast('申请退款'));
+    restaurantRefundRecordBtn.addEventListener('click', () => showToast('退款记录'));
+    restaurantServiceBtn.addEventListener('click', () => showToast('联系客服'));
+    restaurantQr.addEventListener('click', () => showToast('出示会员码'));
+
+    rechargeBack.addEventListener('click', popView);
+    rechargePresets.querySelectorAll('.recharge-preset').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.amt === 'custom') {
+          showToast('请输入自定义金额');
+          return;
+        }
+        rechargeAmount = Number(btn.dataset.amt);
+        rechargePresets.querySelectorAll('.recharge-preset').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        rechargeConfirmBtn.textContent = '确认充值 ¥' + rechargeAmount;
+      });
+    });
+    rechargeConfirmBtn.addEventListener('click', completeRecharge);
+    rechargeSuccessBtn.addEventListener('click', goToBalanceAfterRecharge);
+
+    tabChat.addEventListener('click', () => switchMsgTab('chat'));
+    tabNotify.addEventListener('click', () => switchMsgTab('notify'));
+
+    document.querySelectorAll('.notify-card').forEach((card) => {
+      card.addEventListener('click', () => {
+        const nav = card.dataset.nav;
+        if (nav) handleNotifyNav(nav, card.dataset.id);
+        else showToast(card.dataset.action || '通知');
+      });
+    });
+
+    moreBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = morePanel.classList.toggle('open');
+      moreBtn.classList.toggle('open', open);
+      moreBtn.setAttribute('aria-expanded', open);
+      if (open) {
+        requestAnimationFrame(() => {
+          morePanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+      }
+    });
+
+    document.querySelectorAll('[data-action]').forEach((el) => {
+      if (el === moreBtn || el === msgBtn || el === beansEntry || el === walletEntry || el === restaurantEntry || el === allOrdersBtn || el === couponEntry || el.closest('.notify-card') || el.closest('[data-order-entry]')) return;
+      el.addEventListener('click', () => showToast('进入：' + el.getAttribute('data-action')));
+    });
+
+    document.querySelectorAll('.phone > .view:not(.active)').forEach((v) => {
+      v.classList.remove('slide-in-right', 'slide-out-left');
+    });
+
+    updateBadges();
+    updateOrderBadges();
+    updateBalanceUI();
+    updateCouponCounts();
+    updateCartBadge();
+    cartBar.classList.add('hidden');
+  </script>
+</body>
+</html>
