@@ -1159,6 +1159,169 @@
     .home-share-fab.show { display: flex; }
     .view-home .scroll { padding-bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px); }
 
+    /* 店铺列表 — 与首页/分类统一粉白色调 */
+    .view-store-list {
+      background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+    }
+    .store-list-header {
+      background: linear-gradient(180deg, var(--pink-light) 0%, #f5f5f5 100%);
+      padding: 48px 12px 12px;
+      flex-shrink: 0;
+    }
+    .store-list-nav {
+      display: flex;
+      align-items: center;
+      height: 44px;
+      margin-bottom: 12px;
+    }
+    .store-list-back {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: none;
+      font-size: 26px;
+      color: #333;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit;
+      flex-shrink: 0;
+    }
+    .store-list-back:active { opacity: 0.6; }
+    .store-list-title {
+      flex: 1;
+      text-align: center;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      margin-right: 36px;
+    }
+    .store-list-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 9px 14px;
+      border: 1px solid #f0f0f0;
+    }
+    .store-list-search svg {
+      flex-shrink: 0;
+      color: #bbb;
+    }
+    .store-list-search input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      font-family: inherit;
+      background: transparent;
+      min-width: 0;
+      color: var(--text);
+    }
+    .store-list-search input::placeholder { color: #bbb; }
+    .view-store-list .scroll {
+      padding-bottom: calc(var(--safe-bottom) + 16px);
+    }
+    .store-list-body { padding: 4px 12px 12px; }
+    .store-list-item {
+      display: flex;
+      align-items: stretch;
+      background: #fff;
+      margin-bottom: 10px;
+      min-height: 88px;
+      border-radius: var(--card-radius);
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+    .store-list-item.bound {
+      box-shadow: inset 3px 0 0 var(--brand), 0 1px 4px rgba(232, 93, 111, 0.12);
+    }
+    .store-list-thumb {
+      width: 88px;
+      min-width: 88px;
+      height: 88px;
+      background: var(--pink-light);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: #ccc;
+      font-size: 11px;
+      overflow: hidden;
+    }
+    .store-list-thumb.photo {
+      background: #f9f9f9;
+      font-size: 32px;
+      color: inherit;
+    }
+    .store-list-thumb .placeholder-bird {
+      width: 40px;
+      height: 40px;
+      opacity: 0.35;
+    }
+    .store-list-info {
+      flex: 1;
+      min-width: 0;
+      padding: 12px 10px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .store-list-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .store-list-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 13px;
+    }
+    .store-list-min {
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+    .store-list-distance {
+      color: var(--text);
+      flex-shrink: 0;
+    }
+    .store-list-bind {
+      width: 44px;
+      min-width: 44px;
+      border: none;
+      background: var(--pink-light);
+      color: var(--brand);
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      writing-mode: vertical-rl;
+      letter-spacing: 2px;
+      padding: 8px 0;
+      flex-shrink: 0;
+      transition: background 0.2s, color 0.2s;
+    }
+    .store-list-bind:active { opacity: 0.85; }
+    .store-list-bind.bound {
+      background: var(--brand);
+      color: #fff;
+    }
+    .store-list-empty {
+      text-align: center;
+      padding: 48px 16px;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
     /* 搜索商品 */
     .view-search { background: #fff; }
     .search-nav {
@@ -1310,7 +1473,10 @@
       border-right: 1px solid #f0e4e8;
       -webkit-overflow-scrolling: touch;
       padding-bottom: calc(var(--tab-h) + var(--safe-bottom));
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
+    .cat-primary::-webkit-scrollbar { display: none; }
     .cat-primary-item {
       padding: 12px 6px;
       text-align: center;
@@ -2123,6 +2289,23 @@
       </div>
     </div>
 
+    <!-- 店铺列表 -->
+    <div class="view slide-in-right view-store-list" id="viewStoreList">
+      <div class="store-list-header">
+        <div class="store-list-nav">
+          <button type="button" class="store-list-back" id="storeListBack" aria-label="返回">‹</button>
+          <span class="store-list-title">店铺列表</span>
+        </div>
+        <div class="store-list-search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="search" id="storeSearchInput" placeholder="请输入店铺名称" enterkeyhint="search" />
+        </div>
+      </div>
+      <div class="scroll">
+        <div class="store-list-body" id="storeListBody"></div>
+      </div>
+    </div>
+
     <!-- 搜索商品 -->
     <div class="view slide-in-right view-search" id="viewSearch">
       <div class="search-nav">
@@ -2405,6 +2588,9 @@
     const confirmYes = document.getElementById('confirmYes');
     const currentStoreName = document.getElementById('currentStoreName');
     const storeSwitchBtn = document.getElementById('storeSwitchBtn');
+    const storeListBack = document.getElementById('storeListBack');
+    const storeSearchInput = document.getElementById('storeSearchInput');
+    const storeListBody = document.getElementById('storeListBody');
     const payCodeBtn = document.getElementById('payCodeBtn');
     const homeShareFab = document.getElementById('homeShareFab');
     const homeSearchBtn = document.getElementById('homeSearchBtn');
@@ -2770,7 +2956,17 @@
     ];
 
     const MERCHANTS = ['全部', '金川超市', '美食广场', '系统', '餐厅'];
-    const STORES = ['解放路商圈', '优选超市', '万达超市', '金川超市', '泓沃严选 · 万达超市'];
+    const STORES = ['解放路商圈', '名居超市', '豆源生鲜超市', '宁宇汤头店', '发票分店1', '先进先出东方购物', '百货铺子', 'wyf零售店'];
+    const STORE_LIST = [
+      { id: 'jiefang', name: '解放路商圈', distance: 520, minDelivery: 0, imageType: 'placeholder' },
+      { id: 'mingju', name: '名居超市', distance: 868, minDelivery: 10, imageType: 'placeholder' },
+      { id: 'douyuan', name: '豆源生鲜超市', distance: 972, minDelivery: 0, imageType: 'placeholder' },
+      { id: 'ningyu', name: '宁宇汤头店', distance: 1215, minDelivery: 0, imageType: 'placeholder' },
+      { id: 'fapiao', name: '发票分店1', distance: 1954, minDelivery: 0, imageType: 'placeholder' },
+      { id: 'xianjin', name: '先进先出东方购物', distance: 2853, minDelivery: 0, imageType: 'placeholder' },
+      { id: 'baihuo', name: '百货铺子', distance: 9262, minDelivery: 0, imageType: 'photo', emoji: '🌸' },
+      { id: 'wyf', name: 'wyf零售店', distance: 9930, minDelivery: 0, imageType: 'photo', emoji: '🎆' },
+    ];
     const DATE_RANGES = ['2026-05-01 至 2026-05-29', '2026-05-01 至 2026-05-14', '2026-05-15 至 2026-05-29'];
     const TYPES = ['出账', '入账', '全部'];
 
@@ -2863,20 +3059,52 @@
     }
 
     function openStorePicker() {
-      pickerKind = 'store';
-      pickerTitle.textContent = '切换门店';
-      pickerTemp = currentStore;
-      pickerOptions.innerHTML = STORES.map((s) =>
-        `<div class="picker-option ${s === currentStore ? 'selected' : ''}" data-value="${s}">${s}<span class="check">✓</span></div>`
-      ).join('');
-      pickerOptions.querySelectorAll('.picker-option').forEach((el) => {
-        el.addEventListener('click', () => {
-          pickerOptions.querySelectorAll('.picker-option').forEach((o) => o.classList.remove('selected'));
-          el.classList.add('selected');
-          pickerTemp = el.dataset.value;
-        });
+      storeSearchInput.value = '';
+      renderStoreList('');
+      pushView('viewStoreList');
+    }
+
+    function renderStoreListThumb(store) {
+      if (store.imageType === 'photo') {
+        return `<div class="store-list-thumb photo">${store.emoji || '🏪'}</div>`;
+      }
+      return `<div class="store-list-thumb">${SVG_BIRD}<span>暂无图片</span></div>`;
+    }
+
+    function renderStoreList(keyword) {
+      const q = keyword.trim().toLowerCase();
+      const list = STORE_LIST.filter((s) => !q || s.name.toLowerCase().includes(q));
+      if (!list.length) {
+        storeListBody.innerHTML = '<div class="store-list-empty">未找到相关店铺</div>';
+        return;
+      }
+      storeListBody.innerHTML = list.map((store) => {
+        const bound = store.name === currentStore;
+        return `
+          <div class="store-list-item ${bound ? 'bound' : ''}" data-store-id="${store.id}">
+            ${renderStoreListThumb(store)}
+            <div class="store-list-info">
+              <div class="store-list-name">${store.name}</div>
+              <div class="store-list-meta">
+                <span class="store-list-min">起送 ¥${store.minDelivery}</span>
+                <span class="store-list-distance">${store.distance}m</span>
+              </div>
+            </div>
+            <button type="button" class="store-list-bind ${bound ? 'bound' : ''}" data-store-id="${store.id}">绑定店铺</button>
+          </div>`;
+      }).join('');
+      storeListBody.querySelectorAll('.store-list-bind').forEach((btn) => {
+        btn.addEventListener('click', () => bindStore(btn.dataset.storeId));
       });
-      pickerMask.classList.add('show');
+    }
+
+    function bindStore(storeId) {
+      const store = STORE_LIST.find((s) => s.id === storeId);
+      if (!store) return;
+      currentStore = store.name;
+      currentStoreName.textContent = currentStore;
+      showToast('已绑定：' + store.name);
+      popView();
     }
 
     function switchMainTab(tabName) {
@@ -4301,6 +4529,8 @@
       tab.addEventListener('click', () => switchMainTab(tab.dataset.tab));
     });
     storeSwitchBtn.addEventListener('click', openStorePicker);
+    storeListBack.addEventListener('click', popView);
+    storeSearchInput.addEventListener('input', () => renderStoreList(storeSearchInput.value));
     homeSearchBtn.addEventListener('click', () => openSearch());
     homeBannerBtn.addEventListener('click', openRecommend);
     recommendBack.addEventListener('click', popView);
