@@ -75,21 +75,24 @@
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
-      z-index: 2;
+      z-index: 3;
       transform: none;
     }
     .view.slide-out-left {
       transform: translateX(-30%);
       opacity: 0;
-      visibility: visible;
-      z-index: 3;
+      visibility: hidden;
+      pointer-events: none;
+      z-index: 1;
     }
     .view.slide-in-right {
       transform: translateX(100%);
+      opacity: 0;
       visibility: hidden;
     }
     .view.slide-in-right.active {
       transform: none;
+      opacity: 1;
       visibility: visible;
     }
 
@@ -589,32 +592,138 @@
       line-height: 1.6; background: #fff8e6; border-radius: 8px;
     }
 
-    /* 充值页 */
-    .recharge-page { background: #f5f5f5; }
+    /* 充值页 — 统一品牌色调 */
+    .view-recharge {
+      display: flex; flex-direction: column; background: #fff;
+      min-height: 0;
+    }
+    .recharge-page {
+      flex: 1; min-height: 0; background: #fff; padding-bottom: 12px;
+      overflow-y: auto; overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
     .recharge-nav-wrap {
-      background: linear-gradient(180deg, var(--pink-light) 0%, #fff 100%);
+      background: #fff; flex-shrink: 0;
+      border-bottom: 1px solid #f5f5f5;
+      position: relative; z-index: 5;
     }
-    .recharge-body { padding: 20px 16px; flex: 1; background: #fff; margin: 12px; border-radius: var(--card-radius); }
-    .recharge-type-label {
-      font-size: 14px; color: #666; margin-bottom: 8px;
+    .recharge-nav-wrap .msg-nav {
+      padding: 48px 12px 10px; background: #fff !important;
     }
-    .recharge-current {
-      font-size: 28px; font-weight: 700; color: #333; margin-bottom: 24px;
+    .recharge-nav-wrap .msg-nav-top {
+      padding-top: 0; margin-bottom: 0; height: 44px;
+    }
+    .recharge-card {
+      margin: 16px 16px 0; border-radius: 12px; padding: 18px 16px;
+      color: #fff; position: relative; overflow: hidden;
+      box-shadow: 0 4px 16px rgba(232, 93, 111, 0.22);
+    }
+    .recharge-card-restaurant {
+      background: linear-gradient(135deg, #ffb07a 0%, #ff7043 42%, var(--brand) 100%);
+      min-height: 108px;
+    }
+    .recharge-card-platform {
+      background: linear-gradient(135deg, #ff6b6b 0%, var(--brand) 55%, #b71c3a 100%);
+      min-height: 128px;
+    }
+    .recharge-card-platform::before {
+      content: ''; position: absolute; inset: 0; opacity: 0.12;
+      background: repeating-radial-gradient(circle at 20% 30%, transparent 0 8px, rgba(255,255,255,0.15) 8px 9px);
+      pointer-events: none;
+    }
+    .recharge-card-title { font-size: 16px; font-weight: 700; margin-bottom: 18px; position: relative; z-index: 1; }
+    .recharge-card-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px; position: relative; z-index: 1;
+    }
+    .recharge-card-top .recharge-card-title { margin-bottom: 0; }
+    .recharge-security-btn {
+      border: none; background: rgba(255,255,255,0.18); color: #fff;
+      font-size: 11px; padding: 4px 8px; border-radius: 12px;
+      cursor: pointer; font-family: inherit;
+    }
+    .recharge-card-no { font-size: 12px; opacity: 0.92; position: relative; z-index: 1; }
+    .recharge-card-row {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      margin-top: 28px; position: relative; z-index: 1;
+    }
+    .recharge-card-balance-label { font-size: 13px; opacity: 0.95; }
+    .recharge-card-balance-block { margin-top: 16px; position: relative; z-index: 1; }
+    .recharge-card-balance-block .recharge-card-balance-label { font-size: 13px; opacity: 0.9; margin-bottom: 6px; }
+    .recharge-card-balance-amt { font-size: 32px; font-weight: 700; letter-spacing: 0.5px; }
+    .recharge-card-crown {
+      position: absolute; right: 12px; bottom: 8px; font-size: 52px;
+      opacity: 0.22; pointer-events: none; z-index: 0;
+    }
+    .recharge-panel { padding: 20px 16px 0; }
+    .recharge-panel-title {
+      font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 14px;
     }
     .recharge-presets {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px;
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
     }
     .recharge-preset {
-      padding: 14px 8px; border: 1px solid #eee; border-radius: 8px;
-      text-align: center; font-size: 16px; cursor: pointer; background: #fff;
-      font-family: inherit;
+      position: relative; padding: 18px 12px; border: 1px solid #eee;
+      border-radius: 8px; text-align: center; font-size: 17px;
+      cursor: pointer; background: #fff; font-family: inherit; color: var(--text);
+      overflow: hidden;
     }
-    .recharge-preset.active { border-color: var(--brand); color: var(--brand); background: var(--pink-light); }
-    .recharge-preset:active { opacity: 0.8; }
-    .recharge-threshold {
-      font-size: 12px; color: #999; margin-bottom: 16px; padding: 10px;
-      background: #f9f9f9; border-radius: 8px;
+    .recharge-preset.active {
+      border-color: var(--brand); color: var(--brand); font-weight: 600;
     }
+    .recharge-preset.active::after {
+      content: ''; position: absolute; right: 0; bottom: 0;
+      border-width: 0 0 22px 22px; border-style: solid;
+      border-color: transparent transparent var(--brand) transparent;
+    }
+    .recharge-preset-check {
+      display: none; position: absolute; right: 3px; bottom: 1px;
+      color: #fff; font-size: 10px; z-index: 1; line-height: 1;
+    }
+    .recharge-preset.active .recharge-preset-check { display: block; }
+    .recharge-bank-note {
+      margin: 16px 0 0; font-size: 12px; color: var(--brand); line-height: 1.5;
+    }
+    .recharge-pay-method { margin-top: 20px; padding-top: 4px; }
+    .recharge-pay-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; border-top: 1px solid #f0f0f0;
+    }
+    .recharge-pay-info {
+      display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--text);
+    }
+    .recharge-wx-icon {
+      width: 28px; height: 28px; border-radius: 50%; background: #07c160;
+      color: #fff; font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .recharge-pay-radio {
+      width: 20px; height: 20px; border-radius: 50%; border: 2px solid #ddd;
+      position: relative; flex-shrink: 0;
+    }
+    .recharge-pay-radio.checked {
+      border-color: var(--brand);
+    }
+    .recharge-pay-radio.checked::after {
+      content: ''; position: absolute; inset: 3px; border-radius: 50%;
+      background: var(--brand);
+    }
+    .recharge-footer {
+      flex-shrink: 0; position: relative; z-index: 5;
+      padding: 12px 16px calc(var(--safe-bottom) + 12px);
+      background: #fff; border-top: 1px solid #f5f5f5;
+    }
+    .btn-recharge-main {
+      width: 100%; padding: 14px; border: none; border-radius: 999px;
+      background: linear-gradient(90deg, #ff6b6b 0%, var(--brand) 100%);
+      color: #fff; font-size: 17px; font-weight: 600; cursor: pointer;
+      font-family: inherit; box-shadow: 0 4px 12px rgba(232, 93, 111, 0.35);
+    }
+    .btn-recharge-main:active { opacity: 0.9; }
+    .view-recharge.recharge-platform-mode .recharge-card-restaurant,
+    .view-recharge.recharge-platform-mode .recharge-bank-note { display: none; }
+    .view-recharge.recharge-restaurant-mode .recharge-card-platform,
+    .view-recharge.recharge-restaurant-mode .recharge-pay-method { display: none; }
     .recharge-success-mask {
       position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500;
       display: none; align-items: center; justify-content: center;
@@ -634,7 +743,7 @@
 
     .view-balance .scroll,
     .view-restaurant .scroll,
-    .view-recharge .scroll { padding-bottom: calc(var(--safe-bottom) + 16px); }
+    .view-recharge .scroll { padding-bottom: calc(var(--safe-bottom) + 16px); min-height: 0; }
     .view-balance { display: flex; flex-direction: column; background: #f5f5f5; }
 
     /* 我的订单 */
@@ -940,12 +1049,28 @@
     .confirm-actions .confirm-no { color: #999; border-right: 1px solid #f0f0f0; }
     .confirm-actions .confirm-yes { color: var(--brand); font-weight: 600; }
 
-    /* 首页 — 与「我的」统一粉白色调 */
+    /* 首页 — 盒马风格 + 品牌粉色调 */
     .view-home { background: #f5f5f5; }
-    .home-header {
-      background: linear-gradient(180deg, var(--pink-light) 0%, #f5f5f5 100%);
-      padding: 48px 12px 12px;
+    .view-home .scroll { padding-bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px); }
+    .home-hero {
+      position: relative; overflow: hidden;
+      padding: 48px 12px 28px; margin-bottom: 0;
     }
+    .home-hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background: linear-gradient(145deg, #fde8ee 0%, #f5a0b0 38%, var(--brand) 100%);
+    }
+    .home-hero-bg::after {
+      content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 36px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 40' preserveAspectRatio='none'%3E%3Cpath d='M0 20 Q100 0 200 20 T400 20 L400 40 L0 40 Z' fill='%23f5f5f5'/%3E%3C/svg%3E") center bottom / 100% 100% no-repeat;
+    }
+    .home-hero-deco {
+      position: absolute; right: -8px; bottom: 18px; z-index: 1;
+      font-size: 96px; line-height: 1; opacity: 0.92;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.12));
+      pointer-events: none;
+    }
+    .home-hero-inner { position: relative; z-index: 2; }
     .home-store-row {
       display: flex; align-items: center; margin-bottom: 12px;
     }
@@ -954,179 +1079,204 @@
     }
     .home-store-current {
       display: flex; align-items: center; gap: 6px;
-      font-size: 16px; font-weight: 600; color: var(--text);
+      font-size: 16px; font-weight: 700; color: #fff;
       min-width: 0; flex-shrink: 1;
+      border: none; background: none; padding: 0;
+      cursor: pointer; font-family: inherit;
+      -webkit-tap-highlight-color: transparent;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.08);
     }
+    .home-store-current:active { opacity: 0.82; }
     .home-store-current span:last-child,
     #currentStoreName {
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .home-store-icon { font-size: 18px; flex-shrink: 0; }
+    .home-store-chevron { font-size: 14px; opacity: 0.85; flex-shrink: 0; }
     .home-store-switch {
       display: flex; align-items: center; gap: 5px;
-      padding: 4px 10px; border: 1px solid var(--brand);
-      border-radius: 14px; background: rgba(255,255,255,0.75);
-      color: var(--brand); font-size: 11px; cursor: pointer;
-      font-family: inherit; flex-shrink: 0; margin-left: 2px;
+      padding: 4px 10px; border: 1px solid rgba(255,255,255,0.75);
+      border-radius: 14px; background: rgba(255,255,255,0.22);
+      color: #fff; font-size: 11px; cursor: pointer;
+      font-family: inherit; flex-shrink: 0;
     }
-    .home-store-switch:active { opacity: 0.75; }
-    .home-switch-lines {
-      display: flex; flex-direction: column; gap: 3px;
-    }
+    .home-store-switch:active { opacity: 0.8; }
+    .home-switch-lines { display: flex; flex-direction: column; gap: 3px; }
     .home-switch-lines i {
       display: block; width: 12px; height: 1.5px;
-      background: var(--brand); border-radius: 1px;
+      background: #fff; border-radius: 1px;
     }
-    .home-search-row {
-      display: flex; gap: 8px; align-items: center;
-    }
+    .home-search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; }
     .home-search {
       flex: 1; display: flex; align-items: center; gap: 8px;
-      background: #fff; border-radius: 20px; padding: 8px 14px;
+      background: rgba(255,255,255,0.92); border-radius: 22px; padding: 10px 14px;
       font-size: 13px; color: #bbb; border: none; cursor: pointer;
       font-family: inherit; text-align: left; width: 100%;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
-    .home-search:active { background: #fafafa; }
+    .home-search:active { background: #fff; }
     .home-paycode {
-      flex-shrink: 0; display: flex; flex-direction: column;
-      align-items: center; gap: 2px; padding: 6px 10px;
-      background: #fff; border: 1px solid var(--brand);
-      border-radius: 10px; color: var(--brand); font-size: 10px;
+      flex-shrink: 0; width: 44px; height: 44px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px; background: rgba(255,255,255,0.92); border: none;
+      border-radius: 12px; color: var(--brand); font-size: 9px; font-weight: 600;
       cursor: pointer; font-family: inherit;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
-    .home-paycode:active { background: var(--pink-light); }
-    .home-body { padding: 0 12px 12px; }
-    .home-categories-wrap {
-      background: #fff; border-radius: var(--card-radius);
-      margin-bottom: 12px; overflow: hidden;
-    }
-    .h-scroll-shell {
-      position: relative;
-      overflow: hidden;
-      min-width: 0;
-      width: 100%;
-    }
-    .h-scroll-fade {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 18px;
-      z-index: 2;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    .h-scroll-fade.show { opacity: 1; }
-    .h-scroll-fade.left {
-      left: 0;
-      background: linear-gradient(90deg, #fff 0%, rgba(255, 255, 255, 0) 100%);
-    }
-    .h-scroll-fade.right {
-      right: 0;
-      background: linear-gradient(270deg, #fff 0%, rgba(255, 255, 255, 0) 100%);
-    }
-    .home-categories-scroll {
-      display: flex;
-      flex-wrap: nowrap;
-      width: 100%;
-      max-width: 100%;
-      overflow-x: auto;
-      overflow-y: hidden;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-      touch-action: pan-x;
-      overscroll-behavior-x: contain;
-      padding: 14px 0;
-    }
-    .home-categories-scroll::-webkit-scrollbar { display: none; }
-    .home-cat-item {
-      flex: 0 0 auto;
-      text-align: center;
-      cursor: pointer;
+    .home-paycode:active { opacity: 0.88; }
+    .home-paycode .paycode-ico { font-size: 18px; line-height: 1; }
+    .home-hero-promo {
+      display: block; width: 100%; text-align: left; border: none; background: none;
+      padding: 0; cursor: pointer; font-family: inherit; color: #fff;
       -webkit-tap-highlight-color: transparent;
-      user-select: none;
-      border: none;
-      background: none;
-      padding: 0;
-      font-family: inherit;
-      touch-action: pan-x;
     }
+    .home-hero-promo:active { opacity: 0.9; }
+    .home-hero-promo-title {
+      font-size: 26px; font-weight: 800; line-height: 1.2; margin-bottom: 6px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .home-hero-promo-sub { font-size: 12px; opacity: 0.92; line-height: 1.5; margin-bottom: 10px; max-width: 62%; }
+    .home-hero-promo-cta {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 6px 14px; border-radius: 16px; background: rgba(255,255,255,0.95);
+      color: var(--brand); font-size: 12px; font-weight: 600;
+    }
+    .home-body { padding: 0 12px 12px; margin-top: -4px; }
+    .home-panel {
+      background: #fff; border-radius: var(--card-radius);
+      margin-bottom: 10px; padding: 14px 10px 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .home-cat-viewport { overflow: hidden; }
+    .home-cat-track {
+      display: flex; overflow-x: auto; overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; touch-action: pan-x;
+    }
+    .home-cat-track::-webkit-scrollbar { display: none; }
+    .home-cat-page {
+      flex: 0 0 100%; width: 100%; box-sizing: border-box;
+      scroll-snap-align: start; scroll-snap-stop: always;
+    }
+    .home-cat-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px 4px;
+    }
+    .home-cat-dots {
+      display: flex; justify-content: center; align-items: center;
+      gap: 6px; padding-top: 10px;
+    }
+    .home-cat-dots:empty { display: none; }
+    .home-cat-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #e0e0e0; transition: width 0.2s, background 0.2s;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .home-cat-dot.active {
+      width: 14px; border-radius: 3px; background: var(--brand);
+    }
+    .home-cat-item {
+      text-align: center; cursor: pointer;
+      border: none; background: none; padding: 0; font-family: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .home-cat-item:active { opacity: 0.75; }
     .home-cat-icon {
-      width: 48px; height: 48px; border-radius: 50%;
+      width: 46px; height: 46px; border-radius: 50%;
       background: var(--pink-light); margin: 0 auto 6px;
       display: flex; align-items: center; justify-content: center; font-size: 22px;
     }
-    .home-cat-label { font-size: 11px; color: var(--text); }
-    .home-notice {
-      background: #fff; border-radius: var(--card-radius);
-      padding: 10px 14px; margin-bottom: 12px;
-      display: flex; align-items: center; gap: 10px; font-size: 12px;
-      border: 1px solid #f0f0f0;
+    .home-cat-label {
+      font-size: 11px; color: var(--text); line-height: 1.25;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
-    .home-notice-tag {
-      color: var(--brand); font-weight: 600; flex-shrink: 0;
-      padding-right: 10px; border-right: 1px solid #f0f0f0;
+    .home-promo-dual {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;
     }
-    .home-notice-text { color: #666; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-    .home-banner {
-      background: linear-gradient(135deg, #fde8ee 0%, #f8b4c4 50%, var(--brand) 100%);
-      border-radius: var(--card-radius); padding: 20px 16px; margin-bottom: 12px;
-      color: #fff; position: relative; overflow: hidden; min-height: 100px;
-      cursor: pointer; border: none; width: 100%; text-align: left; font-family: inherit;
+    .home-promo-card {
+      background: #fff; border-radius: var(--card-radius); padding: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04); min-width: 0;
     }
-    .home-banner:active { opacity: 0.92; }
-    .home-banner-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-    .home-banner-sub { font-size: 12px; opacity: 0.9; }
-    .home-banner-deco { position: absolute; right: 12px; bottom: 8px; font-size: 36px; opacity: 0.8; }
+    .home-promo-card-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .home-promo-card-title { font-size: 15px; font-weight: 700; color: var(--text); }
+    .home-promo-card-more {
+      border: none; background: none; color: #999; font-size: 12px;
+      cursor: pointer; font-family: inherit; padding: 0;
+    }
+    .home-promo-card-more:active { color: var(--brand); }
+    .home-promo-items { display: flex; gap: 8px; }
+    .home-promo-item {
+      flex: 1; min-width: 0; border: none; background: none; padding: 0;
+      cursor: pointer; font-family: inherit; text-align: center;
+    }
+    .home-promo-item:active { opacity: 0.8; }
+    .home-promo-thumb {
+      width: 100%; aspect-ratio: 1; border-radius: 8px; background: #f9f9f9;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; font-size: 28px; margin-bottom: 6px;
+    }
+    .home-promo-thumb.photo svg { width: 100%; height: 100%; display: block; }
+    .home-promo-price { font-size: 13px; font-weight: 700; color: var(--brand); }
+    .home-section-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 4px 2px 12px;
+    }
+    .home-section-title { font-size: 17px; font-weight: 700; color: var(--text); }
+    .home-empty-products {
+      grid-column: 1 / -1; text-align: center; padding: 40px 16px;
+      color: var(--text-secondary); font-size: 14px;
+    }
     .home-products {
       display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
       position: relative;
     }
     .home-product {
       background: #fff; border-radius: var(--card-radius); overflow: hidden;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06); position: relative;
+    }
+    .home-product-badge {
+      position: absolute; top: 8px; left: 8px; z-index: 2;
+      background: var(--brand); color: #fff; font-size: 10px;
+      padding: 2px 6px; border-radius: 4px; font-weight: 600;
     }
     .home-product-img {
       width: 100%; aspect-ratio: 1; background: #f9f9f9;
       display: flex; align-items: center; justify-content: center;
-      font-size: 64px; min-height: 160px; overflow: hidden;
+      font-size: 64px; min-height: 150px; overflow: hidden;
     }
     .home-product-img.photo { padding: 0; }
     .home-product-img.photo svg { width: 100%; height: 100%; display: block; }
     .home-product-img.placeholder {
       flex-direction: column; gap: 10px; color: #ccc; font-size: 12px;
     }
-    .home-product-img.placeholder .placeholder-bird {
-      width: 56px; height: 56px; opacity: 0.35;
-    }
-    .home-product-info { padding: 10px 12px 12px; }
+    .home-product-img.placeholder .placeholder-bird { width: 56px; height: 56px; opacity: 0.35; }
+    .home-product-info { padding: 10px 10px 12px; }
     .home-product-name {
-      font-size: 14px; line-height: 1.4; margin-bottom: 6px;
+      font-size: 13px; line-height: 1.45; margin-bottom: 8px; min-height: 38px;
       overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
+      -webkit-box-orient: vertical; color: var(--text);
     }
     .home-product-foot {
-      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 6px;
     }
-    .home-product-price { display: flex; align-items: baseline; gap: 1px; }
-    .home-product-price-num {
-      font-size: 16px; font-weight: 700; color: #e53935;
-    }
+    .home-product-price-wrap { min-width: 0; }
+    .home-product-price { display: flex; align-items: baseline; gap: 1px; flex-wrap: wrap; }
+    .home-product-price-num { font-size: 17px; font-weight: 700; color: var(--brand); }
     .home-product-price-unit { font-size: 11px; color: #999; font-weight: 400; }
+    .home-product-orig { font-size: 11px; color: #bbb; text-decoration: line-through; margin-left: 4px; }
     .product-add-cart {
-      width: 32px; height: 32px; border-radius: 50%; border: none;
-      background: #e53935; color: #fff; cursor: pointer; flex-shrink: 0;
+      width: 30px; height: 30px; border-radius: 50%; border: none;
+      background: var(--brand); color: #fff; cursor: pointer; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
       position: relative; padding: 0; font-family: inherit;
     }
+    .view-home .product-add-cart { background: var(--brand); }
     .product-add-cart:active { opacity: 0.85; }
-    .product-add-cart svg { width: 18px; height: 18px; }
-    .product-add-cart .cart-mini-plus {
-      position: absolute; top: 5px; right: 5px;
-      width: 10px; height: 10px; font-size: 10px; font-weight: 700;
-      line-height: 10px; text-align: center;
-    }
+    .product-add-cart svg { width: 16px; height: 16px; }
+    .home-product { position: relative; }
     .product-qty-ctrl {
       display: flex; align-items: center; gap: 6px; flex-shrink: 0;
     }
@@ -1136,24 +1286,31 @@
     }
     .product-qty-trash:active { color: #999; }
     .product-qty-trash svg { width: 18px; height: 18px; }
+    .product-qty-minus {
+      border: none; background: none; color: #bbb; cursor: pointer;
+      width: 24px; height: 24px; padding: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; line-height: 1; font-family: inherit;
+    }
+    .product-qty-minus:active { color: #999; }
     .product-qty-num {
       font-size: 15px; font-weight: 500; min-width: 18px; text-align: center;
       color: var(--text);
     }
     .product-qty-plus {
       width: 24px; height: 24px; border-radius: 6px; border: none;
-      background: #e53935; color: #fff; font-size: 18px; line-height: 1;
+      background: var(--brand); color: #fff; font-size: 18px; line-height: 1;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
       font-family: inherit; padding: 0;
     }
     .product-qty-plus:active { opacity: 0.85; }
     .product-tag {
       position: absolute; top: 8px; left: 8px; z-index: 1;
-      background: linear-gradient(135deg, #ff7043, #e53935);
+      background: var(--brand);
       color: #fff; font-size: 10px; font-weight: 700;
       padding: 2px 6px; border-radius: 4px;
     }
-    .home-product { position: relative; }
+
     .home-share-fab {
       position: absolute; right: 16px; bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px);
       width: 44px; height: 44px; border-radius: 50%;
@@ -1163,6 +1320,20 @@
       display: none; align-items: center; justify-content: center;
     }
     .home-share-fab.show { display: flex; }
+    .home-top-fab {
+      position: absolute; right: 16px;
+      bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px + 44px + 12px);
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, #f48fb1, var(--brand));
+      border: none; color: #fff; font-size: 20px; cursor: pointer;
+      box-shadow: 0 2px 10px rgba(232, 93, 111, 0.35); z-index: 80;
+      display: none; align-items: center; justify-content: center;
+      font-family: inherit; line-height: 1;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.15s, opacity 0.2s;
+    }
+    .home-top-fab.show { display: flex; }
+    .home-top-fab:active { transform: scale(0.92); opacity: 0.9; }
     .view-home .scroll { padding-bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px); }
 
     /* 店铺列表 — 与首页/分类统一粉白色调 */
@@ -1242,6 +1413,12 @@
       border-radius: var(--card-radius);
       overflow: hidden;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .store-list-item:active {
+      transform: scale(0.99);
+      opacity: 0.96;
     }
     .store-list-item.bound {
       box-shadow: inset 3px 0 0 var(--brand), 0 1px 4px rgba(232, 93, 111, 0.12);
@@ -1308,15 +1485,17 @@
       background: var(--pink-light);
       color: var(--brand);
       font-size: 13px;
-      cursor: pointer;
+      pointer-events: none;
       font-family: inherit;
       writing-mode: vertical-rl;
       letter-spacing: 2px;
       padding: 8px 0;
       flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: background 0.2s, color 0.2s;
     }
-    .store-list-bind:active { opacity: 0.85; }
     .store-list-bind.bound {
       background: var(--brand);
       color: #fff;
@@ -1327,6 +1506,361 @@
       color: var(--text-secondary);
       font-size: 14px;
     }
+
+    /* 店铺详情 */
+    .view-store-detail { background: #f5f5f5; }
+    .store-detail-nav {
+      background: var(--brand);
+      padding: 48px 12px 0;
+      flex-shrink: 0;
+    }
+    .store-detail-nav-top {
+      display: flex; align-items: center; height: 44px;
+    }
+    .store-detail-back {
+      width: 36px; height: 36px; border: none; background: none;
+      font-size: 24px; color: #fff; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .store-detail-back:active { opacity: 0.7; }
+    .store-detail-nav-title {
+      flex: 1; text-align: center; font-size: 17px; font-weight: 600;
+      color: #fff; margin-right: 36px;
+    }
+    .view-store-detail .scroll {
+      padding-bottom: calc(var(--safe-bottom) + 24px);
+    }
+    .store-detail-banner {
+      height: 168px;
+      background: linear-gradient(135deg, #5a8f6b 0%, #3d6b4a 45%, #2f5538 100%);
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; font-size: 42px; overflow: hidden; position: relative;
+    }
+    .store-detail-banner.photo {
+      background: linear-gradient(135deg, #fff5f7 0%, var(--pink-light) 100%);
+      font-size: 56px;
+    }
+    .store-detail-banner-dots {
+      position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 5px;
+    }
+    .store-detail-banner-dots i {
+      width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.45);
+    }
+    .store-detail-banner-dots i.on { background: #fff; }
+    .store-detail-card {
+      background: #fff; margin: -12px 12px 10px; padding: 14px 14px 12px;
+      border-radius: var(--card-radius);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06); position: relative; z-index: 1;
+    }
+    .store-detail-head {
+      display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px;
+    }
+    .store-detail-name {
+      flex: 1; min-width: 0; font-size: 18px; font-weight: 700;
+      color: var(--text); line-height: 1.35;
+    }
+    .store-detail-thumb {
+      width: 52px; height: 52px; border-radius: 8px; flex-shrink: 0;
+      background: var(--pink-light); display: flex; align-items: center;
+      justify-content: center; font-size: 28px; overflow: hidden;
+    }
+    .store-detail-thumb.placeholder {
+      flex-direction: column; gap: 4px; font-size: 10px; color: #ccc;
+    }
+    .store-detail-thumb .placeholder-bird { width: 28px; height: 28px; opacity: 0.35; }
+    .store-detail-tags { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .store-detail-min { font-size: 13px; color: var(--brand); font-weight: 500; }
+    .store-detail-status {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 13px; color: var(--orange); font-weight: 500;
+    }
+    .store-detail-status i {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--orange);
+    }
+    .store-detail-section {
+      background: #fff; margin: 0 12px 10px; padding: 14px;
+      border-radius: var(--card-radius);
+    }
+    .store-detail-section-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 12px;
+    }
+    .store-detail-section-title .bar {
+      width: 3px; height: 14px; background: var(--brand); border-radius: 2px;
+    }
+    .store-detail-promo {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 8px 0; font-size: 13px; color: var(--text);
+    }
+    .store-detail-promo + .store-detail-promo { border-top: 1px solid #f5f5f5; }
+    .store-detail-promo-badge {
+      width: 22px; height: 22px; border-radius: 4px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #fff;
+    }
+    .store-detail-promo-badge.di { background: #ff8c42; }
+    .store-detail-promo-badge.zeng { background: var(--brand); }
+    .store-detail-promo-badge.mian { background: #9b59b6; }
+    .store-detail-info-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 7px 0; font-size: 13px; color: var(--text-secondary); line-height: 1.5;
+    }
+    .store-detail-info-row .ico { width: 18px; flex-shrink: 0; text-align: center; }
+    .store-detail-info-row strong { color: var(--brand); font-weight: 600; }
+    .store-detail-info-row.addr { align-items: flex-start; }
+    .store-detail-info-row .addr-text { flex: 1; min-width: 0; color: var(--text); }
+    .store-detail-navigate {
+      border: none; background: none; color: var(--brand); font-size: 12px;
+      cursor: pointer; font-family: inherit; flex-shrink: 0; padding: 0;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+    }
+    .store-detail-navigate:active { opacity: 0.7; }
+    .store-detail-announce {
+      font-size: 14px; color: var(--text-secondary); line-height: 1.6;
+    }
+    .store-detail-rating-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px; font-size: 13px; color: var(--text-secondary);
+    }
+    .store-detail-rating-head .stars { color: var(--brand); letter-spacing: 1px; }
+    .store-detail-rating-head .score { font-size: 16px; font-weight: 700; color: var(--brand); }
+    .store-detail-review {
+      padding: 14px 0; border-top: 1px solid #f5f5f5;
+    }
+    .store-detail-review:first-of-type { border-top: none; padding-top: 0; }
+    .store-detail-review-head {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+    }
+    .store-detail-review-avatar {
+      width: 36px; height: 36px; border-radius: 50%; background: var(--pink-light);
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .store-detail-review-user { flex: 1; min-width: 0; }
+    .store-detail-review-name { font-size: 14px; font-weight: 600; color: var(--text); }
+    .store-detail-review-date { font-size: 11px; color: #bbb; margin-top: 2px; }
+    .store-detail-review-stars { color: var(--brand); font-size: 12px; letter-spacing: 1px; margin-bottom: 8px; }
+    .store-detail-review-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .store-detail-review-tag {
+      padding: 3px 8px; border-radius: 4px; font-size: 11px;
+      color: var(--brand); background: var(--pink-light);
+    }
+
+    /* 商品详情 */
+    .view-product-detail { background: #f5f5f5; }
+    .product-detail-header {
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 48px 12px 10px; background: #fff; border-bottom: 1px solid #f0f0f0;
+    }
+    .product-detail-title {
+      flex: 1; text-align: center; font-size: 17px; font-weight: 600; color: var(--text);
+    }
+    .product-detail-nav-btn {
+      width: 36px; height: 36px; border: none; background: none;
+      color: #333; font-size: 22px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .product-detail-nav-btn:active { opacity: 0.6; }
+    .view-product-detail > .scroll {
+      flex: 1;
+      min-height: 0;
+      padding-bottom: 16px;
+    }
+    .product-detail-hero { background: #fff; position: relative; flex-shrink: 0; }
+    .product-detail-img {
+      min-height: 280px; display: flex; align-items: center; justify-content: center;
+      background: #fafafa; overflow: hidden;
+    }
+    .product-detail-img.photo svg { width: 100%; max-height: 280px; display: block; }
+    .product-detail-img.emoji { font-size: 120px; }
+    .product-detail-img.placeholder {
+      flex-direction: column; gap: 8px; color: #ccc; font-size: 12px;
+    }
+    .product-detail-img.placeholder .placeholder-bird { width: 80px; height: 80px; opacity: 0.35; }
+    .product-detail-share {
+      position: absolute; right: 12px; bottom: 12px; z-index: 2;
+      border: none; background: var(--brand); color: #fff; border-radius: 20px;
+      padding: 8px 14px; font-size: 12px; cursor: pointer; font-family: inherit;
+      display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(232,93,111,0.35);
+    }
+    .product-detail-share:active { opacity: 0.85; }
+    .product-detail-main {
+      background: #fff; padding: 14px 14px 12px; margin-bottom: 10px;
+    }
+    .product-detail-price {
+      color: var(--brand); font-size: 24px; font-weight: 700; margin-bottom: 8px;
+    }
+    .product-detail-price small { font-size: 14px; font-weight: 500; }
+    .product-detail-name {
+      font-size: 17px; font-weight: 700; color: var(--text); line-height: 1.45; margin-bottom: 8px;
+    }
+    .product-detail-meta { font-size: 12px; color: #999; }
+    .product-detail-rows {
+      background: #fff; margin-bottom: 10px; padding: 4px 14px;
+    }
+    .product-detail-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 0; border-bottom: 1px solid #f5f5f5; font-size: 13px;
+    }
+    .product-detail-row:last-child { border-bottom: none; }
+    .product-detail-row-label {
+      color: #999; flex-shrink: 0; width: 42px; padding-top: 2px;
+    }
+    .product-detail-row-body { flex: 1; min-width: 0; color: var(--text); line-height: 1.55; }
+    .product-detail-tag {
+      display: inline-block; padding: 2px 6px; border-radius: 4px;
+      font-size: 11px; color: var(--brand); border: 1px solid rgba(232,93,111,0.45);
+      margin-right: 6px; vertical-align: middle;
+    }
+    .product-detail-link {
+      color: var(--brand); font-size: 12px; border: none; background: none;
+      cursor: pointer; font-family: inherit; flex-shrink: 0; padding: 0;
+    }
+    .product-detail-services {
+      display: flex; flex-wrap: wrap; gap: 8px 12px; color: #666;
+    }
+    .product-detail-section-head {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      padding: 18px 14px 10px; color: var(--text); font-size: 15px; font-weight: 600;
+    }
+    .product-detail-section-head::before,
+    .product-detail-section-head::after {
+      content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #eee);
+    }
+    .product-detail-section-head::after {
+      background: linear-gradient(270deg, transparent, #eee);
+    }
+    .product-detail-empty {
+      background: #fff; padding: 28px 14px 36px; text-align: center; color: #ccc;
+      margin-bottom: 10px;
+    }
+    .product-detail-empty .placeholder-bird { width: 72px; height: 72px; opacity: 0.35; margin: 0 auto 10px; }
+    .product-detail-tip {
+      background: #fff; margin-bottom: 10px; border-top: 1px solid #f5f5f5;
+    }
+    .product-detail-tip-head {
+      display: flex; align-items: center; gap: 8px; padding: 12px 14px;
+      font-size: 13px; color: var(--text-secondary); cursor: pointer;
+    }
+    .product-detail-tip-body {
+      display: none; padding: 0 14px 12px; font-size: 12px; color: #999; line-height: 1.6;
+    }
+    .product-detail-tip.open .product-detail-tip-body { display: block; }
+    .product-detail-bar {
+      flex-shrink: 0;
+      background: #fff; border-top: 1px solid #f0f0f0;
+      padding: 8px 12px calc(8px + var(--safe-bottom));
+      display: flex; align-items: center; gap: 10px;
+    }
+    .product-detail-bar-icon {
+      border: none; background: none; cursor: pointer; font-family: inherit;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      color: #666; font-size: 10px; padding: 0 6px; position: relative; flex-shrink: 0;
+    }
+    .product-detail-bar-icon:active { opacity: 0.7; }
+    .product-detail-bar-icon .ico { font-size: 20px; line-height: 1; }
+    .product-detail-bar-badge {
+      position: absolute; top: -2px; right: 0; min-width: 16px; height: 16px;
+      background: var(--brand); color: #fff; font-size: 10px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; padding: 0 4px;
+    }
+    .product-detail-bar-badge.hidden { display: none; }
+    .product-detail-add-btn {
+      flex: 1; border: none; background: var(--brand); color: #fff;
+      border-radius: 22px; height: 44px; font-size: 15px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+    }
+    .product-detail-add-btn:active { opacity: 0.88; }
+
+    /* 商户聊天 */
+    .chat-session-list { padding: 8px 12px 12px; }
+    .chat-session-item {
+      display: flex; align-items: center; gap: 12px; background: #fff;
+      border-radius: var(--card-radius); padding: 14px; margin-bottom: 10px;
+      cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .chat-session-item:active { opacity: 0.85; }
+    .chat-session-avatar {
+      width: 48px; height: 48px; border-radius: 50%; background: var(--pink-light);
+      display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
+    }
+    .chat-session-body { flex: 1; min-width: 0; }
+    .chat-session-top {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px;
+    }
+    .chat-session-name {
+      font-size: 15px; font-weight: 600; color: var(--text);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .chat-session-time { font-size: 11px; color: #bbb; flex-shrink: 0; }
+    .chat-session-bottom {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .chat-session-preview {
+      flex: 1; min-width: 0; font-size: 13px; color: #999;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .chat-merchant-tag {
+      flex-shrink: 0; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600;
+    }
+    .chat-merchant-tag.tag-market { color: #e67e22; background: #fff3e6; }
+    .chat-merchant-tag.tag-fresh { color: #27ae60; background: #eafaf1; }
+    .chat-merchant-tag.tag-mall { color: #3498db; background: #ebf5fb; }
+    .chat-merchant-tag.tag-food { color: #e85d6f; background: var(--pink-light); }
+    .chat-merchant-tag.tag-shop { color: #9b59b6; background: #f4ecf7; }
+    .chat-session-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--brand); flex-shrink: 0;
+    }
+    .chat-session-dot.hidden { display: none; }
+    .view-chat-detail { background: #f5f5f5; display: flex; flex-direction: column; }
+    .chat-detail-nav {
+      background: #fff; padding: 48px 12px 0; border-bottom: 1px solid #f0f0f0; flex-shrink: 0;
+    }
+    .chat-detail-nav-top {
+      display: flex; align-items: center; height: 44px; margin-bottom: 4px;
+    }
+    .chat-detail-title-wrap { flex: 1; text-align: center; margin-right: 36px; }
+    .chat-detail-title { font-size: 16px; font-weight: 600; color: var(--text); }
+    .chat-detail-sub {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      font-size: 11px; color: #999; padding-bottom: 8px;
+    }
+    .chat-detail-msgs {
+      flex: 1; padding: 12px; overflow-y: auto;
+    }
+    .chat-msg {
+      display: flex; margin-bottom: 14px;
+    }
+    .chat-msg.user { justify-content: flex-end; }
+    .chat-msg-avatar {
+      width: 32px; height: 32px; border-radius: 50%; background: var(--pink-light);
+      display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
+    }
+    .chat-msg.user .chat-msg-avatar { order: 2; margin-left: 8px; background: #eee; }
+    .chat-msg.merchant .chat-msg-avatar { margin-right: 8px; }
+    .chat-msg-bubble {
+      max-width: 72%; padding: 10px 12px; border-radius: 12px; font-size: 14px; line-height: 1.5;
+      word-break: break-word;
+    }
+    .chat-msg.merchant .chat-msg-bubble { background: #fff; color: var(--text); border-top-left-radius: 4px; }
+    .chat-msg.user .chat-msg-bubble { background: var(--brand); color: #fff; border-top-right-radius: 4px; }
+    .chat-msg-time { font-size: 10px; color: #bbb; text-align: center; margin: 8px 0 12px; }
+    .chat-detail-input-bar {
+      background: #fff; border-top: 1px solid #f0f0f0;
+      padding: 8px 12px calc(8px + var(--safe-bottom));
+      display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+    }
+    .chat-detail-input {
+      flex: 1; border: 1px solid #eee; border-radius: 18px; height: 36px;
+      padding: 0 14px; font-size: 14px; font-family: inherit; outline: none;
+    }
+    .chat-detail-input:focus { border-color: rgba(232,93,111,0.45); }
+    .chat-detail-send {
+      border: none; background: var(--brand); color: #fff; border-radius: 18px;
+      height: 36px; padding: 0 16px; font-size: 14px; cursor: pointer; font-family: inherit;
+    }
+    .chat-detail-send:active { opacity: 0.85; }
 
     /* 搜索商品 — 与首页/分类统一粉白色调 */
     .view-search { background: #f5f5f5; }
@@ -1852,6 +2386,209 @@
     }
     .avatar-sheet-cancel:active { background: #fafafa; }
 
+    /* 设置 — 与「我的」统一粉白色调 */
+    .view-settings-page { background: #f5f5f5; }
+    .settings-nav {
+      background: #fff;
+      padding: 48px 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+      flex-shrink: 0;
+    }
+    .settings-nav-top {
+      display: flex; align-items: center; height: 44px;
+    }
+    .settings-title {
+      flex: 1; text-align: center; font-size: 17px; font-weight: 600;
+      margin-right: 36px; color: var(--text);
+    }
+    .settings-body { padding: 12px; flex: 1; }
+    .settings-group {
+      background: #fff; border-radius: var(--card-radius);
+      overflow: hidden; margin-bottom: 12px;
+    }
+    .settings-row {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; padding: 16px; font-size: 15px;
+      border: none; background: #fff; cursor: pointer;
+      font-family: inherit; text-align: left;
+      border-bottom: 1px solid #f5f5f5;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-row:active { background: #fafafa; }
+    .settings-row-label { color: var(--text); }
+    .settings-row-arrow { color: #ccc; font-size: 16px; flex-shrink: 0; margin-left: 8px; }
+    .settings-form-wrap { padding: 0 0 24px; }
+    .settings-form-group {
+      background: #fff; border-radius: var(--card-radius);
+      overflow: hidden; margin-bottom: 24px;
+    }
+    .settings-form-row {
+      display: flex; align-items: center; padding: 14px 16px;
+      border-bottom: 1px solid #f5f5f5; font-size: 15px; min-height: 52px;
+    }
+    .settings-form-row:last-child { border-bottom: none; }
+    .settings-form-label {
+      flex-shrink: 0; font-weight: 600; color: var(--text);
+      min-width: 108px;
+    }
+    .settings-form-value {
+      flex: 1; text-align: right; color: var(--text-secondary); font-size: 15px;
+    }
+    .settings-form-input {
+      flex: 1; border: none; outline: none; font-size: 15px;
+      font-family: inherit; color: var(--text); min-width: 0;
+      background: none;
+    }
+    .settings-form-input::placeholder { color: #ccc; }
+    .settings-form-code-wrap {
+      flex: 1; display: flex; align-items: center; gap: 12px; min-width: 0;
+    }
+    .settings-code-btn {
+      flex-shrink: 0; border: none; background: none;
+      color: var(--brand); font-size: 14px; cursor: pointer;
+      font-family: inherit; padding-left: 12px;
+      border-left: 1px solid #eee; white-space: nowrap;
+    }
+    .settings-code-btn:disabled { color: #ccc; cursor: not-allowed; }
+    .settings-code-btn:active:not(:disabled) { opacity: 0.7; }
+    .settings-section-label {
+      font-size: 15px; font-weight: 600; color: var(--text);
+      padding: 8px 4px 12px;
+    }
+    .settings-primary-btn {
+      display: block; width: calc(100% - 32px); max-width: 320px;
+      margin: 24px auto 0; padding: 14px 0;
+      border: none; border-radius: 24px;
+      background: var(--brand); color: #fff;
+      font-size: 16px; font-weight: 600; cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 4px 12px rgba(232, 93, 111, 0.35);
+    }
+    .settings-primary-btn:active { opacity: 0.88; }
+    .settings-primary-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .settings-pwd-dots {
+      display: flex; justify-content: center; gap: 12px; margin: 32px 0 16px;
+    }
+    .settings-pwd-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 1px solid #ddd; background: #fff;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .settings-pwd-dot.filled {
+      background: var(--brand); border-color: var(--brand);
+    }
+    .settings-pwd-hint {
+      text-align: center; font-size: 13px; color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .settings-pwd-keypad {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      background: #fff; margin-top: auto;
+      border-top: 1px solid #f0f0f0;
+    }
+    .settings-pwd-key {
+      padding: 18px 0; font-size: 22px; text-align: center;
+      border: none; background: #fff; cursor: pointer;
+      font-family: inherit; border-bottom: 1px solid #f5f5f5;
+      border-right: 1px solid #f5f5f5;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .settings-pwd-key:nth-child(3n) { border-right: none; }
+    .settings-pwd-key:active { background: var(--pink-light); }
+    .settings-pwd-key.empty { background: #fafafa; cursor: default; }
+    .settings-pwd-key.del { font-size: 16px; color: var(--text-secondary); }
+
+    /* 发票抬头管理 */
+    .invoice-tabs {
+      display: flex; background: #fff;
+      border-bottom: 1px solid #f0f0f0; flex-shrink: 0;
+    }
+    .invoice-tab {
+      flex: 1; padding: 14px 0; text-align: center; font-size: 15px;
+      color: var(--text-secondary); background: none; border: none;
+      cursor: pointer; font-family: inherit; position: relative;
+    }
+    .invoice-tab.active { color: var(--brand); font-weight: 600; }
+    .invoice-tab.active::after {
+      content: ''; position: absolute; bottom: 0; left: 50%;
+      transform: translateX(-50%); width: 48px; height: 3px;
+      background: var(--brand); border-radius: 2px;
+    }
+    .invoice-body { flex: 1; padding: 12px; padding-bottom: 80px; }
+    .invoice-tip {
+      font-size: 12px; color: var(--text-secondary);
+      line-height: 1.5; margin-bottom: 16px; padding: 0 4px;
+    }
+    .invoice-empty {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 48px 24px; text-align: center;
+    }
+    .invoice-empty-art {
+      width: 140px; height: 140px; margin-bottom: 16px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .invoice-empty-art svg { width: 100%; height: 100%; }
+    .invoice-empty-text { font-size: 14px; color: #ccc; }
+    .invoice-title-item {
+      background: #fff; border-radius: var(--card-radius);
+      padding: 14px 16px; margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    }
+    .invoice-title-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .invoice-title-meta { font-size: 12px; color: var(--text-secondary); }
+    .invoice-title-del {
+      border: none; background: var(--pink-light); color: var(--brand);
+      font-size: 12px; padding: 6px 10px; border-radius: 14px;
+      cursor: pointer; font-family: inherit; flex-shrink: 0;
+    }
+    .invoice-footer {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      padding: 12px 16px calc(var(--safe-bottom) + 12px);
+      background: #fff; border-top: 1px solid #f0f0f0;
+    }
+    .invoice-add-btn {
+      display: block; width: 100%; padding: 14px 0;
+      border: none; border-radius: 24px;
+      background: var(--brand); color: #fff;
+      font-size: 16px; font-weight: 600; cursor: pointer;
+      font-family: inherit;
+    }
+    .invoice-add-btn:active { opacity: 0.88; }
+    .settings-type-toggle {
+      display: flex; gap: 10px; padding: 14px 16px;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .settings-type-btn {
+      flex: 1; padding: 10px 0; border-radius: 8px;
+      border: 1px solid #eee; background: #fff;
+      font-size: 14px; cursor: pointer; font-family: inherit;
+      color: var(--text-secondary);
+    }
+    .settings-type-btn.active {
+      border-color: var(--brand); color: var(--brand);
+      background: var(--pink-light); font-weight: 600;
+    }
+
+    /* 关于我们 */
+    .about-body {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: space-between;
+      padding: 48px 24px calc(var(--safe-bottom) + 32px);
+      background: #fff;
+    }
+    .about-center { text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .about-logo { width: 100px; height: 100px; margin-bottom: 20px; }
+    .about-logo svg { width: 100%; height: 100%; display: block; }
+    .about-app-name {
+      font-size: 18px; font-weight: 600; color: var(--text);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+    .about-footer {
+      text-align: center; font-size: 12px; color: #bbb; line-height: 1.8;
+    }
+
     /* 二级分类弹窗（无「全部」项） */
     .cat-sub-panel-mask {
       position: fixed;
@@ -1968,7 +2705,7 @@
                 </svg>
                 <span class="badge" id="msgIconBadge">6</span>
               </button>
-              <button type="button" class="icon-btn" data-action="设置" aria-label="设置">
+              <button type="button" class="icon-btn" id="settingsBtn" aria-label="设置">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="3"/>
                   <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
@@ -2072,6 +2809,187 @@
       </div>
     </div>
 
+    <!-- 设置 -->
+    <div class="view slide-in-right view-settings-page" id="viewSettings">
+      <div class="settings-nav">
+        <div class="settings-nav-top">
+          <button type="button" class="msg-back" id="settingsBack" aria-label="返回">‹</button>
+          <span class="settings-title">设置</span>
+        </div>
+      </div>
+      <div class="scroll settings-body">
+        <div class="settings-group">
+          <button type="button" class="settings-row" id="settingsAccountSecurity">
+            <span class="settings-row-label">账号安全</span>
+            <span class="settings-row-arrow">›</span>
+          </button>
+          <button type="button" class="settings-row" id="settingsInvoice">
+            <span class="settings-row-label">发票抬头管理</span>
+            <span class="settings-row-arrow">›</span>
+          </button>
+          <button type="button" class="settings-row" id="settingsAbout">
+            <span class="settings-row-label">关于我们</span>
+            <span class="settings-row-arrow">›</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 账号安全 -->
+    <div class="view slide-in-right view-settings-page" id="viewAccountSecurity">
+      <div class="settings-nav">
+        <div class="settings-nav-top">
+          <button type="button" class="msg-back" id="accountSecurityBack" aria-label="返回">‹</button>
+          <span class="settings-title">账号安全</span>
+        </div>
+      </div>
+      <div class="scroll settings-body">
+        <div class="settings-group">
+          <button type="button" class="settings-row" id="settingsChangePhone">
+            <span class="settings-row-label">更换手机号</span>
+            <span class="settings-row-arrow">›</span>
+          </button>
+          <button type="button" class="settings-row" id="settingsPayPassword">
+            <span class="settings-row-label">修改支付密码</span>
+            <span class="settings-row-arrow">›</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 更换手机号 -->
+    <div class="view slide-in-right view-settings-page" id="viewChangePhone">
+      <div class="settings-nav">
+        <div class="settings-nav-top">
+          <button type="button" class="msg-back" id="changePhoneBack" aria-label="返回">‹</button>
+          <span class="settings-title">更换手机号</span>
+        </div>
+      </div>
+      <div class="scroll settings-body settings-form-wrap">
+        <div class="settings-form-group">
+          <div class="settings-form-row">
+            <span class="settings-form-label">当前手机号码</span>
+            <span class="settings-form-value" id="changePhoneCurrent">175****6396</span>
+          </div>
+          <div class="settings-form-row">
+            <input type="tel" class="settings-form-input" id="changePhoneNew" maxlength="11" placeholder="请输入新的手机号" inputmode="numeric" />
+          </div>
+          <div class="settings-form-row">
+            <div class="settings-form-code-wrap">
+              <input type="text" class="settings-form-input" id="changePhoneCode" maxlength="6" placeholder="请输入验证码" inputmode="numeric" />
+              <button type="button" class="settings-code-btn" id="changePhoneGetCode">获取验证码</button>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="settings-primary-btn" id="changePhoneSubmit">提交</button>
+      </div>
+    </div>
+
+    <!-- 修改支付密码 - 身份验证 -->
+    <div class="view slide-in-right view-settings-page" id="viewPayPwdVerify">
+      <div class="settings-nav">
+        <div class="settings-nav-top">
+          <button type="button" class="msg-back" id="payPwdVerifyBack" aria-label="返回">‹</button>
+          <span class="settings-title">身份验证</span>
+        </div>
+      </div>
+      <div class="scroll settings-body settings-form-wrap">
+        <div class="settings-section-label">手机号验证</div>
+        <div class="settings-form-group">
+          <div class="settings-form-row">
+            <span class="settings-form-value" style="text-align:left;color:var(--text)" id="payPwdVerifyPhone">17542946396</span>
+          </div>
+          <div class="settings-form-row">
+            <div class="settings-form-code-wrap">
+              <input type="text" class="settings-form-input" id="payPwdVerifyCode" maxlength="6" placeholder="请输入验证码" inputmode="numeric" />
+              <button type="button" class="settings-code-btn" id="payPwdVerifyGetCode">获取验证码</button>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="settings-primary-btn" id="payPwdVerifyNext">下一步</button>
+      </div>
+    </div>
+
+    <!-- 修改支付密码 - 设置新密码 -->
+    <div class="view slide-in-right view-settings-page" id="viewPayPwdSet">
+      <div class="settings-nav">
+        <div class="settings-nav-top">
+          <button type="button" class="msg-back" id="payPwdSetBack" aria-label="返回">‹</button>
+          <span class="settings-title">修改支付密码</span>
+        </div>
+      </div>
+      <div class="settings-body" style="display:flex;flex-direction:column;padding-bottom:0">
+        <div class="settings-pwd-hint" id="payPwdSetHint">请输入6位支付密码</div>
+        <div class="settings-pwd-dots" id="payPwdSetDots"></div>
+        <div class="settings-pwd-keypad" id="payPwdKeypad"></div>
+      </div>
+    </div>
+
+    <!-- 发票抬头管理 -->
+    <div class="view slide-in-right view-settings-page" id="viewInvoice" style="position:relative">
+      <div class="settings-nav">
+        <div class="settings-nav-top">
+          <button type="button" class="msg-back" id="invoiceBack" aria-label="返回">‹</button>
+          <span class="settings-title">发票抬头管理</span>
+        </div>
+      </div>
+      <div class="invoice-tabs">
+        <button type="button" class="invoice-tab" id="invoiceTabAll" data-invoice-tab="all">全部发票</button>
+        <button type="button" class="invoice-tab active" id="invoiceTabTitles" data-invoice-tab="titles">抬头管理</button>
+      </div>
+      <div class="scroll invoice-body" id="invoiceBody"></div>
+      <div class="invoice-footer" id="invoiceFooter">
+        <button type="button" class="invoice-add-btn" id="invoiceAddBtn">+ 添加发票抬头</button>
+      </div>
+    </div>
+
+    <!-- 添加发票抬头 -->
+    <div class="view slide-in-right view-settings-page" id="viewInvoiceAdd">
+      <div class="settings-nav">
+        <div class="settings-nav-top">
+          <button type="button" class="msg-back" id="invoiceAddBack" aria-label="返回">‹</button>
+          <span class="settings-title">添加发票抬头</span>
+        </div>
+      </div>
+      <div class="scroll settings-body settings-form-wrap">
+        <div class="settings-form-group">
+          <div class="settings-type-toggle">
+            <button type="button" class="settings-type-btn active" data-invoice-type="personal">个人</button>
+            <button type="button" class="settings-type-btn" data-invoice-type="company">企业</button>
+          </div>
+          <div class="settings-form-row">
+            <span class="settings-form-label">发票抬头</span>
+            <input type="text" class="settings-form-input" id="invoiceAddName" placeholder="请输入抬头名称" maxlength="50" />
+          </div>
+          <div class="settings-form-row" id="invoiceTaxRow" style="display:none">
+            <span class="settings-form-label">税号</span>
+            <input type="text" class="settings-form-input" id="invoiceAddTax" placeholder="请输入纳税人识别号" maxlength="20" />
+          </div>
+        </div>
+        <button type="button" class="settings-primary-btn" id="invoiceAddSubmit">保存</button>
+      </div>
+    </div>
+
+    <!-- 关于我们 -->
+    <div class="view slide-in-right view-settings-page" id="viewAbout">
+      <div class="settings-nav">
+        <div class="settings-nav-top">
+          <button type="button" class="msg-back" id="aboutBack" aria-label="返回">‹</button>
+          <span class="settings-title">关于我们</span>
+        </div>
+      </div>
+      <div class="about-body">
+        <div class="about-center">
+          <div class="about-logo" id="aboutLogo"></div>
+          <div class="about-app-name">一刻钟到家V3.0.126</div>
+        </div>
+        <div class="about-footer">
+          山东影响力智能科技有限公司<br>
+          Copyright©2016-2026 buyhoo.cc All rights reserved
+        </div>
+      </div>
+    </div>
+
     <!-- 消息中心 -->
     <div class="view slide-in-right" id="viewMessage">
       <div class="msg-nav">
@@ -2080,7 +2998,10 @@
           <span class="msg-title">消息中心</span>
         </div>
         <div class="msg-tabs">
-          <button type="button" class="msg-tab" id="tabChat" data-tab="chat">消息中心</button>
+          <button type="button" class="msg-tab" id="tabChat" data-tab="chat">
+            消息中心
+            <span class="tab-badge hidden" id="chatTabBadge">0</span>
+          </button>
           <button type="button" class="msg-tab active" id="tabNotify" data-tab="notify">
             通知列表
             <span class="tab-badge" id="notifyTabBadge">6</span>
@@ -2088,9 +3009,7 @@
         </div>
       </div>
       <div class="scroll">
-        <div id="panelChat" class="empty-hint" style="display:none">
-          暂无会话消息<br><span style="font-size:12px;margin-top:8px;display:block">系统通知请查看「通知列表」</span>
-        </div>
+        <div id="panelChat" class="chat-session-list" style="display:none"></div>
         <div id="panelNotify" class="notify-list">
           <div class="notify-card" data-id="1" data-nav="recharge-platform">
             <span class="notify-dot"></span>
@@ -2162,7 +3081,7 @@
             <div class="notify-body">您的订单已备好，取货码：757597</div>
             <div class="notify-action">查看订单 ›</div>
           </div>
-          <div class="notify-card" data-id="6" data-nav="coupon">
+          <div class="notify-card" data-id="6" data-nav="home">
             <span class="notify-dot"></span>
             <div class="notify-head">
               <div class="notify-icon orange">🎫</div>
@@ -2342,32 +3261,53 @@
       </div>
     </div>
 
-    <!-- 充值页（平台/餐厅共用） -->
-    <div class="view slide-in-right view-recharge" id="viewRecharge">
+    <!-- 充值页（平台/餐厅） -->
+    <div class="view slide-in-right view-recharge recharge-platform-mode" id="viewRecharge">
       <div class="recharge-nav-wrap">
         <div class="msg-nav" style="border-bottom:none;background:transparent">
           <div class="msg-nav-top">
             <button type="button" class="msg-back" id="rechargeBack" aria-label="返回">‹</button>
-            <span class="msg-title" id="rechargeTitle">平台余额充值</span>
+            <span class="msg-title" id="rechargeTitle">充值</span>
           </div>
         </div>
       </div>
       <div class="scroll recharge-page">
-        <div class="recharge-body">
-        <div class="recharge-type-label" id="rechargeTypeLabel">当前平台余额</div>
-        <div class="recharge-current" id="rechargeCurrentAmt">¥510.26</div>
-        <div class="recharge-threshold" id="rechargeThreshold">充值后余额可用于平台消费，低于 50 元时将收到余额不足提醒</div>
-        <div style="font-size:14px;color:#666;margin-bottom:12px">选择充值金额</div>
-        <div class="recharge-presets" id="rechargePresets">
-          <button type="button" class="recharge-preset" data-amt="50">¥50</button>
-          <button type="button" class="recharge-preset active" data-amt="100">¥100</button>
-          <button type="button" class="recharge-preset" data-amt="200">¥200</button>
-          <button type="button" class="recharge-preset" data-amt="500">¥500</button>
-          <button type="button" class="recharge-preset" data-amt="1000">¥1000</button>
-          <button type="button" class="recharge-preset" data-amt="custom">其他</button>
+        <div class="recharge-card recharge-card-restaurant" id="rechargeRestaurantCard">
+          <div class="recharge-card-title">远见餐厅会员卡</div>
+          <div class="recharge-card-row">
+            <span class="recharge-card-no">NO.178793</span>
+            <span class="recharge-card-balance-label">饭卡余额:<span id="rechargeRestaurantBalance">38.6</span></span>
+          </div>
+          <span class="recharge-card-crown" aria-hidden="true">👑</span>
         </div>
-        <button type="button" class="btn-recharge" id="rechargeConfirmBtn">确认充值 ¥100</button>
+        <div class="recharge-card recharge-card-platform" id="rechargePlatformCard">
+          <div class="recharge-card-top">
+            <div class="recharge-card-title">百货会员卡</div>
+            <button type="button" class="recharge-security-btn" id="rechargeSecurityBtn">🛡 安全提示</button>
+          </div>
+          <div class="recharge-card-no">NO.1757030861335</div>
+          <div class="recharge-card-balance-block">
+            <div class="recharge-card-balance-label">账户余额</div>
+            <div class="recharge-card-balance-amt" id="rechargePlatformBalance">¥510.25</div>
+          </div>
         </div>
+        <div class="recharge-panel">
+          <div class="recharge-panel-title">选择充值金额</div>
+          <div class="recharge-presets" id="rechargePresets"></div>
+          <p class="recharge-bank-note" id="rechargeBankNote">*本充值服务只适用于招商银行储蓄卡充值</p>
+          <div class="recharge-pay-method" id="rechargePayMethod">
+            <div class="recharge-pay-row">
+              <div class="recharge-pay-info">
+                <span class="recharge-wx-icon">微</span>
+                <span>微信支付</span>
+              </div>
+              <span class="recharge-pay-radio checked" aria-hidden="true"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="recharge-footer">
+        <button type="button" class="btn-recharge-main" id="rechargeConfirmBtn">充值</button>
       </div>
     </div>
 
@@ -2419,45 +3359,64 @@
 
     <!-- 首页 -->
     <div class="view active view-home" id="viewHome">
-      <div class="home-header">
-        <div class="home-store-row">
-          <div class="home-store-left">
-            <div class="home-store-current">
-              <span class="home-store-icon">🏪</span>
-              <span id="currentStoreName">解放路商圈</span>
+      <div class="scroll" id="homeScroll">
+        <div class="home-hero">
+          <div class="home-hero-bg" aria-hidden="true"></div>
+          <div class="home-hero-deco" aria-hidden="true">🦐</div>
+          <div class="home-hero-inner">
+            <div class="home-store-row">
+              <div class="home-store-left">
+                <button type="button" class="home-store-current" id="storeDetailBtn" aria-label="查看店铺情况">
+                  <span class="home-store-icon">🏪</span>
+                  <span id="currentStoreName">解放路商圈</span>
+                  <span class="home-store-chevron" aria-hidden="true">›</span>
+                </button>
+                <button type="button" class="home-store-switch" id="storeSwitchBtn">
+                  切换门店
+                  <span class="home-switch-lines"><i></i><i></i></span>
+                </button>
+              </div>
             </div>
-            <button type="button" class="home-store-switch" id="storeSwitchBtn">
-              切换门店
-              <span class="home-switch-lines"><i></i><i></i></span>
+            <div class="home-search-row">
+              <button type="button" class="home-search" id="homeSearchBtn">🔍 请输入搜索内容</button>
+              <button type="button" class="home-paycode" id="payCodeBtn" aria-label="会员码">
+                <span class="paycode-ico">▥</span>
+                会员码
+              </button>
+            </div>
+            <button type="button" class="home-hero-promo" id="homeBannerBtn">
+              <div class="home-hero-promo-title">鲜活好货</div>
+              <div class="home-hero-promo-sub">一刻钟到家 · 新鲜直达 · 会员专享优惠</div>
+              <span class="home-hero-promo-cta">立即抢购 ›</span>
             </button>
           </div>
         </div>
-        <div class="home-search-row">
-          <button type="button" class="home-search" id="homeSearchBtn">🔍 搜索商品名称/关键词</button>
-          <button type="button" class="home-paycode" id="payCodeBtn">
-            <span style="font-size:16px">▥</span>
-            付款码
-          </button>
-        </div>
-      </div>
-      <div class="scroll">
         <div class="home-body">
-          <div class="home-categories-wrap">
-            <div class="h-scroll-shell">
-              <div class="h-scroll-fade left" id="homeCatFadeLeft"></div>
-              <div class="h-scroll-fade right" id="homeCatFadeRight"></div>
-              <div class="home-categories-scroll" id="homeCategoriesScroll"></div>
+          <div class="home-panel">
+            <div class="home-cat-viewport">
+              <div class="home-cat-track" id="homeCatTrack"></div>
+            </div>
+            <div class="home-cat-dots" id="homeCatDots"></div>
+          </div>
+          <div class="home-promo-dual">
+            <div class="home-promo-card">
+              <div class="home-promo-card-head">
+                <span class="home-promo-card-title">优惠商品</span>
+                <button type="button" class="home-promo-card-more" data-promo-more="discount">更多 ›</button>
+              </div>
+              <div class="home-promo-items" id="homeDiscountItems"></div>
+            </div>
+            <div class="home-promo-card">
+              <div class="home-promo-card-head">
+                <span class="home-promo-card-title">常买好物</span>
+                <button type="button" class="home-promo-card-more" data-promo-more="often">更多 ›</button>
+              </div>
+              <div class="home-promo-items" id="homeOftenItems"></div>
             </div>
           </div>
-          <div class="home-notice">
-            <span class="home-notice-tag">店铺公告</span>
-            <span class="home-notice-text">本超市已启用"一刻钟到家"服务，欢迎大家注册会员享受一刻钟服务。</span>
+          <div class="home-section-head">
+            <span class="home-section-title">精选好物</span>
           </div>
-          <button type="button" class="home-banner" id="homeBannerBtn">
-            <div class="home-banner-title">店主推荐 选好货 Go</div>
-            <div class="home-banner-sub">精选好物 · 品质保障</div>
-            <span class="home-banner-deco">🧧</span>
-          </button>
           <div class="home-products" id="homeProducts"></div>
         </div>
       </div>
@@ -2477,6 +3436,142 @@
       </div>
       <div class="scroll">
         <div class="store-list-body" id="storeListBody"></div>
+      </div>
+    </div>
+
+    <!-- 店铺详情 -->
+    <div class="view slide-in-right view-store-detail" id="viewStoreDetail">
+      <div class="store-detail-nav">
+        <div class="store-detail-nav-top">
+          <button type="button" class="store-detail-back" id="storeDetailBack" aria-label="返回">‹</button>
+          <span class="store-detail-nav-title">店铺详情</span>
+        </div>
+      </div>
+      <div class="scroll" id="storeDetailScroll">
+        <div class="store-detail-banner" id="storeDetailBanner">
+          <span>🥬</span><span>🍅</span><span>🥕</span><span>🍎</span>
+          <div class="store-detail-banner-dots"><i class="on"></i><i></i><i></i></div>
+        </div>
+        <div class="store-detail-card">
+          <div class="store-detail-head">
+            <div class="store-detail-name" id="storeDetailName"></div>
+            <div class="store-detail-thumb" id="storeDetailThumb"></div>
+          </div>
+          <div class="store-detail-tags">
+            <span class="store-detail-min" id="storeDetailMin"></span>
+            <span class="store-detail-status"><i></i><span id="storeDetailStatusText">营业中</span></span>
+          </div>
+        </div>
+        <div class="store-detail-section">
+          <div class="store-detail-section-title"><span class="bar"></span>优惠</div>
+          <div id="storeDetailPromos"></div>
+        </div>
+        <div class="store-detail-section">
+          <div class="store-detail-section-title"><span class="bar"></span>状态：<span id="storeDetailStatusLabel">营业中</span></div>
+          <div class="store-detail-info-row"><span class="ico">📞</span><strong id="storeDetailPhone"></strong></div>
+          <div class="store-detail-info-row"><span class="ico">🚚</span><span id="storeDetailDelivery"></span></div>
+          <div class="store-detail-info-row"><span class="ico">🕐</span><span id="storeDetailHours"></span></div>
+          <div class="store-detail-info-row addr">
+            <span class="ico">📍</span>
+            <span class="addr-text" id="storeDetailAddress"></span>
+            <button type="button" class="store-detail-navigate" id="storeDetailNavigate">➤<span>导航</span></button>
+          </div>
+        </div>
+        <div class="store-detail-section">
+          <div class="store-detail-section-title"><span class="bar"></span>公告</div>
+          <div class="store-detail-announce" id="storeDetailAnnouncement"></div>
+        </div>
+        <div class="store-detail-section">
+          <div class="store-detail-section-title"><span class="bar"></span>店铺评价 (<span id="storeDetailReviewCount">6</span>)</div>
+          <div class="store-detail-rating-head">
+            <span>店铺综合评价</span>
+            <span><span class="stars">★★★★★</span> <span class="score">5</span></span>
+          </div>
+          <div id="storeDetailReviews"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 商品详情 -->
+    <div class="view slide-in-right view-product-detail" id="viewProductDetail">
+      <div class="product-detail-header">
+        <button type="button" class="product-detail-nav-btn" id="productDetailBack" aria-label="返回">‹</button>
+        <span class="product-detail-title">商品详情</span>
+        <button type="button" class="product-detail-nav-btn" id="productDetailHome" aria-label="首页">⌂</button>
+      </div>
+      <div class="scroll" id="productDetailScroll">
+        <div class="product-detail-hero">
+          <div class="product-detail-img" id="productDetailImg"></div>
+          <button type="button" class="product-detail-share" id="productDetailShare">↗ 分享</button>
+        </div>
+        <div class="product-detail-main">
+          <div class="product-detail-price" id="productDetailPrice"></div>
+          <div class="product-detail-name" id="productDetailName"></div>
+          <div class="product-detail-meta" id="productDetailMeta"></div>
+        </div>
+        <div class="product-detail-rows">
+          <div class="product-detail-row">
+            <span class="product-detail-row-label">促销</span>
+            <div class="product-detail-row-body">
+              <div><span class="product-detail-tag">抵扣</span><span id="productDetailDeduct"></span></div>
+              <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <span><span class="product-detail-tag">优惠</span><span id="productDetailCoupon"></span></span>
+                <button type="button" class="product-detail-link" id="productDetailGetCoupon">去领券 ›</button>
+              </div>
+            </div>
+          </div>
+          <div class="product-detail-row">
+            <span class="product-detail-row-label">规格</span>
+            <div class="product-detail-row-body" id="productDetailSpec"></div>
+          </div>
+          <div class="product-detail-row">
+            <span class="product-detail-row-label">服务</span>
+            <div class="product-detail-row-body">
+              <div class="product-detail-services" id="productDetailServices"></div>
+            </div>
+          </div>
+        </div>
+        <div class="product-detail-section-head">商品详情</div>
+        <div class="product-detail-empty" id="productDetailContent"></div>
+        <div class="product-detail-tip" id="productDetailTip">
+          <div class="product-detail-tip-head" id="productDetailTipHead">
+            <span>ℹ</span><span>温馨提示</span><span style="margin-left:auto">⌄</span>
+          </div>
+          <div class="product-detail-tip-body">商品图片及信息仅供参考，请以实物为准。如有疑问请联系店铺客服。</div>
+        </div>
+      </div>
+      <div class="product-detail-bar">
+        <button type="button" class="product-detail-bar-icon" id="productDetailCartBtn">
+          <span class="ico">🛒</span>
+          <span>购物车</span>
+          <span class="product-detail-bar-badge hidden" id="productDetailCartBadge">0</span>
+        </button>
+        <button type="button" class="product-detail-bar-icon" id="productDetailServiceBtn">
+          <span class="ico">🎧</span>
+          <span>客服</span>
+        </button>
+        <button type="button" class="product-detail-add-btn" id="productDetailAddBtn">加入购物车</button>
+      </div>
+    </div>
+
+    <!-- 商户聊天 -->
+    <div class="view slide-in-right view-chat-detail" id="viewChatDetail">
+      <div class="chat-detail-nav">
+        <div class="chat-detail-nav-top">
+          <button type="button" class="msg-back" id="chatDetailBack" aria-label="返回">‹</button>
+          <div class="chat-detail-title-wrap">
+            <div class="chat-detail-title" id="chatDetailTitle"></div>
+            <div class="chat-detail-sub">
+              <span class="chat-merchant-tag" id="chatDetailTag"></span>
+              <span id="chatDetailStoreLabel"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="chat-detail-msgs scroll" id="chatDetailMsgs"></div>
+      <div class="chat-detail-input-bar">
+        <input type="text" class="chat-detail-input" id="chatDetailInput" placeholder="请输入消息" maxlength="200" />
+        <button type="button" class="chat-detail-send" id="chatDetailSend">发送</button>
       </div>
     </div>
 
@@ -2597,6 +3692,7 @@
     </nav>
 
     <button type="button" class="home-share-fab" id="homeShareFab" aria-label="分享">↗</button>
+    <button type="button" class="home-top-fab" id="homeTopFab" aria-label="返回顶部">🚀</button>
   </div>
   </div>
 
@@ -2694,6 +3790,42 @@
     const avatarSheetCancel = document.getElementById('avatarSheetCancel');
     const avatarFileInput = document.getElementById('avatarFileInput');
     const avatarCameraInput = document.getElementById('avatarCameraInput');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsBack = document.getElementById('settingsBack');
+    const settingsAccountSecurity = document.getElementById('settingsAccountSecurity');
+    const settingsInvoice = document.getElementById('settingsInvoice');
+    const settingsAbout = document.getElementById('settingsAbout');
+    const accountSecurityBack = document.getElementById('accountSecurityBack');
+    const settingsChangePhone = document.getElementById('settingsChangePhone');
+    const settingsPayPassword = document.getElementById('settingsPayPassword');
+    const changePhoneBack = document.getElementById('changePhoneBack');
+    const changePhoneCurrent = document.getElementById('changePhoneCurrent');
+    const changePhoneNew = document.getElementById('changePhoneNew');
+    const changePhoneCode = document.getElementById('changePhoneCode');
+    const changePhoneGetCode = document.getElementById('changePhoneGetCode');
+    const changePhoneSubmit = document.getElementById('changePhoneSubmit');
+    const payPwdVerifyBack = document.getElementById('payPwdVerifyBack');
+    const payPwdVerifyPhone = document.getElementById('payPwdVerifyPhone');
+    const payPwdVerifyCode = document.getElementById('payPwdVerifyCode');
+    const payPwdVerifyGetCode = document.getElementById('payPwdVerifyGetCode');
+    const payPwdVerifyNext = document.getElementById('payPwdVerifyNext');
+    const payPwdSetBack = document.getElementById('payPwdSetBack');
+    const payPwdSetHint = document.getElementById('payPwdSetHint');
+    const payPwdSetDots = document.getElementById('payPwdSetDots');
+    const payPwdKeypad = document.getElementById('payPwdKeypad');
+    const invoiceBack = document.getElementById('invoiceBack');
+    const invoiceTabAll = document.getElementById('invoiceTabAll');
+    const invoiceTabTitles = document.getElementById('invoiceTabTitles');
+    const invoiceBody = document.getElementById('invoiceBody');
+    const invoiceFooter = document.getElementById('invoiceFooter');
+    const invoiceAddBtn = document.getElementById('invoiceAddBtn');
+    const invoiceAddBack = document.getElementById('invoiceAddBack');
+    const invoiceAddName = document.getElementById('invoiceAddName');
+    const invoiceAddTax = document.getElementById('invoiceAddTax');
+    const invoiceTaxRow = document.getElementById('invoiceTaxRow');
+    const invoiceAddSubmit = document.getElementById('invoiceAddSubmit');
+    const aboutBack = document.getElementById('aboutBack');
+    const aboutLogo = document.getElementById('aboutLogo');
     const walletEntry = document.getElementById('walletEntry');
     const profileWalletAmt = document.getElementById('profileWalletAmt');
     const restaurantEntry = document.getElementById('restaurantEntry');
@@ -2723,6 +3855,7 @@
     const notifyTabBadge = document.getElementById('notifyTabBadge');
     const tabChat = document.getElementById('tabChat');
     const tabNotify = document.getElementById('tabNotify');
+    const chatTabBadge = document.getElementById('chatTabBadge');
     const panelChat = document.getElementById('panelChat');
     const panelNotify = document.getElementById('panelNotify');
     const moreBtn = document.getElementById('moreBtn');
@@ -2750,11 +3883,11 @@
     const restaurantQr = document.getElementById('restaurantQr');
     const rechargeBack = document.getElementById('rechargeBack');
     const rechargeTitle = document.getElementById('rechargeTitle');
-    const rechargeTypeLabel = document.getElementById('rechargeTypeLabel');
-    const rechargeCurrentAmt = document.getElementById('rechargeCurrentAmt');
-    const rechargeThreshold = document.getElementById('rechargeThreshold');
+    const rechargeRestaurantBalance = document.getElementById('rechargeRestaurantBalance');
+    const rechargePlatformBalance = document.getElementById('rechargePlatformBalance');
     const rechargePresets = document.getElementById('rechargePresets');
     const rechargeConfirmBtn = document.getElementById('rechargeConfirmBtn');
+    const rechargeSecurityBtn = document.getElementById('rechargeSecurityBtn');
     const rechargeSuccessMask = document.getElementById('rechargeSuccessMask');
     const rechargeSuccessTitle = document.getElementById('rechargeSuccessTitle');
     const rechargeSuccessAmt = document.getElementById('rechargeSuccessAmt');
@@ -2797,11 +3930,58 @@
     const confirmYes = document.getElementById('confirmYes');
     const currentStoreName = document.getElementById('currentStoreName');
     const storeSwitchBtn = document.getElementById('storeSwitchBtn');
+    const storeDetailBtn = document.getElementById('storeDetailBtn');
+    const storeDetailBack = document.getElementById('storeDetailBack');
+    const storeDetailBanner = document.getElementById('storeDetailBanner');
+    const storeDetailName = document.getElementById('storeDetailName');
+    const storeDetailThumb = document.getElementById('storeDetailThumb');
+    const storeDetailMin = document.getElementById('storeDetailMin');
+    const storeDetailStatusText = document.getElementById('storeDetailStatusText');
+    const storeDetailStatusLabel = document.getElementById('storeDetailStatusLabel');
+    const storeDetailPromos = document.getElementById('storeDetailPromos');
+    const storeDetailPhone = document.getElementById('storeDetailPhone');
+    const storeDetailDelivery = document.getElementById('storeDetailDelivery');
+    const storeDetailHours = document.getElementById('storeDetailHours');
+    const storeDetailAddress = document.getElementById('storeDetailAddress');
+    const storeDetailNavigate = document.getElementById('storeDetailNavigate');
+    const storeDetailAnnouncement = document.getElementById('storeDetailAnnouncement');
+    const storeDetailReviewCount = document.getElementById('storeDetailReviewCount');
+    const storeDetailReviews = document.getElementById('storeDetailReviews');
+    const storeDetailScroll = document.getElementById('storeDetailScroll');
     const storeListBack = document.getElementById('storeListBack');
+    const productDetailScroll = document.getElementById('productDetailScroll');
+    const productDetailBack = document.getElementById('productDetailBack');
+    const productDetailHome = document.getElementById('productDetailHome');
+    const productDetailImg = document.getElementById('productDetailImg');
+    const productDetailPrice = document.getElementById('productDetailPrice');
+    const productDetailName = document.getElementById('productDetailName');
+    const productDetailMeta = document.getElementById('productDetailMeta');
+    const productDetailDeduct = document.getElementById('productDetailDeduct');
+    const productDetailCoupon = document.getElementById('productDetailCoupon');
+    const productDetailSpec = document.getElementById('productDetailSpec');
+    const productDetailServices = document.getElementById('productDetailServices');
+    const productDetailContent = document.getElementById('productDetailContent');
+    const productDetailTip = document.getElementById('productDetailTip');
+    const productDetailTipHead = document.getElementById('productDetailTipHead');
+    const productDetailShare = document.getElementById('productDetailShare');
+    const productDetailGetCoupon = document.getElementById('productDetailGetCoupon');
+    const productDetailCartBtn = document.getElementById('productDetailCartBtn');
+    const productDetailCartBadge = document.getElementById('productDetailCartBadge');
+    const productDetailServiceBtn = document.getElementById('productDetailServiceBtn');
+    const productDetailAddBtn = document.getElementById('productDetailAddBtn');
+    const chatDetailBack = document.getElementById('chatDetailBack');
+    const chatDetailTitle = document.getElementById('chatDetailTitle');
+    const chatDetailTag = document.getElementById('chatDetailTag');
+    const chatDetailStoreLabel = document.getElementById('chatDetailStoreLabel');
+    const chatDetailMsgs = document.getElementById('chatDetailMsgs');
+    const chatDetailInput = document.getElementById('chatDetailInput');
+    const chatDetailSend = document.getElementById('chatDetailSend');
     const storeSearchInput = document.getElementById('storeSearchInput');
     const storeListBody = document.getElementById('storeListBody');
     const payCodeBtn = document.getElementById('payCodeBtn');
     const homeShareFab = document.getElementById('homeShareFab');
+    const homeTopFab = document.getElementById('homeTopFab');
+    const homeScroll = document.getElementById('homeScroll');
     const homeSearchBtn = document.getElementById('homeSearchBtn');
     const searchBack = document.getElementById('searchBack');
     const searchInput = document.getElementById('searchInput');
@@ -2815,9 +3995,10 @@
     const searchResultsList = document.getElementById('searchResultsList');
     const searchSort = document.getElementById('searchSort');
     const homeBannerBtn = document.getElementById('homeBannerBtn');
-    const homeCategoriesScroll = document.getElementById('homeCategoriesScroll');
-    const homeCatFadeLeft = document.getElementById('homeCatFadeLeft');
-    const homeCatFadeRight = document.getElementById('homeCatFadeRight');
+    const homeCatTrack = document.getElementById('homeCatTrack');
+    const homeCatDots = document.getElementById('homeCatDots');
+    const homeDiscountItems = document.getElementById('homeDiscountItems');
+    const homeOftenItems = document.getElementById('homeOftenItems');
     const homeProducts = document.getElementById('homeProducts');
     const categorySearchBtn = document.getElementById('categorySearchBtn');
     const categoryPrimary = document.getElementById('categoryPrimary');
@@ -2837,6 +4018,75 @@
     let toastTimer;
     let confirmCallback = null;
     let currentStore = '解放路商圈';
+    const CART_STORAGE_KEY = 'mall_store_carts';
+    const CURRENT_STORE_KEY = 'mall_current_store';
+    let storeCarts = {};
+
+    function loadStoreCarts() {
+      try {
+        const raw = localStorage.getItem(CART_STORAGE_KEY);
+        if (raw) {
+          const data = JSON.parse(raw);
+          if (data && typeof data === 'object') storeCarts = data;
+        }
+      } catch (_) {}
+      if (!storeCarts['解放路商圈'] || !storeCarts['解放路商圈'].length) {
+        storeCarts['解放路商圈'] = [{
+          id: 'cart1',
+          store: '解放路商圈',
+          name: '伊利纯牛奶(箱装)',
+          spec: '250ml*1',
+          price: 52.0,
+          qty: 1,
+          minQty: 1,
+          selected: true,
+        }];
+      }
+      try {
+        const savedStore = localStorage.getItem(CURRENT_STORE_KEY);
+        if (savedStore && STORE_LIST.some((s) => s.name === savedStore)) {
+          currentStore = savedStore;
+          currentStoreName.textContent = currentStore;
+        }
+      } catch (_) {}
+    }
+
+    function saveStoreCarts() {
+      try {
+        const toSave = {};
+        Object.keys(storeCarts).forEach((name) => {
+          if (storeCarts[name] && storeCarts[name].length) toSave[name] = storeCarts[name];
+        });
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(toSave));
+      } catch (_) {}
+    }
+
+    function getCartItems() {
+      if (!storeCarts[currentStore]) storeCarts[currentStore] = [];
+      return storeCarts[currentStore];
+    }
+
+    function setCartItems(items) {
+      storeCarts[currentStore] = items;
+      saveStoreCarts();
+    }
+
+    function switchStore(storeName) {
+      if (!storeName || storeName === currentStore) return false;
+      currentStore = storeName;
+      currentStoreName.textContent = currentStore;
+      try {
+        localStorage.setItem(CURRENT_STORE_KEY, storeName);
+      } catch (_) {}
+      updateCartBadge();
+      renderHomeProducts();
+      refreshRecommendIfVisible();
+      refreshCategoryProductsIfVisible();
+      refreshSearchResultsIfVisible();
+      renderCart();
+      updateTabbarVisibility();
+      return true;
+    }
 
     const SEARCH_HISTORY_KEY = 'mall_search_history';
     let searchHistory = [];
@@ -2847,7 +4097,7 @@
     const HOT_SEARCH = ['牛奶', '地瓜干', '零食大礼包', '酱油', '饮料', '伊利纯牛奶'];
     const PRODUCT_CATALOG = [
       { name: '地瓜干', price: 12, unit: '/个', sales: 128, emoji: '🍠', imageType: 'photo-digua', keywords: ['地瓜', '地瓜干', '零食'] },
-      { name: '脉动水蜜桃味', price: 6, unit: '/瓶', sales: 86, emoji: '🥤', imageType: 'placeholder', keywords: ['脉动', '饮料', '水蜜桃'] },
+      { name: '脉动水蜜桃味', price: 6, unit: '/瓶', sales: 86, imageType: 'photo-mizone', keywords: ['脉动', '饮料', '水蜜桃'] },
       { name: '伊利纯牛奶(箱装)', price: 52, unit: '/箱', sales: 203, emoji: '🥛', imageType: 'emoji', keywords: ['牛奶', '伊利', '纯牛奶', '饮料'] },
       { name: '每日坚果', price: 28, unit: '/袋', sales: 67, emoji: '🥜', imageType: 'emoji', keywords: ['坚果', '零食', '每日坚果'] },
       { name: '有机鸡蛋', price: 19.9, unit: '/盒', sales: 45, emoji: '🥚', imageType: 'emoji', keywords: ['鸡蛋', '有机', '生鲜'] },
@@ -2951,7 +4201,7 @@
           {
             id: 'misc', label: '综合',
             products: [
-              { name: '脉动水蜜桃味', price: 6, unit: '/瓶', imageType: 'placeholder' },
+              { name: '脉动水蜜桃味', price: 6, unit: '/瓶', imageType: 'photo-mizone' },
               { name: '零食大礼包', price: 68, unit: '/份', emoji: '🍿' },
             ],
           },
@@ -2964,7 +4214,7 @@
             id: 'drink-all', label: '全部饮料',
             products: [
               { name: '伊利纯牛奶(箱装)', price: 52, unit: '/箱', emoji: '🥛' },
-              { name: '脉动水蜜桃味', price: 6, unit: '/瓶', imageType: 'placeholder' },
+              { name: '脉动水蜜桃味', price: 6, unit: '/瓶', imageType: 'photo-mizone' },
               { name: '奶茶', price: 15, unit: '/杯', emoji: '🧋' },
             ],
           },
@@ -3083,19 +4333,124 @@
           },
         ],
       },
+      {
+        id: 'wine', label: '酒水', icon: '🍷',
+        subs: [
+          {
+            id: 'wine-all', label: '全部酒水',
+            products: [
+              { name: '精酿啤酒', price: 12, unit: '/瓶', emoji: '🍺' },
+              { name: '红葡萄酒', price: 88, unit: '/瓶', emoji: '🍷' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'clothes', label: '服饰鞋包', icon: '👕',
+        subs: [
+          {
+            id: 'clothes-all', label: '全部服饰',
+            products: [
+              { name: '纯棉T恤', price: 59, unit: '/件', emoji: '👕' },
+              { name: '运动休闲鞋', price: 199, unit: '/双', emoji: '👟' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'book', label: '图书文具', icon: '📚',
+        subs: [
+          {
+            id: 'book-all', label: '全部图书',
+            products: [
+              { name: '畅销小说', price: 39, unit: '/本', emoji: '📚' },
+              { name: '儿童绘本', price: 28, unit: '/本', emoji: '📖' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'sport', label: '运动户外', icon: '⚽',
+        subs: [
+          {
+            id: 'sport-all', label: '全部运动',
+            products: [
+              { name: '瑜伽垫', price: 49, unit: '/张', emoji: '🧘' },
+              { name: '跳绳', price: 19, unit: '/根', emoji: '🏃' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'flower', label: '鲜花礼品', icon: '💐',
+        subs: [
+          {
+            id: 'flower-all', label: '全部礼品',
+            products: [
+              { name: '生日花束', price: 128, unit: '/束', emoji: '💐' },
+              { name: '礼盒套装', price: 168, unit: '/份', emoji: '🎁' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'health', label: '医药保健', icon: '💊',
+        subs: [
+          {
+            id: 'health-all', label: '全部保健',
+            products: [
+              { name: '维生素C', price: 68, unit: '/瓶', emoji: '💊' },
+              { name: '蛋白粉', price: 158, unit: '/罐', emoji: '🥛' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'fruit', label: '时令水果', icon: '🍎',
+        subs: [
+          {
+            id: 'fruit-all', label: '全部水果',
+            products: [
+              { name: '红富士苹果', price: 12.8, unit: '/500g', emoji: '🍎' },
+              { name: '进口香蕉', price: 8.9, unit: '/500g', emoji: '🍌' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'member', label: '会员专区', icon: '👑',
+        subs: [
+          {
+            id: 'member-all', label: '会员专享',
+            products: [
+              { name: '会员专享坚果', price: 22, unit: '/袋', emoji: '🥜' },
+              { name: '会员价纯牛奶', price: 48, unit: '/箱', emoji: '🥛' },
+            ],
+          },
+        ],
+      },
     ];
 
     const HOME_DISPLAY_PRODUCTS = [
-      { name: '地瓜干', price: 12, unit: '/个', imageType: 'photo-digua' },
-      { name: '脉动水蜜桃味', price: 6, unit: '/瓶', imageType: 'placeholder' },
-      { name: '伊利纯牛奶(箱装)', price: 52, unit: '/箱', imageType: 'emoji', emoji: '🥛' },
-      { name: '每日坚果', price: 28, unit: '/袋', imageType: 'emoji', emoji: '🥜' },
+      { name: '地瓜干', price: 12, unit: '/个', imageType: 'photo-digua', sales: 128 },
+      { name: '脉动水蜜桃味', price: 6, unit: '/瓶', imageType: 'photo-mizone', sales: 86 },
+      { name: '伊利纯牛奶(箱装)', price: 52, unit: '/箱', emoji: '🥛', sales: 203 },
+      { name: '每日坚果', price: 28, unit: '/袋', emoji: '🥜', sales: 67 },
+      { name: '有机鸡蛋', price: 19.9, unit: '/盒', emoji: '🥚', sales: 45 },
+      { name: '味达美极鲜酱油', price: 25, unit: '/瓶', imageType: 'photo-soy', sales: 42 },
+      { name: '奶茶', price: 15, unit: '/杯', emoji: '🧋', sales: 156 },
+      { name: '零食大礼包', price: 68, unit: '/份', emoji: '🍿', sales: 89 },
+      { name: '大众粮心粮油', price: 45, unit: '/袋', emoji: '🌾', sales: 31 },
     ];
+    const HOME_FEATURE_PRODUCTS = HOME_DISPLAY_PRODUCTS.slice().sort((a, b) => (b.sales || 0) - (a.sales || 0));
+    const HOME_OFTEN_DEFAULT = ['地瓜干', '脉动水蜜桃味', '伊利纯牛奶(箱装)', '奶茶', '每日坚果', '有机鸡蛋'];
+    let homeTabMode = 'sales';
 
     const SVG_CART = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>';
     const SVG_TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
     const SVG_DIGUA = '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="200" fill="#f7f3ec"/><ellipse cx="100" cy="168" rx="72" ry="14" fill="#d9cbb8"/><path d="M35 155 Q100 125 165 155 L155 175 Q100 190 45 175 Z" fill="#c9a86c"/><path d="M40 158 Q100 132 160 158" stroke="#a08050" stroke-width="2" fill="none"/><rect x="52" y="88" width="28" height="62" rx="8" fill="#c4782a" transform="rotate(-12 66 119)"/><rect x="88" y="78" width="30" height="68" rx="8" fill="#d48932" transform="rotate(6 103 112)"/><rect x="118" y="92" width="26" height="58" rx="8" fill="#b86a22" transform="rotate(18 131 121)"/><rect x="72" y="102" width="24" height="52" rx="7" fill="#a85f1e" transform="rotate(-6 84 126)"/></svg>';
     const SVG_SOY = '<svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="240" fill="#f7f7f7"/><rect x="58" y="28" width="84" height="18" rx="4" fill="#c62828"/><text x="100" y="41" text-anchor="middle" fill="#fff" font-size="10" font-family="sans-serif">Weidamei</text><path d="M72 46 L128 46 L122 190 Q100 198 78 190 Z" fill="#5d4037"/><path d="M78 190 Q100 206 122 190 L118 210 Q100 222 82 210 Z" fill="#3e2723"/><rect x="88" y="52" width="24" height="70" rx="2" fill="#8d6e63" opacity="0.35"/><ellipse cx="100" cy="220" rx="36" ry="6" fill="#e0e0e0"/></svg>';
+    const SVG_MIZONE = '<svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="240" fill="#eef6fc"/><ellipse cx="100" cy="228" rx="42" ry="6" fill="#d0e3f0"/><rect x="86" y="26" width="28" height="14" rx="7" fill="#0d47a1"/><rect x="88" y="38" width="24" height="18" rx="4" fill="#1976d2"/><path d="M76 56 L124 56 L119 202 Q100 214 81 202 Z" fill="#1565c0"/><path d="M82 68 Q88 120 84 170" stroke="#64b5f6" stroke-width="4" fill="none" opacity="0.45"/><rect x="80" y="88" width="40" height="56" rx="5" fill="#ff8a80"/><circle cx="100" cy="108" r="16" fill="#ffab91"/><circle cx="94" cy="102" r="5" fill="#ff7043" opacity="0.45"/><ellipse cx="108" cy="114" rx="6" ry="4" fill="#ffccbc" opacity="0.6"/><text x="100" y="148" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold" font-family="sans-serif">脉动</text><text x="100" y="162" text-anchor="middle" fill="#fff" font-size="8" font-family="sans-serif">水蜜桃味</text></svg>';
     const SVG_BIRD = '<svg class="placeholder-bird" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path fill="#ccc" d="M32 14c-10 0-18 8-18 18 0 5 2 10 6 13l-4 11 12-5c3 1 6 2 9 2 10 0 18-8 18-18S42 14 32 14zm-6 20c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm12 0c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>';
 
     let categoryProductMap = {};
@@ -3105,7 +4460,6 @@
     let categoryScrollSpy = null;
     let categoryScrollLock = false;
     let categorySubPanelOpen = false;
-    let homeCatScroller = null;
     let categorySubScroller = null;
 
     const unread = new Set(['1', '2', '3', '4', '5', '6']);
@@ -3134,6 +4488,22 @@
     );
     let userProfile = { nickname: '商', avatar: '' };
     let profileEditDraft = { nickname: '商', avatar: '' };
+
+    const USER_PHONE = '17542946396';
+    const USER_PHONE_MASKED = '175****6396';
+    const INVOICE_STORAGE_KEY = 'mall_invoice_titles';
+    const SVG_ABOUT_BIRD = '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><path d="M60 18c-22 0-40 18-40 40 0 10 4 19 10 25l-4 17 16-7c6 2 11 3 18 3 22 0 40-18 40-40S82 18 60 18z" fill="#e53935"/><circle cx="46" cy="52" r="10" fill="#fff"/><circle cx="48" cy="52" r="6" fill="#333"/><path d="M68 46 L86 40 L70 58 Z" fill="#ffc107"/><ellipse cx="60" cy="68" rx="14" ry="10" fill="#c62828"/></svg>';
+    const SVG_INVOICE_EMPTY = '<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="50" width="100" height="80" rx="8" fill="#f5f5f5" stroke="#eee"/><path d="M55 95 Q80 70 105 95" stroke="#e85d6f" fill="none" stroke-width="2"/><circle cx="115" cy="45" r="12" fill="#fde8ee"/><path d="M50 40 Q80 20 110 40" stroke="#e85d6f" fill="none" stroke-width="2" stroke-dasharray="4 3"/><path d="M72 88c-8 0-14 6-14 14 0 8 6 14 14 14 8 0 14-6 14-14 0-8-6-14-14-14z" fill="#e53935"/><circle cx="68" cy="98" r="3" fill="#fff"/><circle cx="76" cy="98" r="3" fill="#fff"/><path d="M78 92 L92 88 L78 96 Z" fill="#ffc107"/></svg>';
+
+    let smsCountdownTimer = null;
+    let smsCountdownSec = 0;
+    let invoiceTab = 'titles';
+    let invoiceAddType = 'personal';
+    let invoiceTitles = [];
+    let payPwdStep = 'first';
+    let payPwdFirst = '';
+    let payPwdInput = '';
+    let payPwdVerified = false;
     let beansMainTab = 'out';
     let platformTab = 'out';
     let detailSeg = 'beans';
@@ -3149,19 +4519,6 @@
 
     const TODAY = new Date('2026-05-29T12:00:00');
     const EXPIRING_DAYS = 7;
-
-    let cartItems = [
-      {
-        id: 'cart1',
-        store: '泓沃严选 · 万达超市',
-        name: '伊利纯牛奶(箱装)',
-        spec: '250ml*1',
-        price: 52.0,
-        qty: 1,
-        minQty: 1,
-        selected: true,
-      },
-    ];
 
     let platformBalance = 510.26;
     let restaurantBalance = 12.50;
@@ -3210,6 +4567,79 @@
       { id: 'baihuo', name: '百货铺子', distance: 9262, minDelivery: 0, imageType: 'photo', emoji: '🌸' },
       { id: 'wyf', name: 'wyf零售店', distance: 9930, minDelivery: 0, imageType: 'photo', emoji: '🎆' },
     ];
+    const STORE_DETAIL_DEFAULTS = {
+      phone: '18612936277',
+      deliveryFee: 0,
+      hours: '07:00-22:00',
+      address: '临沂市兰山区涑河北街花园街东北角鲁商凤凰城东区沿街',
+      announcement: '欢迎光临~~',
+      statusText: '营业中',
+      reviewCount: 6,
+      score: 5,
+      promotions: [
+        { type: '抵', cls: 'di', text: '百货豆最多抵扣20%' },
+        { type: '赠', cls: 'zeng', text: '下单赠送10‰百货豆' },
+        { type: '免', cls: 'mian', text: '满30元免配送费' },
+      ],
+    };
+    const STORE_DETAIL_OVERRIDES = {
+      jiefang: {
+        announcement: '本超市已启用"一刻钟到家"服务，欢迎大家注册会员享受一刻钟服务。',
+      },
+      douyuan: {
+        announcement: '豆源生鲜，当日采摘当日达，新鲜直达您家。',
+        address: '临沂市兰山区金雀山路豆源生鲜超市',
+      },
+      mingju: {
+        minDeliveryNote: true,
+        announcement: '名居超市会员日每周三，全场部分商品88折。',
+      },
+      baihuo: {
+        announcement: '百货铺子春季上新，欢迎选购～',
+      },
+    };
+    const STORE_REVIEWS = [
+      { user: '∩ɔ .M', avatar: '🧑', date: '2023-04-07 11:36:50', stars: 5, tags: ['分量足', '日期新', '性价比高', '品质保证'] },
+      { user: '小云', avatar: '👩', date: '2023-04-06 16:41:08', stars: 5, tags: ['包装好', '品质保证', '日期新', '性价比高'] },
+      { user: '严守玺', avatar: '👨', date: '2023-04-06 16:40:55', stars: 5, tags: ['物流快', '包装好', '日期新', '品质保证'] },
+      { user: '微信用户', avatar: '🙂', date: '2023-04-06 16:40:45', stars: 5, tags: ['物流快', '包装好', '日期新', '品质保证'] },
+      { user: '微信用户', avatar: '😊', date: '2023-04-06 16:40:35', stars: 5, tags: ['物流快', '包装好', '日期新', '品质保证'] },
+      { user: '微信用户', avatar: '😀', date: '2023-04-06 16:40:25', stars: 5, tags: ['物流快', '包装好', '日期新', '品质保证'] },
+    ];
+    const CHAT_STORAGE_KEY = 'mall_merchant_chats';
+    const MERCHANT_TAGS = {
+      '解放路商圈': { label: '商圈', cls: 'tag-mall', avatar: '🏬' },
+      '名居超市': { label: '超市', cls: 'tag-market', avatar: '🛒' },
+      '豆源生鲜超市': { label: '生鲜', cls: 'tag-fresh', avatar: '🥬' },
+      '宁宇汤头店': { label: '餐饮', cls: 'tag-food', avatar: '🍜' },
+      '发票分店1': { label: '便利', cls: 'tag-shop', avatar: '🏪' },
+      '先进先出东方购物': { label: '商超', cls: 'tag-market', avatar: '🛍️' },
+      '百货铺子': { label: '百货', cls: 'tag-shop', avatar: '🌸' },
+      'wyf零售店': { label: '零售', cls: 'tag-shop', avatar: '🎆' },
+    };
+    const PRODUCT_DETAIL_DEFAULTS = {
+      spec: '标准装',
+      stock: 999,
+      minQty: 1,
+      promoDeduct: '百货豆抵用20%，消费返90百货豆',
+      promoCoupon: '暂无可用优惠券',
+      services: ['品牌直采', '正品好货', '高效物流', '售后无忧'],
+    };
+    const PRODUCT_DETAIL_OVERRIDES = {
+      '大众粮心粮油': { spec: '5L/桶', stock: 0, promoDeduct: '百货豆抵用20%，消费返90百货豆' },
+      '味达美极鲜酱油': { spec: '500ml/瓶', stock: 128 },
+      '伊利纯牛奶(箱装)': { spec: '250ml*12/箱', stock: 56 },
+      '脉动水蜜桃味': { spec: '600ml/瓶', stock: 320 },
+      '地瓜干': { spec: '200g/袋', stock: 88 },
+      '奶茶': { spec: '500ml/杯', stock: 200 },
+      '每日坚果': { spec: '30g*7袋/盒', stock: 45 },
+      '有机鸡蛋': { spec: '10枚/盒', stock: 36 },
+      '零食大礼包': { spec: '1.2kg/份', stock: 24 },
+    };
+    let merchantChats = {};
+    let currentProductDetail = null;
+    let activeChatStore = null;
+    let chatAutoReplyTimer = null;
     const DATE_RANGES = ['2026-05-01 至 2026-05-29', '2026-05-01 至 2026-05-14', '2026-05-15 至 2026-05-29'];
     const TYPES = ['出账', '入账', '全部'];
 
@@ -3379,6 +4809,271 @@
       showToast('资料修改成功');
     }
 
+    function openSettings() {
+      pushView('viewSettings');
+    }
+
+    function isValidPhone(phone) {
+      return /^1\d{10}$/.test(phone);
+    }
+
+    function startSmsCountdown(btn) {
+      if (smsCountdownSec > 0) return;
+      smsCountdownSec = 60;
+      btn.disabled = true;
+      btn.textContent = smsCountdownSec + 's';
+      smsCountdownTimer = setInterval(() => {
+        smsCountdownSec -= 1;
+        if (smsCountdownSec <= 0) {
+          clearInterval(smsCountdownTimer);
+          smsCountdownTimer = null;
+          btn.disabled = false;
+          btn.textContent = '获取验证码';
+        } else {
+          btn.textContent = smsCountdownSec + 's';
+        }
+      }, 1000);
+    }
+
+    function sendSmsCode(btn, phone) {
+      if (smsCountdownSec > 0) return;
+      if (phone && !isValidPhone(phone)) {
+        showToast('请输入正确的手机号');
+        return;
+      }
+      startSmsCountdown(btn);
+      showToast('验证码已发送');
+    }
+
+    function resetChangePhoneForm() {
+      changePhoneNew.value = '';
+      changePhoneCode.value = '';
+      changePhoneCurrent.textContent = USER_PHONE_MASKED;
+    }
+
+    function openChangePhone() {
+      resetChangePhoneForm();
+      pushView('viewChangePhone');
+    }
+
+    function submitChangePhone() {
+      const newPhone = changePhoneNew.value.trim();
+      const code = changePhoneCode.value.trim();
+      if (!isValidPhone(newPhone)) {
+        showToast('请输入正确的手机号');
+        changePhoneNew.focus();
+        return;
+      }
+      if (newPhone === USER_PHONE) {
+        showToast('新手机号不能与当前相同');
+        return;
+      }
+      if (!/^\d{4,6}$/.test(code)) {
+        showToast('请输入验证码');
+        changePhoneCode.focus();
+        return;
+      }
+      showToast('手机号更换成功');
+      popView();
+    }
+
+    function openPayPwdVerify() {
+      payPwdVerifyCode.value = '';
+      payPwdVerified = false;
+      payPwdVerifyPhone.textContent = USER_PHONE;
+      pushView('viewPayPwdVerify');
+    }
+
+    function submitPayPwdVerify() {
+      const code = payPwdVerifyCode.value.trim();
+      if (!/^\d{4,6}$/.test(code)) {
+        showToast('请输入验证码');
+        payPwdVerifyCode.focus();
+        return;
+      }
+      payPwdVerified = true;
+      resetPayPwdSet();
+      pushView('viewPayPwdSet');
+    }
+
+    function renderPayPwdDots() {
+      payPwdSetDots.innerHTML = Array.from({ length: 6 }, (_, i) =>
+        `<span class="settings-pwd-dot ${i < payPwdInput.length ? 'filled' : ''}"></span>`
+      ).join('');
+    }
+
+    function renderPayPwdKeypad() {
+      const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'];
+      payPwdKeypad.innerHTML = keys.map((k) => {
+        if (k === '') return '<span class="settings-pwd-key empty"></span>';
+        if (k === 'del') return '<button type="button" class="settings-pwd-key del" data-pwd-key="del">删除</button>';
+        return `<button type="button" class="settings-pwd-key" data-pwd-key="${k}">${k}</button>`;
+      }).join('');
+    }
+
+    function resetPayPwdSet() {
+      payPwdStep = 'first';
+      payPwdFirst = '';
+      payPwdInput = '';
+      payPwdSetHint.textContent = '请输入6位支付密码';
+      renderPayPwdDots();
+    }
+
+    function handlePayPwdKey(key) {
+      if (key === 'del') {
+        payPwdInput = payPwdInput.slice(0, -1);
+      } else if (payPwdInput.length < 6) {
+        payPwdInput += key;
+      }
+      renderPayPwdDots();
+      if (payPwdInput.length === 6) {
+        if (payPwdStep === 'first') {
+          payPwdFirst = payPwdInput;
+          payPwdInput = '';
+          payPwdStep = 'confirm';
+          payPwdSetHint.textContent = '请再次输入支付密码';
+          renderPayPwdDots();
+        } else if (payPwdInput === payPwdFirst) {
+          showToast('支付密码修改成功');
+          payPwdVerified = false;
+          while (navStack[navStack.length - 1] !== 'viewAccountSecurity' && navStack.length > 1) {
+            popView();
+          }
+        } else {
+          showToast('两次密码不一致，请重新输入');
+          payPwdStep = 'first';
+          payPwdFirst = '';
+          payPwdInput = '';
+          payPwdSetHint.textContent = '请输入6位支付密码';
+          renderPayPwdDots();
+        }
+      }
+    }
+
+    function loadInvoiceTitles() {
+      try {
+        const raw = localStorage.getItem(INVOICE_STORAGE_KEY);
+        invoiceTitles = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(invoiceTitles)) invoiceTitles = [];
+      } catch (_) {
+        invoiceTitles = [];
+      }
+    }
+
+    function saveInvoiceTitles() {
+      try {
+        localStorage.setItem(INVOICE_STORAGE_KEY, JSON.stringify(invoiceTitles));
+      } catch (_) {}
+    }
+
+    function switchInvoiceTab(tab) {
+      invoiceTab = tab;
+      invoiceTabAll.classList.toggle('active', tab === 'all');
+      invoiceTabTitles.classList.toggle('active', tab === 'titles');
+      invoiceFooter.style.display = tab === 'titles' ? 'block' : 'none';
+      renderInvoiceBody();
+    }
+
+    function renderInvoiceEmpty(text) {
+      return `
+        <div class="invoice-empty">
+          <div class="invoice-empty-art">${SVG_INVOICE_EMPTY}</div>
+          <div class="invoice-empty-text">${text}</div>
+        </div>`;
+    }
+
+    function renderInvoiceBody() {
+      if (invoiceTab === 'all') {
+        invoiceBody.innerHTML = renderInvoiceEmpty('暂无发票记录');
+        return;
+      }
+      if (invoiceTitles.length === 0) {
+        invoiceBody.innerHTML = `
+          <div class="invoice-tip">抬头信息仅用于开具发票，不会用于其他用途！</div>
+          ${renderInvoiceEmpty('暂无发票抬头')}`;
+        return;
+      }
+      invoiceBody.innerHTML = `
+        <div class="invoice-tip">抬头信息仅用于开具发票，不会用于其他用途！</div>
+        ${invoiceTitles.map((item) => `
+          <div class="invoice-title-item" data-invoice-id="${item.id}">
+            <div>
+              <div class="invoice-title-name">${item.name}</div>
+              <div class="invoice-title-meta">${item.type === 'company' ? '企业 · ' + (item.taxNo || '') : '个人'}</div>
+            </div>
+            <button type="button" class="invoice-title-del" data-del-invoice="${item.id}">删除</button>
+          </div>
+        `).join('')}`;
+      invoiceBody.querySelectorAll('[data-del-invoice]').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const id = btn.dataset.delInvoice;
+          showConfirm('确定删除该发票抬头？', () => {
+            invoiceTitles = invoiceTitles.filter((t) => t.id !== id);
+            saveInvoiceTitles();
+            renderInvoiceBody();
+            showToast('已删除');
+          });
+        });
+      });
+    }
+
+    function openInvoiceManage() {
+      switchInvoiceTab('titles');
+      pushView('viewInvoice');
+    }
+
+    function resetInvoiceAddForm() {
+      invoiceAddType = 'personal';
+      invoiceAddName.value = '';
+      invoiceAddTax.value = '';
+      invoiceTaxRow.style.display = 'none';
+      document.querySelectorAll('[data-invoice-type]').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.invoiceType === 'personal');
+      });
+    }
+
+    function openInvoiceAdd() {
+      resetInvoiceAddForm();
+      pushView('viewInvoiceAdd');
+    }
+
+    function submitInvoiceAdd() {
+      const name = invoiceAddName.value.trim();
+      if (!name) {
+        showToast('请输入发票抬头');
+        invoiceAddName.focus();
+        return;
+      }
+      const taxNo = invoiceAddTax.value.trim();
+      if (invoiceAddType === 'company' && !taxNo) {
+        showToast('请输入税号');
+        invoiceAddTax.focus();
+        return;
+      }
+      invoiceTitles.unshift({
+        id: 'inv_' + Date.now(),
+        type: invoiceAddType,
+        name,
+        taxNo: invoiceAddType === 'company' ? taxNo : '',
+      });
+      saveInvoiceTitles();
+      popView();
+      renderInvoiceBody();
+      showToast('添加成功');
+    }
+
+    function openAbout() {
+      if (aboutLogo && !aboutLogo.innerHTML) aboutLogo.innerHTML = SVG_ABOUT_BIRD;
+      pushView('viewAbout');
+    }
+
+    function initSettingsModule() {
+      renderPayPwdKeypad();
+      loadInvoiceTitles();
+      if (aboutLogo) aboutLogo.innerHTML = SVG_ABOUT_BIRD;
+    }
+
     function getViewEl(id) {
       return document.getElementById(id);
     }
@@ -3388,8 +5083,22 @@
       const mainViews = ['viewProfile', 'viewCart', 'viewHome', 'viewCategory'];
       const show = navStack.length === 1 && mainViews.includes(top);
       tabbar.classList.toggle('hidden', !show);
-      cartBar.classList.toggle('hidden', top !== 'viewCart' || cartItems.length === 0);
+      cartBar.classList.toggle('hidden', top !== 'viewCart' || getCartItems().length === 0);
       homeShareFab.classList.toggle('show', top === 'viewHome');
+      updateHomeTopFab();
+    }
+
+    function updateHomeTopFab() {
+      const onHome = navStack[navStack.length - 1] === 'viewHome';
+      const scrolled = homeScroll && homeScroll.scrollTop > 320;
+      homeTopFab.classList.toggle('show', onHome && scrolled);
+    }
+
+    function initHomeTabSticky() {}
+
+    function scrollHomeToTop() {
+      if (!homeScroll) return;
+      homeScroll.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function setMainTabActive(tabName) {
@@ -3402,6 +5111,82 @@
       storeSearchInput.value = '';
       renderStoreList('');
       pushView('viewStoreList');
+    }
+
+    function getCurrentStoreInfo() {
+      return STORE_LIST.find((s) => s.name === currentStore) || STORE_LIST[0];
+    }
+
+    function getStoreDetail(store) {
+      const base = STORE_LIST.find((s) => s.id === store.id) || store;
+      const extra = STORE_DETAIL_OVERRIDES[base.id] || {};
+      return {
+        ...STORE_DETAIL_DEFAULTS,
+        ...extra,
+        id: base.id,
+        name: base.name,
+        minDelivery: base.minDelivery,
+        distance: base.distance,
+        imageType: base.imageType,
+        emoji: base.emoji,
+      };
+    }
+
+    function renderStoreDetailThumbContent(store, el) {
+      if (store.imageType === 'photo') {
+        el.className = 'store-detail-thumb photo';
+        el.textContent = store.emoji || '🏪';
+        return;
+      }
+      el.className = 'store-detail-thumb placeholder';
+      el.innerHTML = `${SVG_BIRD}<span>暂无图片</span>`;
+    }
+
+    function renderStoreDetail() {
+      const store = getCurrentStoreInfo();
+      const detail = getStoreDetail(store);
+      storeDetailName.textContent = detail.name;
+      renderStoreDetailThumbContent(store, storeDetailThumb);
+      storeDetailMin.textContent = detail.minDelivery + '元起送';
+      storeDetailStatusText.textContent = detail.statusText;
+      storeDetailStatusLabel.textContent = detail.statusText;
+      storeDetailPhone.textContent = detail.phone;
+      storeDetailDelivery.textContent = '起送: ¥' + detail.minDelivery + ' | 配送: ¥' + detail.deliveryFee;
+      storeDetailHours.textContent = detail.hours;
+      storeDetailAddress.textContent = detail.address;
+      storeDetailAnnouncement.textContent = detail.announcement;
+      storeDetailReviewCount.textContent = String(detail.reviewCount);
+      storeDetailPromos.innerHTML = detail.promotions.map((p) =>
+        `<div class="store-detail-promo"><span class="store-detail-promo-badge ${p.cls}">${p.type}</span><span>${p.text}</span></div>`
+      ).join('');
+      storeDetailReviews.innerHTML = STORE_REVIEWS.slice(0, detail.reviewCount).map((r) => `
+        <div class="store-detail-review">
+          <div class="store-detail-review-head">
+            <div class="store-detail-review-avatar">${r.avatar}</div>
+            <div class="store-detail-review-user">
+              <div class="store-detail-review-name">${r.user}</div>
+              <div class="store-detail-review-date">${r.date}</div>
+            </div>
+          </div>
+          <div class="store-detail-review-stars">${'★'.repeat(r.stars)}</div>
+          <div class="store-detail-review-tags">${r.tags.map((t) => `<span class="store-detail-review-tag">${t}</span>`).join('')}</div>
+        </div>`).join('');
+      storeDetailBanner.className = 'store-detail-banner' + (store.imageType === 'photo' ? ' photo' : '');
+      if (store.imageType === 'photo') {
+        storeDetailBanner.innerHTML = `<span>${store.emoji || '🏪'}</span><div class="store-detail-banner-dots"><i class="on"></i><i></i><i></i></div>`;
+      } else {
+        storeDetailBanner.innerHTML = '<span>🥬</span><span>🍅</span><span>🥕</span><span>🍎</span><div class="store-detail-banner-dots"><i class="on"></i><i></i><i></i></div>';
+      }
+      if (storeDetailScroll) storeDetailScroll.scrollTop = 0;
+    }
+
+    function openStoreDetail() {
+      try {
+        renderStoreDetail();
+        pushView('viewStoreDetail');
+      } catch (err) {
+        showToast('店铺详情加载失败');
+      }
     }
 
     function renderStoreListThumb(store) {
@@ -3430,20 +5215,19 @@
                 <span class="store-list-distance">${store.distance}m</span>
               </div>
             </div>
-            <button type="button" class="store-list-bind ${bound ? 'bound' : ''}" data-store-id="${store.id}">绑定店铺</button>
+            <span class="store-list-bind ${bound ? 'bound' : ''}" aria-hidden="true">${bound ? '当前店铺' : '切换店铺'}</span>
           </div>`;
       }).join('');
-      storeListBody.querySelectorAll('.store-list-bind').forEach((btn) => {
-        btn.addEventListener('click', () => bindStore(btn.dataset.storeId));
+      storeListBody.querySelectorAll('.store-list-item').forEach((el) => {
+        el.addEventListener('click', () => selectStore(el.dataset.storeId));
       });
     }
 
-    function bindStore(storeId) {
+    function selectStore(storeId) {
       const store = STORE_LIST.find((s) => s.id === storeId);
       if (!store) return;
-      currentStore = store.name;
-      currentStoreName.textContent = currentStore;
-      showToast('已绑定：' + store.name);
+      const changed = switchStore(store.name);
+      showToast(changed ? '已切换至：' + store.name : '当前已是：' + store.name);
       popView();
     }
 
@@ -3466,12 +5250,6 @@
       updateTabbarVisibility();
       if (targetView === 'viewCart') renderCart();
       if (targetView === 'viewCategory') renderCategoryPage();
-      if (targetView === 'viewHome') {
-        requestAnimationFrame(() => {
-          updateHomeCatItemWidth();
-          homeCatScroller?.updateUI();
-        });
-      }
     }
 
     function navigateToCategory(catId) {
@@ -3497,7 +5275,7 @@
     }
 
     function getCartQtyForProduct(name) {
-      const item = cartItems.find((i) => i.name === name);
+      const item = getCartItems().find((i) => i.name === name);
       return item ? item.qty : 0;
     }
 
@@ -3507,13 +5285,16 @@
     }
 
     function renderAddCartBtn(productName) {
-      return `<button type="button" class="product-add-cart" data-add-cart="${productName}" aria-label="加入购物车">${SVG_CART}<span class="cart-mini-plus">+</span></button>`;
+      return `<button type="button" class="product-add-cart" data-add-cart="${productName}" aria-label="加入购物车">${SVG_CART}</button>`;
     }
 
     function renderQtyStepper(productName, qty) {
+      const minusBtn = qty <= 1
+        ? `<button type="button" class="product-qty-trash" data-qty-minus="${productName}" aria-label="删除">${SVG_TRASH}</button>`
+        : `<button type="button" class="product-qty-minus" data-qty-minus="${productName}" aria-label="减少">−</button>`;
       return `
         <div class="product-qty-ctrl" data-qty-product="${productName}">
-          <button type="button" class="product-qty-trash" data-qty-minus="${productName}" aria-label="减少">${SVG_TRASH}</button>
+          ${minusBtn}
           <span class="product-qty-num">${qty}</span>
           <button type="button" class="product-qty-plus" data-qty-plus="${productName}" aria-label="增加">+</button>
         </div>`;
@@ -3528,28 +5309,157 @@
       if (p.imageType === 'photo-digua') {
         return `<div class="home-product-img photo">${SVG_DIGUA}</div>`;
       }
+      if (p.imageType === 'photo-soy') {
+        return `<div class="home-product-img photo">${SVG_SOY}</div>`;
+      }
+      if (p.imageType === 'photo-mizone') {
+        return `<div class="home-product-img photo">${SVG_MIZONE}</div>`;
+      }
       if (p.imageType === 'placeholder') {
         return `<div class="home-product-img placeholder">${SVG_BIRD}<span>暂无图片</span></div>`;
       }
       return `<div class="home-product-img">${p.emoji || '📦'}</div>`;
     }
 
-    function renderHomeProductCard(p) {
+    function renderHomePromoThumb(p) {
+      if (p.imageType === 'photo-digua') return `<div class="home-promo-thumb photo">${SVG_DIGUA}</div>`;
+      if (p.imageType === 'photo-soy') return `<div class="home-promo-thumb photo">${SVG_SOY}</div>`;
+      if (p.imageType === 'photo-mizone') return `<div class="home-promo-thumb photo">${SVG_MIZONE}</div>`;
+      return `<div class="home-promo-thumb">${p.emoji || '📦'}</div>`;
+    }
+
+    function renderHomePromoItem(p) {
+      return `
+        <button type="button" class="home-promo-item" data-product="${p.name}">
+          ${renderHomePromoThumb(p)}
+          <div class="home-promo-price">¥${parseProductPrice(p.price).toFixed(2)}</div>
+        </button>`;
+    }
+
+    function renderHomePromoCards() {
+      if (homeDiscountItems) {
+        homeDiscountItems.innerHTML = getHomeDiscountProducts().slice(0, 2).map(renderHomePromoItem).join('');
+      }
+      if (homeOftenItems) {
+        homeOftenItems.innerHTML = getHomeOftenProducts().slice(0, 2).map(renderHomePromoItem).join('');
+      }
+      document.querySelectorAll('[data-promo-more]').forEach((btn) => {
+        btn.onclick = () => {
+          if (btn.dataset.promoMore === 'discount') {
+            homeTabMode = 'discount';
+            renderHomeProducts();
+            homeProducts.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else {
+            homeTabMode = 'often';
+            renderHomeProducts();
+            homeProducts.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        };
+      });
+      [homeDiscountItems, homeOftenItems].forEach((el) => {
+        if (!el) return;
+        el.querySelectorAll('[data-product]').forEach((item) => {
+          item.addEventListener('click', () => openProductDetail(item.dataset.product));
+        });
+      });
+    }
+
+    function getHomeDiscountProducts() {
+      return HOME_DISPLAY_PRODUCTS.slice().sort((a, b) => a.price - b.price);
+    }
+
+    function getHomeOftenProducts() {
+      return HOME_OFTEN_DEFAULT
+        .map((name) => HOME_DISPLAY_PRODUCTS.find((p) => p.name === name))
+        .filter(Boolean);
+    }
+
+    function getHomeSalesProducts() {
+      return HOME_DISPLAY_PRODUCTS.slice().sort((a, b) => (b.sales || 0) - (a.sales || 0));
+    }
+
+    function getHomeTabProducts(mode) {
+      const pool = HOME_DISPLAY_PRODUCTS.slice();
+      if (mode === 'discount') {
+        return pool.sort((a, b) => a.price - b.price);
+      }
+      if (mode === 'often') {
+        return HOME_OFTEN_DEFAULT
+          .map((name) => HOME_DISPLAY_PRODUCTS.find((p) => p.name === name))
+          .filter(Boolean);
+      }
+      if (mode === 'sales') {
+        return pool.sort((a, b) => (b.sales || 0) - (a.sales || 0));
+      }
+      return pool;
+    }
+
+    function switchHomeTab(mode) {
+      homeTabMode = mode;
+      renderHomeProducts();
+    }
+
+    function getHomeFeaturedProducts() {
+      return getHomeSalesProducts();
+    }
+
+    function getHomeRecommendProducts() {
+      const seen = new Set();
+      return [...getHomeDiscountProducts(), ...getHomeOftenProducts(), ...getHomeSalesProducts()]
+        .filter((p) => {
+          if (seen.has(p.name)) return false;
+          seen.add(p.name);
+          return true;
+        });
+    }
+
+    function renderHomeProductCard(p, opts) {
+      const options = opts || {};
+      const badge = options.tag || options.badge || (p.sales > 100 ? '热销' : (p.sales > 50 ? '新品' : ''));
+      const badgeHtml = badge ? `<span class="home-product-badge">${badge}</span>` : '';
+      const orig = (parseProductPrice(p.price) * 1.2).toFixed(2);
       return `
         <div class="home-product" data-product="${p.name}">
+          ${badgeHtml}
           ${renderHomeProductImage(p)}
           <div class="home-product-info">
             <div class="home-product-name">${p.name}</div>
             <div class="home-product-foot">
-              <div class="home-product-price">${formatPriceDisplay(p.price, p.unit)}</div>
+              <div class="home-product-price-wrap">
+                <div class="home-product-price">${formatPriceDisplay(p.price, p.unit)}<span class="home-product-orig">¥${orig}</span></div>
+              </div>
               ${renderProductAction(p.name)}
             </div>
           </div>
         </div>`;
     }
 
+    function renderHomeProductGrid(container, products, opts) {
+      const list = products || getHomeRecommendProducts();
+      const tags = (opts && opts.tags) || [];
+      container.innerHTML = list.map((p, i) =>
+        renderHomeProductCard(p, { tag: tags[i] || '' })
+      ).join('');
+      bindProductClicks(container);
+      return list;
+    }
+
     function renderHomeProducts() {
-      homeProducts.innerHTML = HOME_DISPLAY_PRODUCTS.map(renderHomeProductCard).join('');
+      const list = homeTabMode === 'often'
+        ? getHomeOftenProducts()
+        : homeTabMode === 'discount'
+          ? getHomeDiscountProducts()
+          : getHomeFeaturedProducts();
+      homeProducts.innerHTML = list.length
+        ? list.map((p) => renderHomeProductCard(p)).join('')
+        : '<div class="home-empty-products">暂无相关商品</div>';
+      bindProductClicks(homeProducts);
+    }
+
+    function refreshRecommendIfVisible() {
+      if (navStack[navStack.length - 1] !== 'viewRecommend') return;
+      const tags = ['TOP1', '热销', '精选', '推荐', '爆款', '优选', '热卖', '必买', '特惠'];
+      renderHomeProductGrid(recommendProductList, getHomeRecommendProducts(), { tags });
     }
 
     function setupHorizontalScroll({ scrollEl, fadeLeft, fadeRight }) {
@@ -3619,36 +5529,129 @@
       };
     }
 
-    function updateHomeCatItemWidth() {
-      const containerW = homeCategoriesScroll.clientWidth;
-      if (containerW <= 0) return;
-      const itemW = Math.floor(containerW / 5);
-      homeCategoriesScroll.querySelectorAll('.home-cat-item').forEach((el) => {
-        el.style.width = itemW + 'px';
-        el.style.flexBasis = itemW + 'px';
-      });
-      homeCatScroller?.updateUI();
+    let homeCatSwipeState = null;
+    let homeCatDragScroll = null;
+
+    function consumeHomeCatDrag() {
+      if (!homeCatSwipeState) return false;
+      const dragged = homeCatSwipeState.wasDragged;
+      homeCatSwipeState.wasDragged = false;
+      return dragged;
     }
 
-    function renderHomeCategories() {
-      homeCategoriesScroll.innerHTML = CATEGORY_TREE.map((cat) => `
+    function bindHomeCatSwipeGuard() {
+      if (!homeCatTrack || homeCatTrack.dataset.swipeBound) return;
+      homeCatTrack.dataset.swipeBound = '1';
+
+      homeCatTrack.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        homeCatSwipeState = {
+          x: e.clientX,
+          y: e.clientY,
+          id: e.pointerId,
+          wasDragged: false,
+        };
+        homeCatDragScroll = {
+          id: e.pointerId,
+          x: e.clientX,
+          left: homeCatTrack.scrollLeft,
+          captured: false,
+        };
+      });
+
+      homeCatTrack.addEventListener('pointermove', (e) => {
+        if (!homeCatSwipeState || homeCatSwipeState.id !== e.pointerId) return;
+        const dx = e.clientX - homeCatSwipeState.x;
+        const dy = e.clientY - homeCatSwipeState.y;
+        if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) {
+          homeCatSwipeState.wasDragged = true;
+        }
+        if (homeCatDragScroll && homeCatDragScroll.id === e.pointerId && homeCatSwipeState.wasDragged) {
+          if (!homeCatDragScroll.captured) {
+            homeCatTrack.setPointerCapture(e.pointerId);
+            homeCatDragScroll.captured = true;
+          }
+          homeCatTrack.scrollLeft = homeCatDragScroll.left - (e.clientX - homeCatDragScroll.x);
+        }
+      });
+
+      function endHomeCatDrag(e) {
+        if (!homeCatSwipeState || homeCatSwipeState.id !== e.pointerId) return;
+        const dx = e.clientX - homeCatSwipeState.x;
+        if (Math.abs(dx) > 8) homeCatSwipeState.wasDragged = true;
+        if (homeCatDragScroll && homeCatDragScroll.id === e.pointerId && homeCatDragScroll.captured) {
+          homeCatTrack.releasePointerCapture(e.pointerId);
+        }
+        homeCatSwipeState.id = null;
+        homeCatDragScroll = null;
+        snapHomeCatPage();
+      }
+
+      homeCatTrack.addEventListener('pointerup', endHomeCatDrag);
+      homeCatTrack.addEventListener('pointercancel', endHomeCatDrag);
+      homeCatTrack.addEventListener('scroll', () => {
+        if (homeCatSwipeState) homeCatSwipeState.wasDragged = true;
+        updateHomeCatDots();
+      }, { passive: true });
+    }
+
+    function snapHomeCatPage() {
+      if (!homeCatTrack || homeCatTrack.clientWidth <= 0) return;
+      const page = Math.round(homeCatTrack.scrollLeft / homeCatTrack.clientWidth);
+      homeCatTrack.scrollTo({ left: page * homeCatTrack.clientWidth, behavior: 'smooth' });
+      updateHomeCatDots();
+    }
+
+    function renderHomeCategoryItem(cat) {
+      return `
         <button type="button" class="home-cat-item" data-cat-id="${cat.id}">
           <div class="home-cat-icon">${cat.icon}</div>
           <div class="home-cat-label">${cat.label}</div>
-        </button>
+        </button>`;
+    }
+
+    function chunkHomeCategories(list, size) {
+      const pages = [];
+      for (let i = 0; i < list.length; i += size) pages.push(list.slice(i, i + size));
+      return pages;
+    }
+
+    function updateHomeCatDots() {
+      if (!homeCatTrack || !homeCatDots || homeCatDots.children.length <= 1) return;
+      const page = Math.round(homeCatTrack.scrollLeft / homeCatTrack.clientWidth);
+      homeCatDots.querySelectorAll('.home-cat-dot').forEach((dot, i) => {
+        dot.classList.toggle('active', i === page);
+      });
+    }
+
+    function renderHomeCategories() {
+      if (!homeCatTrack) return;
+      const pageSize = 10;
+      const pages = chunkHomeCategories(CATEGORY_TREE, pageSize);
+      homeCatTrack.innerHTML = pages.map((cats) => `
+        <div class="home-cat-page">
+          <div class="home-cat-grid">${cats.map(renderHomeCategoryItem).join('')}</div>
+        </div>
       `).join('');
-      homeCategoriesScroll.querySelectorAll('.home-cat-item').forEach((btn) => {
+      if (homeCatDots) {
+        homeCatDots.innerHTML = pages.length > 1
+          ? pages.map((_, i) => `<span class="home-cat-dot${i === 0 ? ' active' : ''}" data-cat-page="${i}"></span>`).join('')
+          : '';
+        homeCatDots.querySelectorAll('[data-cat-page]').forEach((dot) => {
+          dot.addEventListener('click', () => {
+            const page = Number(dot.dataset.catPage);
+            homeCatTrack.scrollTo({ left: page * homeCatTrack.clientWidth, behavior: 'smooth' });
+          });
+        });
+      }
+      homeCatTrack.querySelectorAll('.home-cat-item').forEach((btn) => {
         btn.addEventListener('click', () => {
-          if (homeCatScroller?.consumeDrag()) return;
+          if (consumeHomeCatDrag()) return;
           navigateToCategory(btn.dataset.catId);
         });
       });
-      homeCatScroller = setupHorizontalScroll({
-        scrollEl: homeCategoriesScroll,
-        fadeLeft: homeCatFadeLeft,
-        fadeRight: homeCatFadeRight,
-      });
-      updateHomeCatItemWidth();
+      bindHomeCatSwipeGuard();
+      updateHomeCatDots();
     }
 
     function getHomeProductInfo(name) {
@@ -3662,8 +5665,11 @@
       if (p.imageType === 'photo-digua') {
         return `<div class="cat-product-thumb photo">${SVG_DIGUA}</div>`;
       }
-      if (p.imageType === 'placeholder') {
-        return `<div class="cat-product-thumb placeholder">${SVG_BIRD}<span>暂无图片</span></div>`;
+      if (p.imageType === 'photo-mizone') {
+        return `<div class="cat-product-thumb photo">${SVG_MIZONE}</div>`;
+      }
+      if (p.imageType === 'photo-soy') {
+        return `<div class="cat-product-thumb photo">${SVG_SOY}</div>`;
       }
       return `<div class="cat-product-thumb">${p.emoji || '📦'}</div>`;
     }
@@ -3894,13 +5900,14 @@
           return;
         }
         const row = e.target.closest('.cat-product-row');
-        if (row) showToast('商品：' + row.dataset.product);
+        if (row) openProductDetail(row.dataset.product);
       };
     }
 
     function adjustProductCart(name, delta) {
       const info = getHomeProductInfo(name) || findProductByName(name);
       if (!info) return;
+      const cartItems = getCartItems();
       const existing = cartItems.find((i) => i.name === name);
       if (delta > 0) {
         if (existing) {
@@ -3909,7 +5916,7 @@
           const price = typeof info.price === 'number' ? info.price : parseProductPrice(info.price);
           cartItems.push({
             id: 'cart_' + Date.now(),
-            store: '泓沃严选 · 万达超市',
+            store: currentStore,
             name: info.name,
             spec: '',
             price,
@@ -3921,38 +5928,16 @@
         }
       } else if (existing) {
         existing.qty += delta;
-        if (existing.qty <= 0) cartItems = cartItems.filter((i) => i.id !== existing.id);
+        if (existing.qty <= 0) setCartItems(cartItems.filter((i) => i.id !== existing.id));
       }
+      saveStoreCarts();
       updateCartBadge();
       renderHomeProducts();
+      refreshRecommendIfVisible();
       refreshCategoryProductsIfVisible();
       refreshSearchResultsIfVisible();
       if (navStack[navStack.length - 1] === 'viewCart') renderCart();
-    }
-
-    function bindHomeProductActions() {
-      homeProducts.onclick = (e) => {
-        const addBtn = e.target.closest('[data-add-cart]');
-        if (addBtn) {
-          e.stopPropagation();
-          adjustProductCart(addBtn.dataset.addCart, 1);
-          return;
-        }
-        const plusBtn = e.target.closest('[data-qty-plus]');
-        if (plusBtn) {
-          e.stopPropagation();
-          adjustProductCart(plusBtn.dataset.qtyPlus, 1);
-          return;
-        }
-        const minusBtn = e.target.closest('[data-qty-minus]');
-        if (minusBtn) {
-          e.stopPropagation();
-          adjustProductCart(minusBtn.dataset.qtyMinus, -1);
-          return;
-        }
-        const card = e.target.closest('.home-product');
-        if (card) showToast('商品：' + card.dataset.product);
-      };
+      refreshProductDetailIfVisible();
     }
 
     function parseProductPrice(priceVal) {
@@ -3977,14 +5962,292 @@
       return PRODUCT_CATALOG.find((p) => p.name === name);
     }
 
+    function enrichProduct(product) {
+      if (!product) return null;
+      const extra = PRODUCT_DETAIL_OVERRIDES[product.name] || {};
+      const promoDeduct = extra.promoDeduct || product.promo || PRODUCT_DETAIL_DEFAULTS.promoDeduct;
+      return { ...PRODUCT_DETAIL_DEFAULTS, ...product, ...extra, promoDeduct };
+    }
+
+    function applyProductDetailImage(product) {
+      const el = document.getElementById('productDetailImg');
+      if (!el) return;
+      const p = product;
+      el.className = 'product-detail-img';
+      if (p.imageType === 'photo-digua') {
+        el.classList.add('photo');
+        el.innerHTML = SVG_DIGUA;
+        return;
+      }
+      if (p.imageType === 'photo-soy') {
+        el.classList.add('photo');
+        el.innerHTML = SVG_SOY;
+        return;
+      }
+      if (p.imageType === 'photo-mizone') {
+        el.classList.add('photo');
+        el.innerHTML = SVG_MIZONE;
+        return;
+      }
+      if (p.imageType === 'placeholder') {
+        el.classList.add('placeholder');
+        el.innerHTML = `${SVG_BIRD}<span>暂无图片</span>`;
+        return;
+      }
+      el.classList.add('emoji');
+      el.textContent = p.emoji || '📦';
+    }
+
+    function formatNowTime() {
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+
+    function formatChatPreviewTime(timeStr) {
+      if (!timeStr) return '';
+      const today = formatNowTime().slice(0, 10);
+      return timeStr.startsWith(today) ? timeStr.slice(11, 16) : timeStr.slice(5, 10);
+    }
+
+    function loadMerchantChats() {
+      try {
+        const raw = localStorage.getItem(CHAT_STORAGE_KEY);
+        if (raw) {
+          const data = JSON.parse(raw);
+          if (data && typeof data === 'object') merchantChats = data;
+        }
+      } catch (_) {}
+    }
+
+    function saveMerchantChats() {
+      try {
+        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(merchantChats));
+      } catch (_) {}
+    }
+
+    function getMerchantMeta(storeName) {
+      return MERCHANT_TAGS[storeName] || { label: '商户', cls: 'tag-shop', avatar: '🏪' };
+    }
+
+    function ensureChatSession(storeName) {
+      if (!merchantChats[storeName]) {
+        const meta = getMerchantMeta(storeName);
+        merchantChats[storeName] = {
+          storeName,
+          tag: meta.label,
+          tagCls: meta.cls,
+          avatar: meta.avatar,
+          messages: [],
+          unread: 0,
+          lastTime: '',
+        };
+      }
+      return merchantChats[storeName];
+    }
+
+    function appendChatMessage(storeName, from, text, opts) {
+      const options = opts || {};
+      const session = ensureChatSession(storeName);
+      session.messages.push({
+        id: 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        from,
+        text,
+        time: formatNowTime(),
+      });
+      session.lastTime = formatNowTime();
+      if (from === 'merchant' && options.markUnread !== false
+        && !(navStack[navStack.length - 1] === 'viewChatDetail' && activeChatStore === storeName)) {
+        session.unread += 1;
+      }
+      saveMerchantChats();
+      return session;
+    }
+
+    function getChatUnreadCount() {
+      return Object.values(merchantChats).reduce((sum, s) => sum + (s.unread || 0), 0);
+    }
+
+    function scheduleMerchantReply(storeName, text) {
+      clearTimeout(chatAutoReplyTimer);
+      chatAutoReplyTimer = setTimeout(() => {
+        appendChatMessage(storeName, 'merchant', text, { markUnread: false });
+        if (navStack[navStack.length - 1] === 'viewChatDetail' && activeChatStore === storeName) {
+          renderChatDetail();
+        }
+        renderChatSessions();
+        updateBadges();
+      }, 700);
+    }
+
+    function renderChatSessions() {
+      const sessions = Object.values(merchantChats)
+        .filter((s) => s.messages.length)
+        .sort((a, b) => (b.lastTime || '').localeCompare(a.lastTime || ''));
+      if (!sessions.length) {
+        panelChat.innerHTML = '<div class="empty-hint" style="padding:48px 16px">暂无会话消息<br><span style="font-size:12px;margin-top:8px;display:block">联系店铺客服后会显示在这里</span></div>';
+        return;
+      }
+      panelChat.innerHTML = sessions.map((s) => {
+        const meta = getMerchantMeta(s.storeName);
+        const last = s.messages[s.messages.length - 1];
+        const preview = last ? (last.from === 'user' ? '我：' : '') + last.text : '';
+        return `
+          <div class="chat-session-item" data-chat-store="${s.storeName}">
+            <div class="chat-session-avatar">${meta.avatar}</div>
+            <div class="chat-session-body">
+              <div class="chat-session-top">
+                <span class="chat-session-name">${s.storeName}</span>
+                <span class="chat-session-time">${formatChatPreviewTime(s.lastTime)}</span>
+              </div>
+              <div class="chat-session-bottom">
+                <span class="chat-merchant-tag ${meta.cls}">${meta.label}</span>
+                <span class="chat-session-preview">${preview}</span>
+                <span class="chat-session-dot ${s.unread ? '' : 'hidden'}"></span>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+      panelChat.querySelectorAll('[data-chat-store]').forEach((el) => {
+        el.addEventListener('click', () => openChatDetail(el.dataset.chatStore));
+      });
+    }
+
+    function renderChatDetail() {
+      if (!activeChatStore) return;
+      const session = ensureChatSession(activeChatStore);
+      const meta = getMerchantMeta(activeChatStore);
+      session.unread = 0;
+      saveMerchantChats();
+      chatDetailTitle.textContent = activeChatStore;
+      chatDetailStoreLabel.textContent = '在线客服';
+      chatDetailTag.className = 'chat-merchant-tag ' + meta.cls;
+      chatDetailTag.textContent = meta.label;
+      chatDetailMsgs.innerHTML = session.messages.map((m) => {
+        if (m.from === 'system') {
+          return `<div class="chat-msg-time">${m.text}</div>`;
+        }
+        const isUser = m.from === 'user';
+        const avatar = isUser ? '🙂' : meta.avatar;
+        return `
+          <div class="chat-msg ${isUser ? 'user' : 'merchant'}">
+            <div class="chat-msg-avatar">${avatar}</div>
+            <div class="chat-msg-bubble">${m.text}</div>
+          </div>`;
+      }).join('');
+      requestAnimationFrame(() => {
+        chatDetailMsgs.scrollTop = chatDetailMsgs.scrollHeight;
+      });
+      updateBadges();
+    }
+
+    function openChatDetail(storeName) {
+      activeChatStore = storeName;
+      const session = ensureChatSession(storeName);
+      if (!session.messages.length) {
+        appendChatMessage(storeName, 'merchant', '您好，欢迎咨询「' + storeName + '」，有什么可以帮您？', { markUnread: false });
+      }
+      renderChatDetail();
+      pushView('viewChatDetail');
+    }
+
+    function openMerchantChat(storeName, opts) {
+      const options = opts || {};
+      const session = ensureChatSession(storeName);
+      if (options.productName) {
+        appendChatMessage(storeName, 'user', '我想咨询：' + options.productName, { markUnread: false });
+        scheduleMerchantReply(storeName, '您好，关于「' + options.productName + '」有什么可以帮您？');
+      } else if (!session.messages.length) {
+        appendChatMessage(storeName, 'merchant', '您好，欢迎咨询「' + storeName + '」，有什么可以帮您？', { markUnread: false });
+      }
+      activeChatStore = storeName;
+      renderChatDetail();
+      renderChatSessions();
+      pushView('viewChatDetail');
+    }
+
+    function sendChatMessage() {
+      if (!activeChatStore) return;
+      const text = chatDetailInput.value.trim();
+      if (!text) return;
+      chatDetailInput.value = '';
+      appendChatMessage(activeChatStore, 'user', text, { markUnread: false });
+      renderChatDetail();
+      renderChatSessions();
+      scheduleMerchantReply(activeChatStore, '好的，已收到您的消息，客服将尽快回复您～');
+    }
+
+    function updateProductDetailBar() {
+      const { totalQty } = getCartStats();
+      if (totalQty > 0) {
+        productDetailCartBadge.textContent = totalQty > 99 ? '99+' : String(totalQty);
+        productDetailCartBadge.classList.remove('hidden');
+      } else {
+        productDetailCartBadge.classList.add('hidden');
+      }
+    }
+
+    function renderProductDetail() {
+      const product = currentProductDetail;
+      if (!product) return;
+      const priceEl = document.getElementById('productDetailPrice');
+      const nameEl = document.getElementById('productDetailName');
+      const metaEl = document.getElementById('productDetailMeta');
+      const deductEl = document.getElementById('productDetailDeduct');
+      const couponEl = document.getElementById('productDetailCoupon');
+      const specEl = document.getElementById('productDetailSpec');
+      const servicesEl = document.getElementById('productDetailServices');
+      const contentEl = document.getElementById('productDetailContent');
+      const tipEl = document.getElementById('productDetailTip');
+      const scrollEl = document.getElementById('productDetailScroll');
+      applyProductDetailImage(product);
+      if (priceEl) priceEl.innerHTML = `¥ ${parseProductPrice(product.price).toFixed(2)}<small>${product.unit || ''}</small>`;
+      if (nameEl) nameEl.textContent = product.name;
+      if (metaEl) metaEl.textContent = `起购量：${product.minQty}  库存：${product.stock}${(product.unit || '').replace('/', '') || '件'}`;
+      if (deductEl) deductEl.textContent = product.promoDeduct;
+      if (couponEl) couponEl.textContent = product.promoCoupon;
+      if (specEl) specEl.textContent = product.spec;
+      if (servicesEl) {
+        servicesEl.innerHTML = (product.services || PRODUCT_DETAIL_DEFAULTS.services)
+          .map((s) => `<span>${s}</span>`).join('');
+      }
+      if (contentEl) {
+        contentEl.innerHTML = `<div style="opacity:0.35">${SVG_BIRD}</div><div style="margin-top:8px;color:#ccc">~~啥也没有!</div>`;
+      }
+      if (tipEl) tipEl.classList.remove('open');
+      updateProductDetailBar();
+      if (scrollEl) scrollEl.scrollTop = 0;
+    }
+
+    function refreshProductDetailIfVisible() {
+      if (navStack[navStack.length - 1] !== 'viewProductDetail') return;
+      updateProductDetailBar();
+    }
+
+    function openProductDetail(name) {
+      try {
+        const product = enrichProduct(getHomeProductInfo(name) || findProductByName(name));
+        if (!product) {
+          showToast('商品不存在');
+          return;
+        }
+        currentProductDetail = product;
+        renderProductDetail();
+        pushView('viewProductDetail');
+      } catch (err) {
+        showToast('商品详情加载失败');
+      }
+    }
+
     function addProductToCart(product, silent) {
+      const cartItems = getCartItems();
       const existing = cartItems.find((i) => i.name === product.name);
       if (existing) {
         existing.qty += 1;
       } else {
         cartItems.push({
           id: 'cart_' + Date.now(),
-          store: '泓沃严选 · 万达超市',
+          store: currentStore,
           name: product.name,
           spec: '',
           price: parseProductPrice(product.price),
@@ -3994,10 +6257,13 @@
         });
         if (!silent) showToast('已加入购物车');
       }
+      saveStoreCarts();
       updateCartBadge();
       renderHomeProducts();
+      refreshRecommendIfVisible();
       refreshCategoryProductsIfVisible();
       refreshSearchResultsIfVisible();
+      refreshProductDetailIfVisible();
     }
 
     function renderCatalogProductImage(p) {
@@ -4006,6 +6272,9 @@
       }
       if (p.imageType === 'photo-soy') {
         return `<div class="home-product-img photo">${SVG_SOY}</div>`;
+      }
+      if (p.imageType === 'photo-mizone') {
+        return `<div class="home-product-img photo">${SVG_MIZONE}</div>`;
       }
       if (p.imageType === 'placeholder') {
         return `<div class="home-product-img placeholder">${SVG_BIRD}<span>暂无图片</span></div>`;
@@ -4019,6 +6288,9 @@
       }
       if (p.imageType === 'photo-soy') {
         return `<div class="search-result-img photo">${SVG_SOY}</div>`;
+      }
+      if (p.imageType === 'photo-mizone') {
+        return `<div class="search-result-img photo">${SVG_MIZONE}</div>`;
       }
       if (p.imageType === 'placeholder') {
         return `<div class="search-result-img placeholder">${SVG_BIRD}<span>暂无图片</span></div>`;
@@ -4084,7 +6356,7 @@
           return;
         }
         const card = e.target.closest('.home-product, .search-result-card');
-        if (card) showToast('商品：' + card.dataset.product);
+        if (card) openProductDetail(card.dataset.product);
       };
     }
 
@@ -4267,9 +6539,9 @@
     }
 
     function openRecommend() {
-      const tags = ['TOP1', '热销', '精选', '推荐'];
-      const list = renderHotProductGrid(recommendProductList, { tags });
-      recommendMeta.textContent = `共 ${list.length} 件店主精选，与搜索页热门商品同步`;
+      const tags = ['TOP1', '热销', '精选', '推荐', '爆款', '优选', '热卖', '必买', '特惠'];
+      const list = renderHomeProductGrid(recommendProductList, getHomeRecommendProducts(), { tags });
+      recommendMeta.textContent = `共 ${list.length} 件店主精选，与首页推荐商品同步`;
       pushView('viewRecommend');
     }
 
@@ -4285,6 +6557,7 @@
     }
 
     function getCartStats() {
+      const cartItems = getCartItems();
       const totalQty = cartItems.reduce((s, i) => s + i.qty, 0);
       const selected = cartItems.filter((i) => i.selected);
       const selectedQty = selected.reduce((s, i) => s + i.qty, 0);
@@ -4304,14 +6577,14 @@
     }
 
     function renderCart() {
+      const cartItems = getCartItems();
       if (cartItems.length === 0) {
-        cartContent.innerHTML = '<div class="cart-empty">购物车空空如也<br><span style="font-size:12px;margin-top:8px;display:block">快去挑选心仪商品吧</span></div>';
-        cartBar.classList.add('hidden');
+        cartContent.innerHTML = `<div class="cart-empty">购物车空空如也<br><span style="font-size:12px;margin-top:8px;display:block">${currentStore} · 快去挑选心仪商品吧</span></div>`;
         updateCartBadge();
+        updateTabbarVisibility();
         return;
       }
-      cartBar.classList.remove('hidden');
-      const store = cartItems[0].store;
+      const store = currentStore;
       const itemsHtml = cartItems.map((item) => `
         <div class="cart-item" data-cart-id="${item.id}">
           <span class="cart-check ${item.selected ? 'checked' : ''}" data-check="${item.id}">${item.selected ? '✓' : ''}</span>
@@ -4345,6 +6618,7 @@
       bindCartEvents();
       updateCartSummary();
       updateCartBadge();
+      updateTabbarVisibility();
       renderHomeProducts();
       refreshCategoryProductsIfVisible();
     }
@@ -4361,34 +6635,36 @@
     function bindCartEvents() {
       document.getElementById('cartClearBtn').addEventListener('click', () => {
         showConfirm('确定清空购物车？', () => {
-          cartItems = [];
+          setCartItems([]);
           renderCart();
           showToast('已清空');
         });
       });
       cartContent.querySelectorAll('[data-check]').forEach((el) => {
         el.addEventListener('click', () => {
-          const item = cartItems.find((i) => i.id === el.dataset.check);
+          const item = getCartItems().find((i) => i.id === el.dataset.check);
           if (item) item.selected = !item.selected;
+          saveStoreCarts();
           renderCart();
         });
       });
       cartContent.querySelectorAll('[data-plus]').forEach((el) => {
         el.addEventListener('click', () => {
-          const item = cartItems.find((i) => i.id === el.dataset.plus);
-          if (item) { item.qty++; renderCart(); }
+          const item = getCartItems().find((i) => i.id === el.dataset.plus);
+          if (item) { item.qty++; saveStoreCarts(); renderCart(); }
         });
       });
       cartContent.querySelectorAll('[data-del]').forEach((el) => {
         el.addEventListener('click', () => {
-          const item = cartItems.find((i) => i.id === el.dataset.del);
+          const item = getCartItems().find((i) => i.id === el.dataset.del);
           if (!item) return;
           if (item.qty > item.minQty) {
             item.qty--;
+            saveStoreCarts();
             renderCart();
           } else {
             showConfirm('确定删除该商品？', () => {
-              cartItems = cartItems.filter((i) => i.id !== item.id);
+              setCartItems(getCartItems().filter((i) => i.id !== item.id));
               renderCart();
             });
           }
@@ -4401,17 +6677,24 @@
       if (currentId === viewId) return;
       const current = getViewEl(currentId);
       const next = getViewEl(viewId);
-      next.classList.add('slide-in-right');
-      next.classList.remove('active');
-      requestAnimationFrame(() => {
+      if (!next) {
+        showToast('页面打开失败');
+        return;
+      }
+      if (current) {
         current.classList.remove('active');
         current.classList.add('slide-out-left');
-        next.classList.remove('slide-in-right');
-        next.classList.add('active');
-        setTimeout(() => current.classList.remove('slide-out-left'), 350);
-      });
+      }
+      next.classList.remove('slide-in-right', 'slide-out-left');
+      next.classList.add('active');
       navStack.push(viewId);
       updateTabbarVisibility();
+      if (current) {
+        setTimeout(() => {
+          current.classList.remove('slide-out-left');
+          current.classList.add('slide-in-right');
+        }, 320);
+      }
     }
 
     function popView() {
@@ -4420,12 +6703,18 @@
       const prevId = navStack[navStack.length - 1];
       const current = getViewEl(currentId);
       const prev = getViewEl(prevId);
-      current.classList.remove('active', 'slide-out-left');
-      current.classList.add('slide-in-right');
-      prev.classList.remove('slide-out-left', 'slide-in-right');
-      prev.classList.add('active');
-      setTimeout(() => current.classList.remove('slide-in-right'), 350);
+      if (current) {
+        current.classList.remove('active', 'slide-out-left');
+        current.classList.add('slide-in-right');
+      }
+      if (prev) {
+        prev.classList.remove('slide-out-left', 'slide-in-right');
+        prev.classList.add('active');
+      }
       updateTabbarVisibility();
+      if (current) {
+        setTimeout(() => current.classList.remove('slide-in-right'), 350);
+      }
     }
 
     function popToProfile() {
@@ -4465,21 +6754,39 @@
       pushView('viewRestaurant');
     }
 
+    const RESTAURANT_RECHARGE_AMOUNTS = [100, 200, 500, 10, 50, 30];
+    const PLATFORM_RECHARGE_AMOUNTS = [1, 30, 50, 100, 200, 500, 1000];
+
+    function renderRechargePresets(amounts, defaultAmt, isPlatform) {
+      rechargeAmount = defaultAmt;
+      rechargePresets.innerHTML = amounts.map((amt) => {
+        const label = isPlatform ? `¥ ${amt}` : `${amt}元`;
+        return `
+          <button type="button" class="recharge-preset${amt === defaultAmt ? ' active' : ''}" data-amt="${amt}">
+            ${label}
+            <span class="recharge-preset-check">✓</span>
+          </button>`;
+      }).join('');
+    }
+
     function openRecharge(type) {
       rechargeType = type;
       const isPlatform = type === 'platform';
-      rechargeTitle.textContent = isPlatform ? '平台余额充值' : '餐厅余额充值';
-      rechargeTypeLabel.textContent = isPlatform ? '当前平台余额' : '当前餐厅余额';
-      rechargeCurrentAmt.textContent = isPlatform ? formatMoney(platformBalance) : formatMoney(restaurantBalance);
-      rechargeThreshold.textContent = isPlatform
-        ? '充值后余额可用于平台消费，低于 50 元时将收到余额不足提醒'
-        : '充值后余额可用于远见餐厅消费，低于 20 元时将收到余额不足提醒';
+      viewRecharge.classList.toggle('recharge-platform-mode', isPlatform);
+      viewRecharge.classList.toggle('recharge-restaurant-mode', !isPlatform);
+      rechargeTitle.textContent = '充值';
+      if (rechargeRestaurantBalance) {
+        rechargeRestaurantBalance.textContent = restaurantBalance.toFixed(1);
+      }
+      if (rechargePlatformBalance) {
+        rechargePlatformBalance.textContent = formatMoney(platformBalance);
+      }
+      if (isPlatform) {
+        renderRechargePresets(PLATFORM_RECHARGE_AMOUNTS, 100, true);
+      } else {
+        renderRechargePresets(RESTAURANT_RECHARGE_AMOUNTS, 100, false);
+      }
       rechargeReturnView = isPlatform ? 'viewPlatformBalance' : 'viewRestaurant';
-      rechargeAmount = 100;
-      rechargePresets.querySelectorAll('.recharge-preset').forEach((el) => {
-        el.classList.toggle('active', el.dataset.amt === '100');
-      });
-      rechargeConfirmBtn.textContent = '确认充值 ¥100';
       pushView('viewRecharge');
     }
 
@@ -4778,6 +7085,9 @@
         case 'order-pickup':
           openOrders('pickup');
           break;
+        case 'home':
+          switchMainTab('首页');
+          break;
         case 'coupon':
           openCoupons({ highlightExpiring: true, status: 'available' });
           break;
@@ -4888,9 +7198,8 @@
     function closePicker(apply) {
       if (apply && pickerKind && pickerTemp !== null) {
         if (pickerKind === 'store') {
-          currentStore = pickerTemp;
-          currentStoreName.textContent = currentStore;
-          showToast('已切换至：' + currentStore);
+          const changed = switchStore(pickerTemp);
+          showToast(changed ? '已切换至：' + pickerTemp : '当前已是：' + pickerTemp);
         } else {
           filters[pickerKind] = pickerTemp;
           if (pickerKind === 'merchant') valMerchant.textContent = pickerTemp;
@@ -4905,16 +7214,29 @@
     }
 
     function updateBadges() {
-      const count = unread.size;
-      if (count > 0) {
-        const text = count > 99 ? '99+' : String(count);
+      const notifyCount = unread.size;
+      const chatCount = getChatUnreadCount();
+      const total = notifyCount + chatCount;
+      if (total > 0) {
+        const text = total > 99 ? '99+' : String(total);
         msgIconBadge.textContent = text;
         msgIconBadge.classList.remove('hidden');
-        notifyTabBadge.textContent = text;
-        notifyTabBadge.style.display = 'inline-flex';
       } else {
         msgIconBadge.classList.add('hidden');
+      }
+      if (notifyCount > 0) {
+        notifyTabBadge.textContent = notifyCount > 99 ? '99+' : String(notifyCount);
+        notifyTabBadge.style.display = 'inline-flex';
+      } else {
         notifyTabBadge.style.display = 'none';
+      }
+      if (chatTabBadge) {
+        if (chatCount > 0) {
+          chatTabBadge.textContent = chatCount > 99 ? '99+' : String(chatCount);
+          chatTabBadge.classList.remove('hidden');
+        } else {
+          chatTabBadge.classList.add('hidden');
+        }
       }
     }
 
@@ -4951,7 +7273,10 @@
       }
     }
 
-    function openMessage() { pushView('viewMessage'); }
+    function openMessage() {
+      renderChatSessions();
+      pushView('viewMessage');
+    }
 
     function closeMessage() { popView(); }
 
@@ -4980,6 +7305,7 @@
       tabChat.classList.toggle('active', !isNotify);
       panelNotify.style.display = isNotify ? 'block' : 'none';
       panelChat.style.display = isNotify ? 'none' : 'block';
+      if (!isNotify) renderChatSessions();
     }
 
     function markRead(id) {
@@ -5018,6 +7344,46 @@
     });
     avatarFileInput.addEventListener('change', () => handleAvatarFile(avatarFileInput.files[0]));
     avatarCameraInput.addEventListener('change', () => handleAvatarFile(avatarCameraInput.files[0]));
+
+    settingsBtn.addEventListener('click', openSettings);
+    settingsBack.addEventListener('click', popView);
+    settingsAccountSecurity.addEventListener('click', () => pushView('viewAccountSecurity'));
+    settingsInvoice.addEventListener('click', openInvoiceManage);
+    settingsAbout.addEventListener('click', openAbout);
+    accountSecurityBack.addEventListener('click', popView);
+    settingsChangePhone.addEventListener('click', openChangePhone);
+    settingsPayPassword.addEventListener('click', openPayPwdVerify);
+    changePhoneBack.addEventListener('click', popView);
+    changePhoneGetCode.addEventListener('click', () => {
+      sendSmsCode(changePhoneGetCode, changePhoneNew.value.trim() || USER_PHONE);
+    });
+    changePhoneSubmit.addEventListener('click', submitChangePhone);
+    payPwdVerifyBack.addEventListener('click', popView);
+    payPwdVerifyGetCode.addEventListener('click', () => sendSmsCode(payPwdVerifyGetCode));
+    payPwdVerifyNext.addEventListener('click', submitPayPwdVerify);
+    payPwdSetBack.addEventListener('click', popView);
+    payPwdKeypad.addEventListener('click', (e) => {
+      const keyBtn = e.target.closest('[data-pwd-key]');
+      if (!keyBtn) return;
+      handlePayPwdKey(keyBtn.dataset.pwdKey);
+    });
+    invoiceBack.addEventListener('click', popView);
+    invoiceTabAll.addEventListener('click', () => switchInvoiceTab('all'));
+    invoiceTabTitles.addEventListener('click', () => switchInvoiceTab('titles'));
+    invoiceAddBtn.addEventListener('click', openInvoiceAdd);
+    invoiceAddBack.addEventListener('click', popView);
+    document.querySelectorAll('[data-invoice-type]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        invoiceAddType = btn.dataset.invoiceType;
+        document.querySelectorAll('[data-invoice-type]').forEach((b) => {
+          b.classList.toggle('active', b === btn);
+        });
+        invoiceTaxRow.style.display = invoiceAddType === 'company' ? 'flex' : 'none';
+      });
+    });
+    invoiceAddSubmit.addEventListener('click', submitInvoiceAdd);
+    aboutBack.addEventListener('click', popView);
+
     allOrdersBtn.addEventListener('click', () => { popToProfile(); openOrders('all'); });
     ordersBack.addEventListener('click', popView);
     ordersTabs.querySelectorAll('.orders-tab').forEach((tab) => {
@@ -5038,7 +7404,8 @@
     cartSelectAll.addEventListener('click', () => {
       const stats = getCartStats();
       const next = !stats.allSelected;
-      cartItems.forEach((i) => { i.selected = next; });
+      getCartItems().forEach((i) => { i.selected = next; });
+      saveStoreCarts();
       renderCart();
     });
     cartCheckout.addEventListener('click', () => {
@@ -5056,12 +7423,40 @@
       tab.addEventListener('click', () => switchMainTab(tab.dataset.tab));
     });
     storeSwitchBtn.addEventListener('click', openStorePicker);
+    productDetailBack.addEventListener('click', popView);
+    productDetailHome.addEventListener('click', () => {
+      while (navStack.length > 1) popView();
+    });
+    productDetailShare.addEventListener('click', () => showToast('分享'));
+    productDetailGetCoupon.addEventListener('click', () => showToast('去领券'));
+    productDetailTipHead.addEventListener('click', () => productDetailTip.classList.toggle('open'));
+    productDetailCartBtn.addEventListener('click', () => switchMainTab('购物车'));
+    productDetailServiceBtn.addEventListener('click', () => {
+      if (!currentProductDetail) return;
+      openMerchantChat(currentStore, { productName: currentProductDetail.name });
+    });
+    productDetailAddBtn.addEventListener('click', () => {
+      if (!currentProductDetail) return;
+      adjustProductCart(currentProductDetail.name, 1);
+      updateProductDetailBar();
+    });
+    chatDetailBack.addEventListener('click', () => {
+      popView();
+      renderChatSessions();
+    });
+    chatDetailSend.addEventListener('click', sendChatMessage);
+    chatDetailInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendChatMessage();
+    });
+    storeDetailBtn.addEventListener('click', openStoreDetail);
+    storeDetailBack.addEventListener('click', popView);
+    storeDetailNavigate.addEventListener('click', () => showToast('正在打开导航'));
     storeListBack.addEventListener('click', popView);
     storeSearchInput.addEventListener('input', () => renderStoreList(storeSearchInput.value));
     homeSearchBtn.addEventListener('click', () => openSearch());
     homeBannerBtn.addEventListener('click', openRecommend);
     recommendBack.addEventListener('click', popView);
-    payCodeBtn.addEventListener('click', () => showToast('付款码'));
+    payCodeBtn.addEventListener('click', () => showToast('会员码'));
     searchBack.addEventListener('click', popView);
     searchSubmit.addEventListener('click', () => doSearch());
     searchInput.addEventListener('keydown', (e) => {
@@ -5086,17 +7481,20 @@
       });
     });
     homeShareFab.addEventListener('click', () => showToast('分享'));
+    homeTopFab.addEventListener('click', scrollHomeToTop);
+    homeScroll.addEventListener('scroll', updateHomeTopFab, { passive: true });
     loadSearchHistory();
     loadUserProfile();
-    bindHomeProductActions();
+    loadStoreCarts();
+    loadMerchantChats();
+    initSettingsModule();
     renderHomeCategories();
+    renderHomePromoCards();
+    initHomeTabSticky();
     renderHomeProducts();
     renderCategoryPage();
     updateTabbarVisibility();
-    updateHomeCatItemWidth();
     window.addEventListener('resize', () => {
-      updateHomeCatItemWidth();
-      homeCatScroller?.updateUI();
       if (navStack[navStack.length - 1] === 'viewCategory') {
         updateCategorySubTabWidth();
         categorySubScroller?.updateUI();
@@ -5164,19 +7562,15 @@
     restaurantQr.addEventListener('click', () => showToast('出示会员码'));
 
     rechargeBack.addEventListener('click', popView);
-    rechargePresets.querySelectorAll('.recharge-preset').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        if (btn.dataset.amt === 'custom') {
-          showToast('请输入自定义金额');
-          return;
-        }
-        rechargeAmount = Number(btn.dataset.amt);
-        rechargePresets.querySelectorAll('.recharge-preset').forEach((b) => b.classList.remove('active'));
-        btn.classList.add('active');
-        rechargeConfirmBtn.textContent = '确认充值 ¥' + rechargeAmount;
-      });
+    rechargePresets.addEventListener('click', (e) => {
+      const btn = e.target.closest('.recharge-preset');
+      if (!btn) return;
+      rechargeAmount = Number(btn.dataset.amt);
+      rechargePresets.querySelectorAll('.recharge-preset').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
     });
     rechargeConfirmBtn.addEventListener('click', completeRecharge);
+    rechargeSecurityBtn.addEventListener('click', () => showToast('安全提示'));
     rechargeSuccessBtn.addEventListener('click', goToBalanceAfterRecharge);
 
     tabChat.addEventListener('click', () => switchMsgTab('chat'));
@@ -5203,7 +7597,7 @@
     });
 
     document.querySelectorAll('[data-action]').forEach((el) => {
-      if (el === moreBtn || el === msgBtn || el === beansEntry || el === walletEntry || el === restaurantEntry || el === allOrdersBtn || el === couponEntry || el.closest('.notify-card') || el.closest('[data-order-entry]')) return;
+      if (el === moreBtn || el === msgBtn || el === settingsBtn || el === beansEntry || el === walletEntry || el === restaurantEntry || el === allOrdersBtn || el === couponEntry || el.closest('.notify-card') || el.closest('[data-order-entry]')) return;
       el.addEventListener('click', () => showToast('进入：' + el.getAttribute('data-action')));
     });
 
