@@ -1201,7 +1201,8 @@
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 10px;
     }
-    .home-promo-card-title { font-size: 15px; font-weight: 700; color: var(--text); }
+    .home-promo-card-title { font-size: 15px; font-weight: 700; color: var(--text); cursor: pointer; }
+    .home-promo-card-title:active { opacity: 0.7; }
     .home-promo-card-more {
       border: none; background: none; color: #999; font-size: 12px;
       cursor: pointer; font-family: inherit; padding: 0;
@@ -2005,9 +2006,6 @@
       position: absolute; right: 16px; bottom: 12px; font-size: 48px; opacity: 0.9;
     }
     .recommend-body { padding: 0 12px 12px; }
-    .recommend-meta {
-      font-size: 13px; color: #999; margin-bottom: 10px; padding: 0 4px;
-    }
     .view-recommend .scroll { padding-bottom: calc(var(--safe-bottom) + 24px); }
 
     /* 分类页 — 与首页/我的统一粉白色调 */
@@ -2417,6 +2415,10 @@
     .settings-row:last-child { border-bottom: none; }
     .settings-row:active { background: #fafafa; }
     .settings-row-label { color: var(--text); }
+    .settings-row-right {
+      display: flex; align-items: center; gap: 4px; margin-left: auto;
+    }
+    .settings-row-value { font-size: 13px; color: #999; }
     .settings-row-arrow { color: #ccc; font-size: 16px; flex-shrink: 0; margin-left: 8px; }
     .settings-form-wrap { padding: 0 0 24px; }
     .settings-form-group {
@@ -2571,6 +2573,285 @@
       background: var(--pink-light); font-weight: 600;
     }
 
+    /* 我的页 — 双布局模板 */
+    #viewProfile {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+    .profile-layout {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .profile-layout[hidden] { display: none !important; }
+    #viewProfile.profile-tpl-default .profile-layout-default .scroll { background: #f5f5f5; }
+
+    /* 模板二 — 商城列表式个人中心 */
+    .p2-scroll { background: #f5f5f5; }
+    .p2-header {
+      background: linear-gradient(180deg, var(--pink-light) 0%, #f5f5f5 100%);
+      padding: 48px 16px 16px;
+    }
+    .p2-user-card {
+      background: #fff;
+      border-radius: var(--card-radius);
+      padding: 16px 16px 4px;
+      box-shadow: 0 1px 4px rgba(232, 93, 111, 0.08);
+      margin-bottom: 12px;
+    }
+    .p2-user-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+    .p2-user-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+      border: none;
+      background: none;
+      padding: 0;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .p2-user-btn:active { opacity: 0.75; }
+    .p2-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 2px solid #fff;
+      background: #ddd center/cover;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .p2-user-info { flex: 1; min-width: 0; }
+    .p2-user-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .p2-user-phone {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 6px;
+    }
+    .p2-header-actions {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      color: #666;
+    }
+    .p2-stats {
+      display: flex;
+      padding: 14px 0 12px;
+      margin-top: 12px;
+      border-top: 1px solid #f5f5f5;
+    }
+    .p2-stat-btn {
+      flex: 1;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .p2-stat-btn:active { opacity: 0.7; }
+    .p2-stat-num {
+      display: block;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    .p2-stat-label {
+      display: block;
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
+    }
+    .p2-banner {
+      margin: 0 0 12px;
+      padding: 12px 14px;
+      background: #fff8e6;
+      border-radius: var(--card-radius);
+      font-size: 13px;
+      color: #b8860b;
+      display: none;
+    }
+    .p2-order-box {
+      background: #fff;
+      border-radius: var(--card-radius);
+      padding: 14px 12px 16px;
+      box-shadow: 0 1px 4px rgba(232, 93, 111, 0.08);
+    }
+    .p2-card {
+      margin: 0 16px 12px;
+      background: #fff;
+      border-radius: var(--card-radius);
+      padding: 14px 12px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .p2-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding: 0 4px;
+    }
+    .p2-card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .p2-card-link {
+      border: none;
+      background: none;
+      font-size: 13px;
+      color: #999;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 0;
+    }
+    .p2-order-grid {
+      display: flex;
+      justify-content: space-between;
+      gap: 4px;
+    }
+    .p2-order-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      border: none;
+      background: none;
+      padding: 4px 0;
+      cursor: pointer;
+      font-family: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .p2-order-item:active { opacity: 0.75; }
+    .p2-order-icon-wrap {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .p2-order-icon-wrap .badge { top: -2px; right: -6px; }
+    .p2-order-icon-wrap svg {
+      width: 26px;
+      height: 26px;
+      stroke: var(--brand);
+      fill: none;
+      stroke-width: 1.8;
+    }
+    .p2-order-label {
+      font-size: 11px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .p2-menu-group {
+      margin: 0 16px 12px;
+      background: #fff;
+      border-radius: var(--card-radius);
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(232, 93, 111, 0.08);
+    }
+    .p2-menu-row {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 15px 16px;
+      border: none;
+      background: #fff;
+      border-bottom: 1px solid #f5f5f5;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: left;
+      gap: 12px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .p2-menu-row:last-child { border-bottom: none; }
+    .p2-menu-row:active { background: #fafafa; }
+    .p2-menu-icon {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .p2-menu-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+    }
+    .p2-menu-label {
+      flex: 1;
+      font-size: 15px;
+      color: var(--text);
+    }
+    .p2-menu-arrow {
+      color: #ccc;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    /* 模板选择页 */
+    .tpl-list { display: flex; flex-direction: column; gap: 12px; }
+    .tpl-item {
+      display: flex; align-items: center; gap: 14px;
+      width: 100%; padding: 14px; border: 2px solid transparent;
+      border-radius: var(--card-radius); background: #fff;
+      cursor: pointer; font-family: inherit; text-align: left;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .tpl-item:active { opacity: 0.92; }
+    .tpl-item.active { border-color: var(--brand); background: var(--pink-light); }
+    .tpl-preview {
+      width: 56px; height: 72px; border-radius: 8px; flex-shrink: 0;
+      overflow: hidden; position: relative; border: 1px solid rgba(0,0,0,0.06);
+    }
+    .tpl-preview-bar { height: 22px; }
+    .tpl-preview-body { padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+    .tpl-preview-line { height: 5px; border-radius: 3px; }
+    .tpl-preview-card { height: 14px; border-radius: 3px; background: #fff; opacity: 0.92; }
+    .tpl-preview-default .tpl-preview-bar { background: linear-gradient(180deg, #fde8ee, #f5f5f5); }
+    .tpl-preview-default .tpl-preview-body { background: #f5f5f5; }
+    .tpl-preview-default .tpl-preview-line { background: #e85d6f; opacity: 0.35; }
+    .tpl-preview-style2 .tpl-preview-bar { background: linear-gradient(180deg, #fde8ee, #f5f5f5); }
+    .tpl-preview-style2 .tpl-preview-body { background: #f5f5f5; }
+    .tpl-preview-style2 .tpl-preview-line { background: #333; opacity: 0.15; height: 4px; }
+    .tpl-preview-style2 .tpl-preview-card { background: #fff; height: 10px; border-radius: 2px; }
+    .tpl-info { flex: 1; min-width: 0; }
+    .tpl-name { display: block; font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .tpl-desc { display: block; font-size: 12px; color: #999; line-height: 1.4; }
+    .tpl-badge {
+      font-size: 11px; color: var(--brand); background: #fff;
+      padding: 3px 8px; border-radius: 10px; flex-shrink: 0;
+      border: 1px solid rgba(232,93,111,0.25);
+    }
+    .tpl-item:not(.active) .tpl-badge { display: none; }
+    .tpl-tip {
+      font-size: 12px; color: #999; line-height: 1.6;
+      padding: 4px 4px 16px;
+    }
+
     /* 关于我们 */
     .about-body {
       flex: 1; display: flex; flex-direction: column;
@@ -2687,7 +2968,8 @@
   <div class="app-shell">
   <div class="phone" id="phone">
     <!-- 我的页面 -->
-    <div class="view slide-in-right" id="viewProfile">
+    <div class="view slide-in-right profile-tpl-default" id="viewProfile">
+      <div class="profile-layout profile-layout-default" id="profileLayoutDefault">
       <div class="scroll" id="scroll">
         <header class="header">
           <div class="user-row">
@@ -2789,6 +3071,158 @@
           </div>
         </section>
       </div>
+      </div>
+
+      <div class="profile-layout profile-layout-style2" id="profileLayoutStyle2" hidden>
+        <div class="scroll p2-scroll" id="p2Scroll">
+          <header class="p2-header">
+            <div class="p2-user-card">
+            <div class="p2-user-row">
+              <button type="button" class="p2-user-btn" data-profile-link="edit" aria-label="编辑资料">
+                <div class="p2-avatar" id="p2Avatar"></div>
+                <div class="p2-user-info">
+                  <div class="p2-user-name" id="p2UserName">商</div>
+                  <div class="p2-user-phone">175******96</div>
+                </div>
+              </button>
+              <div class="p2-header-actions">
+                <button type="button" class="icon-btn" data-profile-link="msg" aria-label="消息中心">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  <span class="badge" id="p2MsgIconBadge">6</span>
+                </button>
+                <button type="button" class="icon-btn" data-profile-link="settings" aria-label="设置">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="p2-stats">
+              <button type="button" class="p2-stat-btn" data-profile-link="wallet">
+                <span class="p2-stat-num" id="p2WalletAmt">510.26</span>
+                <span class="p2-stat-label">钱包</span>
+              </button>
+              <button type="button" class="p2-stat-btn" data-profile-link="beans">
+                <span class="p2-stat-num">155</span>
+                <span class="p2-stat-label">百货豆</span>
+              </button>
+              <button type="button" class="p2-stat-btn" data-profile-link="coupon">
+                <span class="p2-stat-num" id="p2CouponAmt">31</span>
+                <span class="p2-stat-label">优惠券</span>
+              </button>
+            </div>
+            </div>
+
+            <div class="p2-banner" id="p2PendingBanner">⚠ 您有 2 笔订单待处理</div>
+
+            <section class="p2-order-box">
+              <div class="p2-card-head">
+                <span class="p2-card-title">我的订单</span>
+                <button type="button" class="p2-card-link" data-profile-link="orders-all">全部订单 ›</button>
+              </div>
+              <div class="p2-order-grid">
+                <button type="button" class="p2-order-item" data-profile-link="unpaid">
+                  <div class="p2-order-icon-wrap">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                    <span class="badge hidden" id="p2BadgeUnpaid">0</span>
+                  </div>
+                  <span class="p2-order-label">待付款</span>
+                </button>
+                <button type="button" class="p2-order-item" data-profile-link="pickup">
+                  <div class="p2-order-icon-wrap">
+                    <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    <span class="badge hidden" id="p2BadgePickup">0</span>
+                  </div>
+                  <span class="p2-order-label">待自提</span>
+                </button>
+                <button type="button" class="p2-order-item" data-profile-link="receive">
+                  <div class="p2-order-icon-wrap">
+                    <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                    <span class="badge hidden" id="p2BadgeReceive">0</span>
+                  </div>
+                  <span class="p2-order-label">待收货</span>
+                </button>
+                <button type="button" class="p2-order-item" data-profile-link="review">
+                  <div class="p2-order-icon-wrap">
+                    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span class="badge hidden" id="p2BadgeReview">0</span>
+                  </div>
+                  <span class="p2-order-label">待评价</span>
+                </button>
+              </div>
+            </section>
+          </header>
+
+          <div class="p2-menu-group">
+            <button type="button" class="p2-menu-row" data-profile-link="restaurant">
+              <span class="p2-menu-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8"/></svg></span>
+              <span class="p2-menu-label">餐厅充值</span>
+              <span class="p2-menu-arrow">›</span>
+            </button>
+            <button type="button" class="p2-menu-row" data-action="地址管理">
+              <span class="p2-menu-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+              <span class="p2-menu-label">地址管理</span>
+              <span class="p2-menu-arrow">›</span>
+            </button>
+            <button type="button" class="p2-menu-row" data-action="联系客服">
+              <span class="p2-menu-icon"><svg viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></span>
+              <span class="p2-menu-label">联系客服</span>
+              <span class="p2-menu-arrow">›</span>
+            </button>
+            <button type="button" class="p2-menu-row" data-action="意见反馈">
+              <span class="p2-menu-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+              <span class="p2-menu-label">意见反馈</span>
+              <span class="p2-menu-arrow">›</span>
+            </button>
+          </div>
+
+          <div class="p2-menu-group">
+            <button type="button" class="p2-menu-row" data-action="我的推荐">
+              <span class="p2-menu-icon"><svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></span>
+              <span class="p2-menu-label">我的推荐</span>
+              <span class="p2-menu-arrow">›</span>
+            </button>
+            <button type="button" class="p2-menu-row" data-action="推客中心">
+              <span class="p2-menu-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+              <span class="p2-menu-label">推客中心</span>
+              <span class="p2-menu-arrow">›</span>
+            </button>
+            <button type="button" class="p2-menu-row" data-action="设置名片">
+              <span class="p2-menu-icon"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
+              <span class="p2-menu-label">设置名片</span>
+              <span class="p2-menu-arrow">›</span>
+            </button>
+            <button type="button" class="p2-menu-row" data-action="名片夹">
+              <span class="p2-menu-icon"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+              <span class="p2-menu-label">名片夹</span>
+              <span class="p2-menu-arrow">›</span>
+            </button>
+            <button type="button" class="p2-menu-row" data-action="免密支付">
+              <span class="p2-menu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+              <span class="p2-menu-label">免密支付</span>
+              <span class="p2-menu-arrow">›</span>
+            </button>
+            <button type="button" class="p2-menu-row" data-action="全球精选">
+              <span class="p2-menu-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+              <span class="p2-menu-label">全球精选</span>
+              <span class="p2-menu-arrow">›</span>
+            </button>
+            <button type="button" class="p2-menu-row" data-action="信息收集">
+              <span class="p2-menu-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+              <span class="p2-menu-label">信息收集</span>
+              <span class="p2-menu-arrow">›</span>
+            </button>
+            <button type="button" class="p2-menu-row" data-action="商户管理">
+              <span class="p2-menu-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+              <span class="p2-menu-label">商户管理</span>
+              <span class="p2-menu-arrow">›</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 编辑资料 -->
@@ -2819,6 +3253,13 @@
       </div>
       <div class="scroll settings-body">
         <div class="settings-group">
+          <button type="button" class="settings-row" id="settingsTemplate">
+            <span class="settings-row-label">切换模板</span>
+            <span class="settings-row-right">
+              <span class="settings-row-value" id="settingsTemplateCurrent">默认模板</span>
+              <span class="settings-row-arrow">›</span>
+            </span>
+          </button>
           <button type="button" class="settings-row" id="settingsAccountSecurity">
             <span class="settings-row-label">账号安全</span>
             <span class="settings-row-arrow">›</span>
@@ -2832,6 +3273,20 @@
             <span class="settings-row-arrow">›</span>
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- 切换模板 -->
+    <div class="view slide-in-right view-settings-page" id="viewTemplateSettings">
+      <div class="settings-nav">
+        <div class="settings-nav-top">
+          <button type="button" class="msg-back" id="templateSettingsBack" aria-label="返回">‹</button>
+          <span class="settings-title">切换模板</span>
+        </div>
+      </div>
+      <div class="scroll settings-body">
+        <p class="tpl-tip">选择「我的」页面布局样式，切换后立即生效。</p>
+        <div class="tpl-list" id="templateList"></div>
       </div>
     </div>
 
@@ -3399,14 +3854,14 @@
             <div class="home-cat-dots" id="homeCatDots"></div>
           </div>
           <div class="home-promo-dual">
-            <div class="home-promo-card">
+            <div class="home-promo-card" data-promo-list="discount">
               <div class="home-promo-card-head">
                 <span class="home-promo-card-title">优惠商品</span>
                 <button type="button" class="home-promo-card-more" data-promo-more="discount">更多 ›</button>
               </div>
               <div class="home-promo-items" id="homeDiscountItems"></div>
             </div>
-            <div class="home-promo-card">
+            <div class="home-promo-card" data-promo-list="often">
               <div class="home-promo-card-head">
                 <span class="home-promo-card-title">常买好物</span>
                 <button type="button" class="home-promo-card-more" data-promo-more="often">更多 ›</button>
@@ -3624,16 +4079,15 @@
       <div class="search-nav" style="background:#fff">
         <div class="search-nav-top">
           <button type="button" class="msg-back" id="recommendBack" aria-label="返回">‹</button>
-          <span class="search-nav-title">店主推荐</span>
+          <span class="search-nav-title" id="recommendNavTitle">店主推荐</span>
         </div>
       </div>
       <div class="scroll">
         <div class="recommend-hero">
-          <div class="recommend-hero-title">店主推荐选好货</div>
-          <span class="recommend-hero-deco">🧧💰</span>
+          <div class="recommend-hero-title" id="recommendHeroTitle">店主推荐选好货</div>
+          <span class="recommend-hero-deco" id="recommendHeroDeco">🧧💰</span>
         </div>
         <div class="recommend-body">
-          <div class="recommend-meta" id="recommendMeta"></div>
           <div class="search-hot-products" id="recommendProductList"></div>
         </div>
       </div>
@@ -3758,6 +4212,18 @@
   <script>
     const phone = document.getElementById('phone');
     const viewProfile = document.getElementById('viewProfile');
+    const profileLayoutDefault = document.getElementById('profileLayoutDefault');
+    const profileLayoutStyle2 = document.getElementById('profileLayoutStyle2');
+    const p2Avatar = document.getElementById('p2Avatar');
+    const p2UserName = document.getElementById('p2UserName');
+    const p2WalletAmt = document.getElementById('p2WalletAmt');
+    const p2CouponAmt = document.getElementById('p2CouponAmt');
+    const p2PendingBanner = document.getElementById('p2PendingBanner');
+    const p2MsgIconBadge = document.getElementById('p2MsgIconBadge');
+    const p2BadgeUnpaid = document.getElementById('p2BadgeUnpaid');
+    const p2BadgePickup = document.getElementById('p2BadgePickup');
+    const p2BadgeReceive = document.getElementById('p2BadgeReceive');
+    const p2BadgeReview = document.getElementById('p2BadgeReview');
     const viewMessage = document.getElementById('viewMessage');
     const viewBeans = document.getElementById('viewBeans');
     const viewBeansDetail = document.getElementById('viewBeansDetail');
@@ -3792,6 +4258,10 @@
     const avatarCameraInput = document.getElementById('avatarCameraInput');
     const settingsBtn = document.getElementById('settingsBtn');
     const settingsBack = document.getElementById('settingsBack');
+    const settingsTemplate = document.getElementById('settingsTemplate');
+    const settingsTemplateCurrent = document.getElementById('settingsTemplateCurrent');
+    const templateSettingsBack = document.getElementById('templateSettingsBack');
+    const templateList = document.getElementById('templateList');
     const settingsAccountSecurity = document.getElementById('settingsAccountSecurity');
     const settingsInvoice = document.getElementById('settingsInvoice');
     const settingsAbout = document.getElementById('settingsAbout');
@@ -4013,7 +4483,9 @@
     const catSubPanelClose = document.getElementById('catSubPanelClose');
     const catSubPanelGrid = document.getElementById('catSubPanelGrid');
     const recommendBack = document.getElementById('recommendBack');
-    const recommendMeta = document.getElementById('recommendMeta');
+    const recommendNavTitle = document.getElementById('recommendNavTitle');
+    const recommendHeroTitle = document.getElementById('recommendHeroTitle');
+    const recommendHeroDeco = document.getElementById('recommendHeroDeco');
     const recommendProductList = document.getElementById('recommendProductList');
     let toastTimer;
     let confirmCallback = null;
@@ -4466,6 +4938,11 @@
     const navStack = ['viewHome'];
 
     const PROFILE_STORAGE_KEY = 'mall_user_profile';
+    const PROFILE_TEMPLATE_KEY = 'mall_profile_template';
+    const PROFILE_TEMPLATES = [
+      { id: 'default', name: '默认模板', desc: '卡片宫格，经典布局', previewClass: 'tpl-preview-default' },
+      { id: 'style2', name: '模板二', desc: '列表式个人中心，参考商城样式', previewClass: 'tpl-preview-style2' },
+    ];
     const DEFAULT_AVATAR_URL = 'data:image/svg+xml,' + encodeURIComponent(
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">' +
       '<rect fill="#f0e6dc" width="200" height="200"/>' +
@@ -4487,6 +4964,7 @@
       '</svg>'
     );
     let userProfile = { nickname: '商', avatar: '' };
+    let profileTemplate = 'default';
     let profileEditDraft = { nickname: '商', avatar: '' };
 
     const USER_PHONE = '17542946396';
@@ -4742,6 +5220,8 @@
     function renderProfileHeader() {
       profileUserName.textContent = userProfile.nickname || '商';
       applyAvatarToEl(profileAvatar, userProfile.avatar);
+      if (p2UserName) p2UserName.textContent = userProfile.nickname || '商';
+      if (p2Avatar) applyAvatarToEl(p2Avatar, userProfile.avatar);
     }
 
     function renderProfileEditForm() {
@@ -4810,7 +5290,123 @@
     }
 
     function openSettings() {
+      updateSettingsTemplateLabel();
       pushView('viewSettings');
+    }
+
+    function getProfileTemplateInfo(id) {
+      return PROFILE_TEMPLATES.find((t) => t.id === id) || PROFILE_TEMPLATES[0];
+    }
+
+    function loadProfileTemplate() {
+      try {
+        const saved = localStorage.getItem(PROFILE_TEMPLATE_KEY);
+        if (saved && PROFILE_TEMPLATES.some((t) => t.id === saved)) {
+          profileTemplate = saved;
+        }
+      } catch (_) {}
+      applyProfileTemplate(profileTemplate, { silent: true });
+    }
+
+    function saveProfileTemplate(id) {
+      profileTemplate = id;
+      try {
+        localStorage.setItem(PROFILE_TEMPLATE_KEY, id);
+      } catch (_) {}
+    }
+
+    function applyProfileTemplate(id, opts) {
+      const options = opts || {};
+      const tpl = getProfileTemplateInfo(id);
+      PROFILE_TEMPLATES.forEach((t) => {
+        viewProfile.classList.remove('profile-tpl-' + t.id);
+      });
+      viewProfile.classList.add('profile-tpl-' + tpl.id);
+      if (profileLayoutDefault) profileLayoutDefault.hidden = tpl.id !== 'default';
+      if (profileLayoutStyle2) profileLayoutStyle2.hidden = tpl.id !== 'style2';
+      saveProfileTemplate(tpl.id);
+      updateSettingsTemplateLabel();
+      if (templateList) renderTemplateList();
+      syncProfileStyle2UI();
+      if (!options.silent) showToast('已切换为「' + tpl.name + '」');
+    }
+
+    function handleProfileStyle2Link(link) {
+      switch (link) {
+        case 'edit': openProfileEdit(); break;
+        case 'msg': openMessage(); break;
+        case 'settings': openSettings(); break;
+        case 'wallet': popToProfile(); openPlatformBalance(); break;
+        case 'beans': openBeans(); break;
+        case 'coupon': openCoupons(); break;
+        case 'orders-all': popToProfile(); openOrders('all'); break;
+        case 'unpaid': openOrders('unpaid'); break;
+        case 'pickup': openOrders('pickup'); break;
+        case 'receive': openOrders('receive'); break;
+        case 'review': openOrders('review'); break;
+        case 'restaurant': popToProfile(); openRestaurant(); break;
+        default: break;
+      }
+    }
+
+    function initProfileStyle2() {
+      if (!profileLayoutStyle2) return;
+      profileLayoutStyle2.addEventListener('click', (e) => {
+        const linkEl = e.target.closest('[data-profile-link]');
+        if (linkEl) {
+          handleProfileStyle2Link(linkEl.dataset.profileLink);
+          return;
+        }
+        const actionEl = e.target.closest('[data-action]');
+        if (actionEl) showToast('进入：' + actionEl.dataset.action);
+      });
+    }
+
+    function syncProfileStyle2UI() {
+      if (p2WalletAmt) p2WalletAmt.textContent = platformBalance.toFixed(2);
+    }
+
+    function updateSettingsTemplateLabel() {
+      if (settingsTemplateCurrent) {
+        settingsTemplateCurrent.textContent = getProfileTemplateInfo(profileTemplate).name;
+      }
+    }
+
+    function renderTemplatePreview(tpl) {
+      return `
+        <div class="tpl-preview ${tpl.previewClass}">
+          <div class="tpl-preview-bar"></div>
+          <div class="tpl-preview-body">
+            <div class="tpl-preview-line"></div>
+            <div class="tpl-preview-card"></div>
+            <div class="tpl-preview-card"></div>
+          </div>
+        </div>`;
+    }
+
+    function renderTemplateList() {
+      if (!templateList) return;
+      templateList.innerHTML = PROFILE_TEMPLATES.map((tpl) => `
+        <button type="button" class="tpl-item${tpl.id === profileTemplate ? ' active' : ''}" data-template="${tpl.id}">
+          ${renderTemplatePreview(tpl)}
+          <span class="tpl-info">
+            <span class="tpl-name">${tpl.name}</span>
+            <span class="tpl-desc">${tpl.desc}</span>
+          </span>
+          <span class="tpl-badge">使用中</span>
+        </button>
+      `).join('');
+      templateList.querySelectorAll('[data-template]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (btn.dataset.template === profileTemplate) return;
+          applyProfileTemplate(btn.dataset.template);
+        });
+      });
+    }
+
+    function openTemplateSettings() {
+      renderTemplateList();
+      pushView('viewTemplateSettings');
     }
 
     function isValidPhone(phone) {
@@ -5071,6 +5667,8 @@
     function initSettingsModule() {
       renderPayPwdKeypad();
       loadInvoiceTitles();
+      loadProfileTemplate();
+      initProfileStyle2();
       if (aboutLogo) aboutLogo.innerHTML = SVG_ABOUT_BIRD;
     }
 
@@ -5336,6 +5934,42 @@
         </button>`;
     }
 
+    let recommendPageMode = 'recommend';
+
+    const PROMO_LIST_PAGES = {
+      recommend: {
+        navTitle: '店主推荐',
+        heroTitle: '店主推荐选好货',
+        heroDeco: '🧧💰',
+        getProducts: () => getHomeRecommendProducts(),
+        tags: ['TOP1', '热销', '精选', '推荐', '爆款', '优选', '热卖', '必买', '特惠'],
+      },
+      discount: {
+        navTitle: '优惠商品',
+        heroTitle: '优惠好物精选',
+        heroDeco: '🏷️💰',
+        getProducts: () => getHomeDiscountProducts(),
+        tags: ['特惠', '低价', '秒杀', '立减', '优惠', '爆款', '热卖', '精选', '必买'],
+      },
+      often: {
+        navTitle: '常买好物',
+        heroTitle: '常买好物回购榜',
+        heroDeco: '🛒⭐',
+        getProducts: () => getHomeOftenProducts(),
+        tags: ['常买', '回购', '热销', '精选', '推荐', '口碑', '必买', '优选', '热卖'],
+      },
+    };
+
+    function openPromoListPage(mode) {
+      const config = PROMO_LIST_PAGES[mode] || PROMO_LIST_PAGES.recommend;
+      recommendPageMode = mode;
+      if (recommendNavTitle) recommendNavTitle.textContent = config.navTitle;
+      if (recommendHeroTitle) recommendHeroTitle.textContent = config.heroTitle;
+      if (recommendHeroDeco) recommendHeroDeco.textContent = config.heroDeco;
+      renderHomeProductGrid(recommendProductList, config.getProducts(), { tags: config.tags });
+      pushView('viewRecommend');
+    }
+
     function renderHomePromoCards() {
       if (homeDiscountItems) {
         homeDiscountItems.innerHTML = getHomeDiscountProducts().slice(0, 2).map(renderHomePromoItem).join('');
@@ -5343,23 +5977,22 @@
       if (homeOftenItems) {
         homeOftenItems.innerHTML = getHomeOftenProducts().slice(0, 2).map(renderHomePromoItem).join('');
       }
+      document.querySelectorAll('[data-promo-list] .home-promo-card-title').forEach((title) => {
+        title.onclick = () => openPromoListPage(title.closest('[data-promo-list]').dataset.promoList);
+      });
       document.querySelectorAll('[data-promo-more]').forEach((btn) => {
-        btn.onclick = () => {
-          if (btn.dataset.promoMore === 'discount') {
-            homeTabMode = 'discount';
-            renderHomeProducts();
-            homeProducts.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          } else {
-            homeTabMode = 'often';
-            renderHomeProducts();
-            homeProducts.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          openPromoListPage(btn.dataset.promoMore);
         };
       });
       [homeDiscountItems, homeOftenItems].forEach((el) => {
         if (!el) return;
         el.querySelectorAll('[data-product]').forEach((item) => {
-          item.addEventListener('click', () => openProductDetail(item.dataset.product));
+          item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openProductDetail(item.dataset.product);
+          });
         });
       });
     }
@@ -5458,8 +6091,8 @@
 
     function refreshRecommendIfVisible() {
       if (navStack[navStack.length - 1] !== 'viewRecommend') return;
-      const tags = ['TOP1', '热销', '精选', '推荐', '爆款', '优选', '热卖', '必买', '特惠'];
-      renderHomeProductGrid(recommendProductList, getHomeRecommendProducts(), { tags });
+      const config = PROMO_LIST_PAGES[recommendPageMode] || PROMO_LIST_PAGES.recommend;
+      renderHomeProductGrid(recommendProductList, config.getProducts(), { tags: config.tags });
     }
 
     function setupHorizontalScroll({ scrollEl, fadeLeft, fadeRight }) {
@@ -6539,10 +7172,7 @@
     }
 
     function openRecommend() {
-      const tags = ['TOP1', '热销', '精选', '推荐', '爆款', '优选', '热卖', '必买', '特惠'];
-      const list = renderHomeProductGrid(recommendProductList, getHomeRecommendProducts(), { tags });
-      recommendMeta.textContent = `共 ${list.length} 件店主精选，与首页推荐商品同步`;
-      pushView('viewRecommend');
+      openPromoListPage('recommend');
     }
 
     function showConfirm(msg, onYes) {
@@ -6727,6 +7357,7 @@
 
     function updateBalanceUI() {
       profileWalletAmt.textContent = platformBalance.toFixed(2);
+      if (p2WalletAmt) p2WalletAmt.textContent = platformBalance.toFixed(2);
       platformBalanceAmt.textContent = formatMoney(platformBalance);
       restaurantBalanceAmt.textContent = '¥ ' + restaurantBalance.toFixed(1);
       platformWarn.classList.toggle('show', platformBalance < PLATFORM_THRESHOLD);
@@ -6980,6 +7611,9 @@
       if (couponMain === 'coupon' && profileCouponAmt) {
         profileCouponAmt.textContent = counts.available;
       }
+      if (couponMain === 'coupon' && p2CouponAmt) {
+        p2CouponAmt.textContent = counts.available;
+      }
     }
 
     function renderCouponCard(c) {
@@ -7221,8 +7855,13 @@
         const text = total > 99 ? '99+' : String(total);
         msgIconBadge.textContent = text;
         msgIconBadge.classList.remove('hidden');
+        if (p2MsgIconBadge) {
+          p2MsgIconBadge.textContent = text;
+          p2MsgIconBadge.classList.remove('hidden');
+        }
       } else {
         msgIconBadge.classList.add('hidden');
+        if (p2MsgIconBadge) p2MsgIconBadge.classList.add('hidden');
       }
       if (notifyCount > 0) {
         notifyTabBadge.textContent = notifyCount > 99 ? '99+' : String(notifyCount);
@@ -7263,13 +7902,20 @@
       setOrderBadge(badgePickup, pickup);
       setOrderBadge(badgeReceive, receive);
       setOrderBadge(badgeReview, review);
+      setOrderBadge(p2BadgeUnpaid, unpaid);
+      setOrderBadge(p2BadgePickup, pickup);
+      setOrderBadge(p2BadgeReceive, receive);
+      setOrderBadge(p2BadgeReview, review);
       setOrderBadge(ordersTabPickupBadge, pickup);
       const pending = unpaid + pickup;
+      const pendingText = pending > 0 ? `⚠ 您有 ${pending} 笔订单待处理` : '';
       if (pendingBanner) {
-        pendingBanner.textContent = pending > 0
-          ? `⚠ 您有 ${pending} 笔订单待处理`
-          : '';
+        pendingBanner.textContent = pendingText;
         pendingBanner.style.display = pending > 0 ? 'block' : 'none';
+      }
+      if (p2PendingBanner) {
+        p2PendingBanner.textContent = pendingText;
+        p2PendingBanner.style.display = pending > 0 ? 'block' : 'none';
       }
     }
 
@@ -7347,6 +7993,8 @@
 
     settingsBtn.addEventListener('click', openSettings);
     settingsBack.addEventListener('click', popView);
+    settingsTemplate.addEventListener('click', openTemplateSettings);
+    templateSettingsBack.addEventListener('click', popView);
     settingsAccountSecurity.addEventListener('click', () => pushView('viewAccountSecurity'));
     settingsInvoice.addEventListener('click', openInvoiceManage);
     settingsAbout.addEventListener('click', openAbout);
